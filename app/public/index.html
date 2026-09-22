@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harborlight Stays</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__inner">
+        <p class="hero__eyebrow">Security workshop demo</p>
+        <h1>🏨 Harborlight Stays</h1>
+        <p class="hero__copy">
+          Search curated hotel listings with a fast, simple booking-style experience.
+        </p>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="search-panel" aria-labelledby="search-title">
+        <div class="search-panel__intro">
+          <h2 id="search-title">Find your next stay</h2>
+          <p>Enter a city to browse available hotels from the challenge dataset.</p>
+        </div>
+
+        <form id="search-form" class="search-form" novalidate>
+          <label class="sr-only" for="city-input">City</label>
+          <input
+            id="city-input"
+            name="city"
+            type="text"
+            placeholder="Search by city, for example Paris"
+            autocomplete="off"
+          />
+          <button type="submit">Search</button>
+        </form>
+
+        <div class="quick-search" aria-label="Suggested cities">
+          <span class="quick-search__label">Try:</span>
+          <button class="chip" type="button" data-city="Paris">Paris</button>
+          <button class="chip" type="button" data-city="Berlin">Berlin</button>
+          <button class="chip" type="button" data-city="Lisbon">Lisbon</button>
+          <button class="chip" type="button" data-city="Tokyo">Tokyo</button>
+        </div>
+      </section>
+
+      <section class="results-section" aria-live="polite" aria-busy="false">
+        <div class="results-header">
+          <div>
+            <p class="section-kicker">Search results</p>
+            <h2 id="results-title">Start with a city search</h2>
+          </div>
+          <p id="results-summary" class="results-summary">
+            Use the search box or a suggested city to load hotels.
+          </p>
+        </div>
+
+        <div id="results-grid" class="results-grid"></div>
+      </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
