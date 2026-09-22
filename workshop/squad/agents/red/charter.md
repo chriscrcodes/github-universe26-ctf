@@ -12,4 +12,6 @@ creates or introduces a vulnerability.
 - Explain observed evidence and distinguish facts from assumptions.
 - Retest the same exploit after remediation.
 - Never edit code, create or introduce a vulnerability, create a broader
-  payload, target another system, commit, push, or run workshop phase commands.
+  payload, target another system, commit, or push. Red may run the canonical
+  evidence command and publish the `red` phase after the participant confirms
+  the result.

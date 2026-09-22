@@ -118,13 +118,22 @@ human/automation boundary.
 
    ```bash
    squad init --no-workflows
+   ```
+
+   Keep this command interactive. When Squad asks whether to add the Copilot
+   agent, answer **No**; the workshop uses the local Squad team installed
+   below.
+
+   ```bash
    npm run squad:install-workshop-team
    squad doctor
    ```
 
-1. Continue with [Step 1](.github/steps/1-step.md). From this point, ask
-   Squad to start the application and run the workshop checks; you do not need
-   to type the individual npm evidence commands.
+1. Open Copilot CLI, select the local **Squad** agent with `/agent`, and choose
+   **Allow all** when Copilot asks for permission to run the workshop tools.
+   Continue with [Step 1](.github/steps/1-step.md). From this point, ask Squad
+   to start the application and run the workshop checks; you do not need to
+   type the individual npm evidence commands.
 
 > [!IMPORTANT]
 > For EMU, **one repository per participant is recommended**. A shared `main`

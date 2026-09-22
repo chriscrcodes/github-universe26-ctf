@@ -23,4 +23,6 @@
    verify` and `npm run regressions`; only after both pass does Blue commit,
    push `main`, and confirm the pushed commit.
 4. Red retests the supplied exploit after Blue's change.
-5. Only the participant runs workshop phase commands.
+5. The participant decides when a phase is ready. After that decision, the
+   routed agent runs the workshop evidence and phase commands; the participant
+   does not need to type the internal npm commands.

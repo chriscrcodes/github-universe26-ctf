@@ -21,12 +21,18 @@ only published inventory.
    responds locally, and keep this terminal available for our investigation.
    ```
 
-1. Select Squad with `/agent`, then ask Red in clear English:
+1. Select Squad with `/agent`. If Copilot asks for permission to run tools,
+   choose **Allow all** for this workshop session. Then ask the Squad
+   coordinator to dispatch Red with this complete prompt:
 
    ```text
-   Present the expected public boundary and ask me to predict the result. Then
-   ask Red to reproduce only the supplied local payload. Separate observed
-   facts from conclusions.
+   Squad, dispatch Red now. Present the expected public boundary and ask me to
+   predict the result before running anything. Red must reproduce only this
+   supplied local read-only payload against the local application:
+   city=%27%20OR%201%3D1%20--%20
+   (URL-encoded form of the supplied read-only payload: `' OR 1=1 -- `)
+   Separate observed facts from conclusions. Do not invent another payload,
+   target an external system, or edit code.
    ```
 
 1. Before Red runs anything, predict the result:
@@ -49,8 +55,11 @@ only published inventory.
 
 - Ask Squad to inspect `.workshop-app.log` if the background application does
   not respond.
-- Red must use only `npm run exploit`; do not paste credentials or tokens into
-  Copilot.
+- Red must use only the canonical local exploit; do not paste credentials or
+  tokens into Copilot.
+- If Squad says that no payload was supplied or that it cannot dispatch Red,
+  confirm that you selected the local Squad agent with `/agent`, selected
+  **Allow all**, and used the complete prompt above.
 - If the output differs, record the actual output and ask Red to explain it
   before moving on.
 
