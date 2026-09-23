@@ -43,6 +43,7 @@ normalization that strips a few characters is hygiene, not a SQL defence.
 1. If CodeQL is pending, say so explicitly and use the facilitator's reference
    finding as fallback evidence. Do not claim a clean result before a scan
    completes.
+1. Continue to [Step 3](3-step.md) once the `purple` phase is published.
 
 <details>
 <summary>Having trouble? 🤷</summary><br/>

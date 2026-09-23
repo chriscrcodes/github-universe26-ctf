@@ -44,8 +44,9 @@ the database boundary.
    do not need to type the npm command yourself.
 
 1. Ask Green to hand the exact approved patch to Blue. Green never edits code.
-1. Continue to Step 4. The Green phase is published only after Blue has applied
-   the approved patch and the deterministic verification passes.
+1. Continue to Step 4 → [4-step.md](4-step.md). The Green phase is published
+   only after Blue has applied the approved patch and the deterministic
+   verification passes.
 
 <details>
 <summary>Having trouble? 🤷</summary><br/>

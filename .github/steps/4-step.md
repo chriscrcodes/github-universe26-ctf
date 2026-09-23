@@ -55,6 +55,7 @@ immediate evidence; CodeQL may remain pending until its scan completes.
 1. Ask Squad to publish the `blue` phase after the evidence is complete. Squad
    then prints your local capture recap: the phases you completed and the flag
    you captured. That recap is authoritative even if the scoreboard is offline.
+1. Continue to the [Review](x-review.md) once the `blue` phase is published.
 
 <details>
 <summary>Having trouble? 🤷</summary><br/>
