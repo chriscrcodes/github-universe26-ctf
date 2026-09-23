@@ -48,10 +48,11 @@ immediate evidence; CodeQL may remain pending until its scan completes.
    Ask Blue to run the regression evidence after `main` is pushed, then ask Red
    to replay only the supplied payload.
 
-1. Record both scan states accurately: **CodeQL pending** while the new scan is
-   queued/running, and **CodeQL clean** only after the completed scan reports no
-   relevant alert. Local regressions passing does not by itself mean CodeQL is
-   clean.
+1. Check the CodeQL result in your repository's **Security → Code scanning**
+   page (`https://github.com/<handle>/github-universe26-ctf/security/code-scanning`).
+   Record **CodeQL pending** while the scan is queued/running, and **CodeQL
+   clean** only after the completed scan reports no relevant alert. Local
+   regressions passing does not by itself mean CodeQL is clean.
 1. Ask Squad to publish the `blue` phase after the evidence is complete. Squad
    then prints your local capture recap: the phases you completed and the flag
    you captured. That recap is authoritative even if the scoreboard is offline.

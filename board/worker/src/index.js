@@ -262,7 +262,7 @@ app.post("/api/events", async (c) => {
     return jsonError(c, 409, "team must register with started");
   } else {
     const countRow = await c.env.BOARD_DB.prepare("SELECT COUNT(*) AS count FROM teams").first();
-    if (Number(countRow?.count || 0) >= 60) {
+    if (Number(countRow?.count || 0) >= 74) {
       return jsonError(c, 409, "board capacity reached");
     }
   }

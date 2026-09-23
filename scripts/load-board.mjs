@@ -1,6 +1,6 @@
 import { BOARD_URL, request } from "../test/http.mjs";
 
-const teams = Math.min(60, Math.max(1, Number(process.env.TEAMS || 60)));
+const teams = Math.min(74, Math.max(1, Number(process.env.TEAMS || 74)));
 const sessionId = process.env.SESSION_ID || `load-test-${Date.now()}`;
 const phases = ["started", "red", "purple", "green", "blue"];
 const boardToken = process.env.BOARD_TOKEN || "";

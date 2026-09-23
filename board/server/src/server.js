@@ -207,7 +207,7 @@ function createBoard(options = {}) {
       }
     } else if (incoming.phase !== "started") {
       return jsonError(res, 409, "team must register with started");
-    } else if (teams.size >= 60) {
+    } else if (teams.size >= 74) {
       return jsonError(res, 409, "board capacity reached");
     }
 

@@ -14,9 +14,16 @@ test("worker deployment config does not pin the session ID", async () => {
   assert.doesNotMatch(config, /"BOARD_SESSION_ID"\s*:/);
 });
 
-test("worker rate limiter permits sixty registrations behind one NAT", () => {
+test("worker deployment config uses the requested Cloudflare name", async () => {
+  const config = JSON.parse(await readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8"));
+  assert.equal(config.name, "ghu26-tru1378s-board");
+  assert.equal(config.d1_databases[0].database_name, config.name);
+  assert.match(config.d1_databases[0].database_id, /^[0-9a-f-]{36}$/);
+});
+
+test("worker rate limiter permits seventy-four registrations behind one NAT", () => {
   const limiter = createEventRateLimiter();
-  for (let index = 0; index < 60; index += 1) {
+  for (let index = 0; index < 74; index += 1) {
     assert.equal(limiter.take({
       ip: "192.0.2.60",
       source: "participant",

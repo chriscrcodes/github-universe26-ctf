@@ -14,6 +14,18 @@ Static and runtime evidence are stronger when they describe the same defect
 from different directions. Beware of code that *looks* defensive: input
 normalization that strips a few characters is hygiene, not a SQL defence.
 
+### 🔎 Find the CodeQL result
+
+Open **Security → Code scanning** in your participant repository:
+`https://github.com/<handle>/github-universe26-ctf/security/code-scanning`
+(replace `<handle>` with your GitHub username). Public visibility alone does
+not start CodeQL scans. This repository includes an advanced CodeQL Actions
+workflow at `.github/workflows/security.yml`; GitHub runs it when Actions are
+enabled. If that workflow is absent or disabled in your copy, a repository
+maintainer must enable CodeQL default setup in **Settings → Advanced Security**
+or restore the workflow. Do not enable default setup on top of an active
+advanced setup.
+
 ### ⌨️ Activity: Connect CodeQL to Red's evidence, then pass Mentor's check
 
 1. Ask Squad to involve Green without discussing a fix yet:
