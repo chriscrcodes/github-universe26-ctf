@@ -56,17 +56,14 @@ test("README explains how to select and direct the Squad team", async () => {
   for (const expected of [
     "## Meet Squad",
     "/agent",
-    "/help",
-    "@app/src/hotels.js",
     "**Squad**",
     "**Red**",
     "**Green**",
     "**Blue**",
+    "Squad documentation",
   ]) {
     assert.ok(readme.includes(expected), `README.md should mention ${expected}`);
   }
-  assert.match(readme, /natural\s+language/);
-  assert.match(readme, /There is no `\/squad` slash command/);
 });
 
 test("README presents a GitHub-native hero without official Squad branding", async () => {
@@ -107,8 +104,6 @@ test("README documents the approved 45-minute participant setup", async () => {
     "squad init --no-workflows",
     "npm run squad:install-workshop-team",
     "squad doctor",
-    "one repository per participant is recommended",
-    "shared `main`",
   ]) {
     assert.ok(readme.includes(expected), `README.md should mention ${expected}`);
   }

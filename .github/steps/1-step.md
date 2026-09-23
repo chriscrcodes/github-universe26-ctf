@@ -20,6 +20,10 @@ query is unsafe.
 
 ### ⌨️ Activity: Capture the flag with the supplied payload
 
+You should already have the local **Squad** agent selected with `/agent` and
+**Allow all** enabled from the exercise setup. If not, do that now before
+continuing.
+
 1. Ask Squad to start the local application in the background:
 
    ```text
@@ -27,16 +31,13 @@ query is unsafe.
    responds locally, and keep this terminal available for our investigation.
    ```
 
-1. Select Squad with `/agent`. If Copilot asks for permission to run tools,
-   choose **Allow all** for this workshop session. Then ask the Squad
-   coordinator to dispatch Red with this complete prompt:
+1. Ask the Squad coordinator to dispatch Red with this complete prompt:
 
    ```text
    Squad, dispatch Red now. Present the expected public boundary and ask me to
    predict the result before running anything. Red must reproduce only this
    supplied local read-only payload against the local application:
    city=%27%20OR%201%3D1%20--%20
-   (URL-encoded form of the supplied read-only payload: `' OR 1=1 -- `)
    Report the internal reference of every listing that should not have been
    returned. Separate observed facts from conclusions. Do not invent another
    payload, target an external system, or edit code.
@@ -57,6 +58,7 @@ query is unsafe.
 1. Ask Red to run the deterministic evidence command and publish the `red`
    phase after the exact assertions pass. You do not need to type those npm
    commands yourself.
+1. Continue to [Step 2](2-step.md) once the `red` phase is published.
 
 <details>
 <summary>Having trouble? 🤷</summary><br/>

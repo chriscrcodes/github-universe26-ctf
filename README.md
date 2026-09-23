@@ -77,35 +77,13 @@ tooling yourself.
 | 🟢 **Green** | Explain CodeQL and propose the correction | Waits for your explicit approval |
 | 🔵 **Blue** | Apply the approved patch, run tests, and publish it | Changes only the approved scope |
 
-To select and direct the team:
-
-1. Open GitHub Copilot CLI.
-1. Enter `/agent`.
-1. Select **Squad**.
-1. Describe your objective in **natural language** or address a role by name.
-
-There is no `/squad` slash command. Useful Copilot CLI commands include:
-
-| Command | Use |
-| --- | --- |
-| `/agent` | Browse and select the **Squad** custom agent |
-| `/help` | Display Copilot CLI commands |
-| `@app/src/hotels.js` | Add a search file to your message context |
-
-For example:
-
-```text
-Introduce the team and ask me to define the expected behavior before
-delegating. Require my approval for every code change.
-```
-
 Learn more about the upstream project in the
 [Squad documentation](https://bradygaster.github.io/squad/).
 
 ### Workshop timing
 
-**10 min — Intro:** meet the speakers, understand Squad, and see the Onepoint
-use case. **30 min — Hands-on:** initialize the team, Red captures the flag,
+**10 min — Intro:** understand Squad and what this exercise sets out to prove.
+**30 min — Hands-on:** initialize the team, Red captures the flag,
 Mentor checks your understanding, Green explains and proposes, you approve, and
 Blue applies and verifies. **5 min — Debrief:** compare runtime evidence with
 CodeQL and discuss the human/automation boundary.
@@ -114,17 +92,20 @@ CodeQL and discuss the human/automation boundary.
 
 1. Select **Code → Codespaces → Create codespace on main**, or clone this
    repository locally.
-1. Open a terminal in the repository. This one-time command checks the
-   environment and registers you on the scoreboard:
+1. Open a terminal in the repository. Confirm with your facilitator whether
+   `BOARD_URL` and `BOARD_TOKEN` were provisioned in this environment. Both
+   are optional: your board identity is your GitHub handle, you never create a
+   `.env` file or commit these values, and if the scoreboard is unavailable
+   the whole capture-the-flag run still works locally.
+1. Once you have confirmed the scoreboard configuration, run this one-time
+   command to check the environment and register:
 
    ```bash
    npm run workshop:start
    ```
 
-   Your board identity is your GitHub handle. The facilitator injects
-   `BOARD_URL` and `BOARD_TOKEN` into the Codespace; you never create a `.env`
-   file or commit those values. If the scoreboard is unavailable, registration
-   prints a warning and the whole capture-the-flag run continues locally.
+   If the scoreboard is unavailable, registration prints a warning and the
+   whole capture-the-flag run continues locally.
 
 1. Initialize the participant's Squad configuration without adding workflows:
 
@@ -147,11 +128,6 @@ CodeQL and discuss the human/automation boundary.
    Squad for everything: starting the application, gathering evidence,
    publishing phases, and committing the fix. These four bootstrap commands are
    the only ones you type yourself.
-
-> [!IMPORTANT]
-> For EMU, **one repository per participant is recommended**. A shared `main`
-> branch is unsupported for this workshop because participants commit and push
-> their approved patch.
 
 > [!CAUTION]
 > Use only the supplied read-only payload against the local workshop
