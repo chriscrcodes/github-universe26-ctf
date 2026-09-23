@@ -1,17 +1,17 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "universe-board",
-  "main": "src/index.js",
-  "compatibility_date": "2026-09-17",
-  "assets": {
-    "directory": "../web",
-    "binding": "ASSETS"
-  },
-  "d1_databases": [
-    {
-      "binding": "BOARD_DB",
-      "database_name": "universe-board-db",
-      "database_id": "00000000-0000-0000-0000-000000000000"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "universe-board",
+	"main": "src/index.js",
+	"compatibility_date": "2026-09-17",
+	"assets": {
+		"directory": "../web",
+		"binding": "ASSETS"
+	},
+	"d1_databases": [
+		{
+			"binding": "BOARD_DB",
+			"database_name": "universe-board-db",
+			"database_id": "f7d8e114-1d19-4722-bfd6-145fb76176bf"
+		}
+	]
 }
