@@ -1,0 +1,21 @@
+{
+  "name": "@github-universe26/app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "register": "node scripts/register.js",
+    "exploit": "node scripts/exploit.js",
+    "verify": "node scripts/verify.js",
+    "checkpoint": "node scripts/checkpoint.js",
+    "approve": "node scripts/approve.js",
+    "regressions": "node scripts/regressions.js",
+    "reset": "node scripts/reset.js",
+    "phase": "node scripts/publish-phase.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "express": "^4.21.2"
+  }
+}

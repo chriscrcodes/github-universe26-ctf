@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mission Capture the Flag — GitHub Universe workshop board</title>
+    <link rel="stylesheet" href="board.css" />
+    <link rel="stylesheet" href="arcade.css" />
+  </head>
+  <body>
+    <main class="board-shell">
+      <header class="board-header">
+        <div class="board-header__identity">
+          <p class="eyebrow">GitHub Universe · Blue Team Capture the Flag</p>
+          <h1>Mission <span>Capture the Flag</span></h1>
+        </div>
+        <ol class="phase-rail" aria-label="Mission phases in order">
+          <li class="phase-rail__step" data-phase="red">
+            <b class="phase-rail__badge">1</b>
+            <span class="phase-rail__squad">Red</span>
+            <span class="phase-rail__title">Break it</span>
+            <span class="phase-rail__count" data-phase-count="red">0</span>
+          </li>
+          <li class="phase-rail__step" data-phase="purple">
+            <b class="phase-rail__badge">2</b>
+            <span class="phase-rail__squad">Purple</span>
+            <span class="phase-rail__title">Prove it with CodeQL</span>
+            <span class="phase-rail__count" data-phase-count="purple">0</span>
+          </li>
+          <li class="phase-rail__step" data-phase="green">
+            <b class="phase-rail__badge">3</b>
+            <span class="phase-rail__squad">Green</span>
+            <span class="phase-rail__title">Fix it</span>
+            <span class="phase-rail__count" data-phase-count="green">0</span>
+          </li>
+          <li class="phase-rail__step" data-phase="blue">
+            <b class="phase-rail__badge">4</b>
+            <span class="phase-rail__squad">Blue</span>
+            <span class="phase-rail__title">Confirm the fix</span>
+            <span class="phase-rail__title">Local verification + CI completion</span>
+            <span class="phase-rail__count" data-phase-count="blue">0</span>
+          </li>
+        </ol>
+        <div class="board-status">
+          <p id="board-status" aria-live="polite">Connecting to board…</p>
+          <p id="team-count">0 active squads</p>
+        </div>
+      </header>
+
+      <section class="mission-stage-panel" aria-labelledby="stage-title">
+        <h2 id="stage-title" class="visually-hidden">Arcade mission stage</h2>
+        <div id="arcade-stage" class="arcade" role="img" aria-label="Arcade climb with five stacked mission levels from the briefing floor to the flag, with one sprite per squad on its current level">
+          <div class="arcade__sky" aria-hidden="true"></div>
+
+          <div class="arcade__hud" aria-hidden="true">
+            <p class="arcade__hud-item"><span>Progress</span><b id="arcade-progress" class="arcade__gauge" data-level="0"></b></p>
+            <p class="arcade__hud-item"><span>Flag</span><b id="arcade-flag-status">0 / 0 squads at LV4</b></p>
+          </div>
+
+          <div class="arcade__summit" aria-hidden="true"></div>
+          <div class="arcade__flag" aria-hidden="true">
+            <div class="arcade__flag-banner">
+              <img
+                class="arcade__copilot-icon"
+                src="https://raw.githubusercontent.com/primer/octicons/main/icons/copilot-24.svg"
+                alt=""
+              />
+            </div>
+            <span class="arcade__flag-caption">Capture the Flag</span>
+          </div>
+
+          <div class="arcade__ladder arcade__ladder--0" aria-hidden="true"><span>▲</span></div>
+          <div class="arcade__ladder arcade__ladder--1" aria-hidden="true"><span>▲</span></div>
+          <div class="arcade__ladder arcade__ladder--2" aria-hidden="true"><span>▲</span></div>
+          <div class="arcade__ladder arcade__ladder--3" aria-hidden="true"><span>▲</span></div>
+
+          <div class="arcade__level arcade__level--blue" data-phase="blue">
+            <div class="arcade__platform" aria-hidden="true"></div>
+            <div class="arcade__plate">
+              <b class="arcade__plate-level">LV4</b>
+              <span class="arcade__plate-name">Capture</span>
+              <span class="arcade__plate-cue">Verify locally, then CI</span>
+              <b class="arcade__plate-count" data-phase-count="blue">0</b>
+            </div>
+          </div>
+          <div class="arcade__level arcade__level--green" data-phase="green">
+            <div class="arcade__platform" aria-hidden="true"></div>
+            <div class="arcade__plate">
+              <b class="arcade__plate-level">LV3</b>
+              <span class="arcade__plate-name">Fix it</span>
+              <span class="arcade__plate-cue">Ship the patch</span>
+              <b class="arcade__plate-count" data-phase-count="green">0</b>
+            </div>
+          </div>
+          <div class="arcade__level arcade__level--purple" data-phase="purple">
+            <div class="arcade__platform" aria-hidden="true"></div>
+            <div class="arcade__plate">
+              <b class="arcade__plate-level">LV2</b>
+              <span class="arcade__plate-name">Prove it</span>
+              <span class="arcade__plate-cue">CodeQL confirms it</span>
+              <b class="arcade__plate-count" data-phase-count="purple">0</b>
+            </div>
+          </div>
+          <div class="arcade__level arcade__level--red" data-phase="red">
+            <div class="arcade__platform" aria-hidden="true"></div>
+            <div class="arcade__plate">
+              <b class="arcade__plate-level">LV1</b>
+              <span class="arcade__plate-name">Break it</span>
+              <span class="arcade__plate-cue">Reproduce the flaw</span>
+              <b class="arcade__plate-count" data-phase-count="red">0</b>
+            </div>
+          </div>
+          <div class="arcade__level arcade__level--onboarding" data-phase="onboarding">
+            <div class="arcade__platform" aria-hidden="true"></div>
+            <div class="arcade__plate">
+              <b class="arcade__plate-level">LV0</b>
+              <span class="arcade__plate-name">Briefing</span>
+              <span class="arcade__plate-cue">Check in</span>
+              <b class="arcade__plate-count" data-phase-count="onboarding">0</b>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="team-list-panel" aria-labelledby="team-list-title">
+        <div class="team-list-panel__heading">
+          <h2 id="team-list-title">Squads</h2>
+          <p class="eyebrow">Live positions</p>
+        </div>
+        <section class="collective-progress" aria-labelledby="collective-progress-title">
+          <h3 id="collective-progress-title">Room progress</h3>
+          <dl class="collective-progress__stats">
+            <div>
+              <dt>Investigating</dt>
+              <dd id="collective-investigating">0</dd>
+            </div>
+            <div>
+              <dt>Fixing</dt>
+              <dd id="collective-fixing">0</dd>
+            </div>
+            <div>
+              <dt>Flags captured</dt>
+              <dd id="collective-complete">0</dd>
+            </div>
+          </dl>
+        </section>
+        <ul id="team-list" class="team-list" aria-live="polite"></ul>
+        <p class="team-list-panel__note">Every squad follows the same evidence gates. Progress is shared, not ranked.</p>
+      </aside>
+    </main>
+    <script type="module" src="board.js"></script>
+  </body>
+</html>

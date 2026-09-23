@@ -1,0 +1,17 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "ghu26-tru1378s-board",
+	"main": "src/index.js",
+	"compatibility_date": "2026-09-17",
+	"assets": {
+		"directory": "../web",
+		"binding": "ASSETS"
+	},
+	"d1_databases": [
+		{
+			"binding": "BOARD_DB",
+			"database_name": "ghu26-tru1378s-board",
+			"database_id": "5996de87-aeb1-431c-8661-d589e91463d7"
+		}
+	]
+}

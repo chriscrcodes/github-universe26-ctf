@@ -1,0 +1,191 @@
+/*
+ * Arcade theme — the same mission told as a 16-bit climb.
+ *
+ * The five phases are five stacked platforms; squads are sprites standing on
+ * their current level; the flag is planted on the summit. Geometry comes from
+ * `arcade-stage.js`, so this sheet only dresses it.
+ */
+
+.arcade {
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(23, 143, 250, .86);
+  box-shadow: 0 0 0 1px rgba(87, 56, 248, .32), 0 0 28px rgba(23, 143, 250, .18);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  image-rendering: pixelated;
+  container-type: size;
+  font-size: clamp(11px, 1.55cqw, 21px);
+  background:
+    radial-gradient(circle at 50% 108%, rgba(87, 56, 248, .5), transparent 62%),
+    linear-gradient(180deg, #06040f 0%, #120c2c 55%, #1d1442 100%);
+}
+
+/* Starfield: a static pixel sky, cheap enough to leave on a room display. */
+.arcade__sky {
+  position: absolute; inset: 0; z-index: 1;
+  background-image:
+    radial-gradient(#6f63a8 1px, transparent 1px),
+    radial-gradient(#4a3f7d 1px, transparent 1px);
+  background-size: 120px 90px, 73px 61px;
+  background-position: 0 0, 37px 23px;
+  opacity: .8;
+}
+
+/* ---------- HUD ---------- */
+.arcade__hud {
+  position: absolute; z-index: 9; top: 2.5%; left: 2%;
+  display: grid; gap: .3rem;
+  padding: .45rem .7rem;
+  border: 2px solid rgba(255, 205, 60, .6);
+  background: rgba(4, 3, 12, .82);
+}
+.arcade__hud-item { display: flex; align-items: center; gap: .55rem; margin: 0; }
+.arcade__hud-item span { color: #8d84c4; font-size: .62em; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.arcade__hud-item b { color: var(--universe-gold); font-size: .82em; font-weight: 800; }
+
+/* Progress gauge: low while few squads have reached Blue, green as they finish. */
+.arcade__gauge {
+  display: block; width: 9em; height: .8em;
+  border: 2px solid #3b3568;
+  background:
+    linear-gradient(90deg, var(--phase-green) calc(var(--fill, 0) * 1%), #241d45 0) no-repeat;
+}
+.arcade__gauge[data-level="low"] { background: linear-gradient(90deg, var(--phase-red) calc(var(--fill, 0) * 1%), #241d45 0) no-repeat; }
+.arcade__gauge[data-level="mid"] { background: linear-gradient(90deg, #ffa020 calc(var(--fill, 0) * 1%), #241d45 0) no-repeat; }
+
+/* ---------- Levels ---------- */
+.arcade__level {
+  --accent: var(--phase-red);
+  position: absolute; z-index: 4; inset: 0;
+  pointer-events: none;
+}
+.arcade__level--onboarding { --accent: var(--phase-onboarding); --left: 4%; --width: 74%; --top: 92.5%; --plate-top: 79%; }
+.arcade__level--red { --accent: var(--phase-red); --left: 9%; --width: 66%; --top: 76%; --plate-top: 62.5%; }
+.arcade__level--purple { --accent: var(--phase-purple); --left: 14%; --width: 58%; --top: 59.5%; --plate-top: 46%; }
+.arcade__level--green { --accent: var(--phase-green); --left: 19%; --width: 50%; --top: 43%; --plate-top: 29.5%; }
+.arcade__level--blue { --accent: var(--phase-blue); --left: 24%; --width: 42%; --top: 26.5%; --plate-top: 13%; }
+
+/* A chunky stone slab with a glowing accent cap, the way a 16-bit tile reads. */
+.arcade__platform {
+  position: absolute; left: var(--left); top: var(--top); width: var(--width); height: 3.4%;
+  background:
+    linear-gradient(180deg, #6a629e 0 22%, #4a4378 22% 76%, #2d2853 76% 100%),
+    repeating-linear-gradient(90deg, transparent 0 34px, #2d2853 34px 36px);
+  box-shadow:
+    0 -4px 0 var(--accent),
+    0 0 20px color-mix(in srgb, var(--accent) 60%, transparent),
+    0 6px 0 rgba(4, 3, 12, .6);
+}
+
+/* Level plates live in a dedicated right lane, outside the 74-sprite crowd. */
+.arcade__plate {
+  position: absolute; left: 79.5%; top: var(--plate-top); width: 18.5%;
+  display: grid; grid-template-columns: auto auto; gap: 0 .5rem; align-items: center;
+  padding: .3rem .55rem;
+  border: 2px solid var(--accent);
+  background: rgba(4, 3, 12, .88);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent), 4px 4px 0 rgba(4, 3, 12, .7);
+}
+.arcade__plate-level { grid-row: 1; color: var(--accent); font-size: .78em; font-weight: 900; letter-spacing: .08em; }
+.arcade__plate-name { grid-row: 2; grid-column: 1; color: var(--github-white); font-size: .86em; font-weight: 800; }
+.arcade__plate-cue { grid-row: 3; grid-column: 1 / -1; color: #8d84c4; font-size: .6em; letter-spacing: .05em; text-transform: uppercase; }
+.arcade__plate-count {
+  grid-row: 1 / 3; grid-column: 2;
+  display: grid; min-width: 2.1em; place-items: center; padding: .1rem .3rem;
+  color: var(--github-black); font-size: 1.05em; font-weight: 900;
+  background: var(--accent);
+}
+
+/* ---------- Ladders between levels ---------- */
+.arcade__ladder {
+  position: absolute; z-index: 3; width: 3.2%;
+  display: grid; align-content: start; justify-items: center;
+  color: rgba(160, 235, 255, .85); font-size: .7em;
+  background:
+    linear-gradient(90deg, #6f67a8 0 16%, transparent 16% 84%, #6f67a8 84% 100%),
+    repeating-linear-gradient(180deg, #a49bdc 0 5px, transparent 5px 16px);
+}
+.arcade__ladder span { margin-top: -1.1em; }
+/* Ladders hug the right edge of the platform above, clear of the crowd. */
+.arcade__ladder--0 { left: 72%; top: 76%; height: 17%; }
+.arcade__ladder--1 { left: 68%; top: 59.5%; height: 17%; }
+.arcade__ladder--2 { left: 65%; top: 43%; height: 17%; }
+.arcade__ladder--3 { left: 62%; top: 26.5%; height: 17%; }
+
+/* The flag needs ground: a short block past the summit, so the last climb
+   reads as "one more step" rather than a banner floating in the sky. */
+.arcade__summit {
+  position: absolute; z-index: 4; left: 66%; top: 20%; width: 12%; height: 3.4%;
+  background:
+    linear-gradient(180deg, #7d74b4 0 22%, #564e8a 22% 76%, #332d5e 76% 100%),
+    repeating-linear-gradient(90deg, transparent 0 30px, #332d5e 30px 32px);
+  box-shadow: 0 -4px 0 #39ff88, 0 0 28px rgba(57, 255, 136, .7), 0 6px 0 rgba(4, 3, 12, .6);
+}
+
+/* ---------- The flag ---------- */
+.arcade__flag {
+  position: absolute; z-index: 8; left: 72%; top: 11%;
+  display: grid; justify-items: center;
+  transform: translate(-50%, -50%);
+}
+.arcade__flag::before {
+  position: absolute; z-index: -1; top: 46%; left: 50%; width: 7em; height: 7em;
+  border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(57, 255, 136, .72), rgba(33, 178, 75, .2) 48%, transparent 70%);
+  animation: arcade-halo 2.4s ease-in-out infinite; content: "";
+}
+.arcade__flag-banner {
+  display: grid; width: 5.6em; height: 3.8em; place-items: center;
+  background: linear-gradient(135deg, #39ff88, #21b24b);
+  clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
+  filter: drop-shadow(0 0 18px rgba(57, 255, 136, 1)) drop-shadow(0 0 38px rgba(33, 178, 75, .9));
+  transform-origin: left center;
+  animation: arcade-wave 2.4s ease-in-out infinite;
+}
+.arcade__copilot-icon {
+  width: 2.8em; height: 2.8em;
+  filter: brightness(0) invert(1);
+  object-fit: contain;
+}
+.arcade__flag-caption {
+  margin-top: .3rem; padding: .1rem .45rem;
+  border: 2px solid #06040f; outline: 2px solid var(--github-white);
+  color: var(--github-black); font-size: .62em; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+  background: #39ff88;
+  box-shadow: 0 0 18px rgba(57, 255, 136, .9);
+}
+@keyframes arcade-wave { 0%, 100% { transform: skewX(0deg); } 50% { transform: skewX(-10deg); } }
+@keyframes arcade-halo { 0%, 100% { opacity: .5; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.16); } }
+
+/* ---------- Squad sprites ---------- */
+.arcade .team-marker {
+  position: absolute; z-index: 7; left: var(--x); top: var(--y);
+  display: grid; justify-items: center;
+  transform: translate(-50%, -100%);
+  transition: left 1.2s steps(8, end), top 1.2s steps(8, end);
+}
+.arcade .team-marker__sprite {
+  width: 24px;
+  height: 24px;
+  box-shadow: 0 0 9px rgba(255, 255, 255, .32), 2px 2px 0 rgba(4, 3, 12, .5);
+}
+.arcade .team-marker__label {
+  width: 2.2rem; margin-top: .2rem; padding: .05rem .15rem;
+  overflow: hidden;
+  color: var(--github-white); font-family: ui-monospace, monospace; font-size: .58em; font-weight: 700; text-align: center; text-overflow: ellipsis; white-space: nowrap;
+  background: rgba(4, 3, 12, .88);
+  border: 1px solid var(--github-gray);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arcade .team-marker { transition: none; }
+  .arcade__flag-banner, .arcade__flag::before { animation: none; }
+}
+
+@container (max-width: 700px) {
+  .arcade__plate-cue { display: none; }
+  .arcade__plate { left: 77%; width: 21%; }
+}

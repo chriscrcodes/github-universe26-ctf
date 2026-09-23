@@ -1,0 +1,9 @@
+.git
+.github
+.devcontainer
+.squad
+node_modules
+npm-debug.log
+coverage
+*.sqlite
+*.db
