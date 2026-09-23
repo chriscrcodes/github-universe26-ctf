@@ -63,7 +63,7 @@ test("README explains how to select and direct the Squad team", async () => {
     "**Green**",
     "**Blue**",
   ]) {
-    assert.match(readme, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(readme.includes(expected), `README.md should mention ${expected}`);
   }
   assert.match(readme, /natural\s+language/);
   assert.match(readme, /There is no `\/squad` slash command/);
@@ -110,7 +110,7 @@ test("README documents the approved 45-minute participant setup", async () => {
     "one repository per participant is recommended",
     "shared `main`",
   ]) {
-    assert.match(readme, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(readme.includes(expected), `README.md should mention ${expected}`);
   }
 });
 
@@ -129,7 +129,7 @@ test("steps document participant approval and the Red, Green, and Blue flow", as
     "CodeQL pending",
     "CodeQL clean",
   ]) {
-    assert.match(combined, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(combined.includes(expected), `the workshop steps should mention ${expected}`);
   }
   assert.match(combined, /Green[\s\S]*explicit approval/i);
   assert.match(combined, /Blue[\s\S]*commit[\s\S]*push/i);
@@ -165,8 +165,8 @@ test("each Skills lesson routes evidence work through Squad", async () => {
   ];
 
   expected.forEach(([evidence, phase], index) => {
-    assert.match(steps[index], new RegExp(evidence.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-    assert.match(steps[index], new RegExp(phase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(steps[index].includes(evidence), `step ${index + 1} should mention ${evidence}`);
+    assert.ok(steps[index].includes(phase), `step ${index + 1} should mention ${phase}`);
   });
   assert.match(steps[0], /npm run workshop:app/);
   assert.match(steps[3], /phase[\s\S]*blue/);
@@ -217,10 +217,10 @@ test("facilitator runbook documents EMU provisioning and deterministic gates", a
     "concurrency and capacity",
     "startup staggering only as a fallback",
   ]) {
-    assert.match(runbook, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(runbook.includes(expected), `FACILITATOR.md should mention ${expected}`);
   }
   for (const absent of ["BOARD_TEAM_ID", "BOARD_CI_", "HMAC"]) {
-    assert.doesNotMatch(runbook, new RegExp(absent.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(!runbook.includes(absent), `FACILITATOR.md should no longer mention ${absent}`);
   }
   for (const link of [
     "https://docs.github.com/en/enterprise-cloud@latest/admin/managing-iam/understanding-iam-for-enterprises/abilities-and-restrictions-of-managed-user-accounts",
@@ -232,7 +232,7 @@ test("facilitator runbook documents EMU provisioning and deterministic gates", a
     "https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-code-scanning",
     "https://docs.github.com/en/billing/concepts/product-billing/github-advanced-security",
   ]) {
-    assert.match(runbook, new RegExp(link.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(runbook.includes(link), `FACILITATOR.md should link ${link}`);
   }
 });
 
