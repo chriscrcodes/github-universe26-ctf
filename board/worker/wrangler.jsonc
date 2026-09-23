@@ -8,8 +8,7 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "BOARD_SESSION_ID": "universe-2026",
-    "BOARD_CI_BINDINGS": "{}"
+    "BOARD_SESSION_ID": "universe-2026"
   },
   "d1_databases": [
     {

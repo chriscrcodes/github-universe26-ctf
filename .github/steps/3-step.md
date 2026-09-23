@@ -25,19 +25,17 @@ the database boundary.
    ```
 
 1. Confirm that normal `Paris` behavior and the `PUBLIC` boundary remain
-   unchanged.
-1. The intended query shape is:
+   unchanged, and that the flag is no longer reachable.
+1. The patch must change only the city filter that builds its clause by string
+   interpolation. The intended shape is a bound parameter:
 
    ```js
-   return db
-     .prepare(`
-       SELECT ...
-       FROM hotels
-       WHERE city = ? AND listingStatus = 'PUBLIC'
-       ORDER BY id
-     `)
-     .all(city);
+   return { clause: "city = ?", parameters: [city] };
    ```
+
+1. Ask Green to confirm that the price, name, identifier, and partner-summary
+   queries are already parameterized and must stay untouched. A patch that
+   rewrites them is larger than the approved scope.
 
 1. Say **“I explicitly approve this exact patch”** only after reviewing the
    proposed change, then record that gate:
@@ -55,6 +53,8 @@ the database boundary.
 - Green must show the diff but never edit it; do not approve a vague description.
 - Ask whether request text still constructs SQL after the change.
 - A city allowlist is not a replacement for parameter binding.
+- Hardening the normalization helper is not a fix: it leaves request text on
+  the SQL construction path.
 - If verification cannot reach the app, restart the corrected local server.
 
 </details>

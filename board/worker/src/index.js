@@ -8,7 +8,6 @@ const aliasPattern = /^[A-Za-z0-9]+(?:[ '-][A-Za-z0-9]+)*$/;
 const repositoryPattern = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const commitShaPattern = /^[a-fA-F0-9]{40,64}$/;
 const JSON_LIMIT_BYTES = 4 * 1024;
-const ciCredentialContext = "board-ci:v1";
 
 function jsonError(c, status, error) {
   return c.json({ error }, status);
@@ -47,66 +46,6 @@ function validReporterToken(c, reporterToken) {
 function hasExactlyFields(payload, fields) {
   const keys = Object.keys(payload);
   return keys.length === fields.length && keys.every((key) => fields.includes(key));
-}
-
-function parseCiBindings(value = "") {
-  let bindings = value;
-  if (typeof value === "string") {
-    if (!value.trim()) return new Map();
-    try {
-      bindings = JSON.parse(value);
-    } catch {
-      throw new Error("BOARD_CI_BINDINGS must be valid JSON");
-    }
-  }
-  if (!bindings || typeof bindings !== "object" || Array.isArray(bindings)) {
-    throw new Error("BOARD_CI_BINDINGS must be a repository-to-team object");
-  }
-
-  const result = new Map();
-  const teamIds = new Set();
-  for (const [repository, teamId] of Object.entries(bindings)) {
-    const normalizedRepository = repository.toLowerCase();
-    if (!repositoryPattern.test(repository) || normalizedRepository !== repository) {
-      throw new Error(`invalid CI repository binding: ${repository}`);
-    }
-    if (typeof teamId !== "string" || teamId.length < 3 || teamId.length > 80) {
-      throw new Error(`invalid CI team binding for ${repository}`);
-    }
-    if (teamIds.has(teamId)) {
-      throw new Error(`CI team is bound more than once: ${teamId}`);
-    }
-    result.set(normalizedRepository, teamId);
-    teamIds.add(teamId);
-  }
-  return result;
-}
-
-async function deriveCiToken(ciTokenKey, sessionId, repository, teamId) {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(ciTokenKey),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    encoder.encode(`${ciCredentialContext}\n${sessionId}\n${repository.toLowerCase()}\n${teamId}`),
-  );
-  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-async function validCiToken(c, ciTokenKey, sessionId, repository, teamId) {
-  if (typeof ciTokenKey !== "string" || new TextEncoder().encode(ciTokenKey).byteLength < 32) {
-    return false;
-  }
-  return constantTimeEqual(
-    c.req.header("x-board-ci-token") || "",
-    await deriveCiToken(ciTokenKey, sessionId, repository, teamId),
-  );
 }
 
 function createTokenBucketStore({ capacity, refillWindowMs, maxBuckets = 10_000 }) {
@@ -176,7 +115,7 @@ function createEventRateLimiter({
   };
 }
 
-function validEvent(payload, sessionId, ciBindings = new Map()) {
+function validEvent(payload, sessionId) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return "payload must be a JSON object";
   }
@@ -197,9 +136,6 @@ function validEvent(payload, sessionId, ciBindings = new Map()) {
       || !repositoryPattern.test(payload.repository)
     ) {
       return "invalid repository";
-    }
-    if (ciBindings.get(payload.repository.toLowerCase()) !== payload.teamId) {
-      return "repository/team binding mismatch";
     }
     if (typeof payload.commitSha !== "string" || !commitShaPattern.test(payload.commitSha)) {
       return "invalid commitSha";
@@ -264,29 +200,16 @@ app.post("/api/events", async (c) => {
     ip: getIpAddress(c),
     source: isCiEvent ? "ci" : "participant",
     teamId: typeof parsed.value?.teamId === "string" ? parsed.value.teamId : "unknown",
-    token: c.req.header(isCiEvent ? "x-board-ci-token" : "x-board-reporter-token") || "",
+    token: c.req.header("x-board-reporter-token") || "",
   })) {
     return jsonError(c, 429, "rate limit exceeded");
   }
-  if (!isCiEvent && !validReporterToken(c, c.env.BOARD_TOKEN || "")) {
+  if (!validReporterToken(c, c.env.BOARD_TOKEN || "")) {
     return jsonError(c, 401, "unauthorized");
   }
-  const ciBindings = parseCiBindings(c.env.BOARD_CI_BINDINGS || "");
-  const validationError = validEvent(parsed.value, sessionId, ciBindings);
+  const validationError = validEvent(parsed.value, sessionId);
   if (validationError) {
     return jsonError(c, 400, validationError);
-  }
-  if (
-    isCiEvent
-    && !await validCiToken(
-      c,
-      c.env.BOARD_CI_TOKEN_KEY || "",
-      sessionId,
-      parsed.value.repository,
-      parsed.value.teamId,
-    )
-  ) {
-    return jsonError(c, 401, "unauthorized");
   }
 
   const incoming = parsed.value;
@@ -421,8 +344,5 @@ export default app;
 export {
   constantTimeEqual,
   createEventRateLimiter,
-  deriveCiToken,
-  parseCiBindings,
-  validCiToken,
   validEvent,
 };

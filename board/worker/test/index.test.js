@@ -1,13 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createHmac } from "node:crypto";
-import {
-  createEventRateLimiter,
-  deriveCiToken,
-  parseCiBindings,
-  validCiToken,
-  validEvent,
-} from "../src/index.js";
+import { createEventRateLimiter, validEvent } from "../src/index.js";
 
 test("worker rate limiter permits sixty registrations behind one NAT", () => {
   const limiter = createEventRateLimiter();
@@ -75,7 +68,7 @@ test("worker accepts the Red, Purple, Green, Blue phase vocabulary", () => {
   }
 });
 
-test("worker accepts only repository/team-bound CI completion payloads", () => {
+test("worker accepts CI completion payloads for a real repository and commit", () => {
   const payload = {
     sessionId: "universe-2026",
     teamId: "participant-one",
@@ -84,54 +77,21 @@ test("worker accepts only repository/team-bound CI completion payloads", () => {
     repository: "example/participant-one",
     commitSha: "a".repeat(40),
   };
-  const bindings = parseCiBindings({ "example/participant-one": "participant-one" });
+  assert.equal(validEvent(payload, "universe-2026"), null);
   assert.equal(
-    validEvent(payload, "universe-2026", bindings),
-    null
+    validEvent({ ...payload, repository: "not a repository" }, "universe-2026"),
+    "invalid repository"
   );
   assert.equal(
-    validEvent(payload, "universe-2026", new Map()),
-    "repository/team binding mismatch"
-  );
-  assert.equal(
-    validEvent({ ...payload, teamId: "participant-two" }, "universe-2026", bindings),
-    "repository/team binding mismatch"
-  );
-  assert.equal(
-    validEvent({ ...payload, commitSha: "not-a-sha" }, "universe-2026", bindings),
+    validEvent({ ...payload, commitSha: "not-a-sha" }, "universe-2026"),
     "invalid commitSha"
   );
-});
-
-test("worker derives a distinct deterministic credential for each repository/team binding", async () => {
-  const key = "worker-test-ci-token-key-at-least-32-bytes";
-  const expected = createHmac("sha256", key)
-    .update("board-ci:v1\nuniverse-2026\nexample/participant-one\nparticipant-one")
-    .digest("hex");
-  const token = await deriveCiToken(key, "universe-2026", "example/participant-one", "participant-one");
-  assert.equal(token, expected);
-  assert.notEqual(
-    token,
-    await deriveCiToken(key, "universe-2026", "example/participant-two", "participant-two"),
-  );
-
-  const context = { req: { header: (name) => name === "x-board-ci-token" ? token : undefined } };
   assert.equal(
-    await validCiToken(context, key, "universe-2026", "example/participant-one", "participant-one"),
-    true,
+    validEvent({ ...payload, phase: "blue" }, "universe-2026"),
+    "invalid CI phase"
   );
   assert.equal(
-    await validCiToken(context, key, "universe-2026", "example/participant-two", "participant-two"),
-    false,
-    "one repository's credential must not authenticate another repository/team",
-  );
-});
-
-test("worker CI binding configuration rejects ambiguous identities", () => {
-  assert.throws(() => parseCiBindings("{"), /valid JSON/);
-  assert.throws(() => parseCiBindings({ "Example/repo": "team-one" }), /invalid CI repository/);
-  assert.throws(
-    () => parseCiBindings({ "example/one": "same-team", "example/two": "same-team" }),
-    /bound more than once/,
+    validEvent({ ...payload, extra: true }, "universe-2026"),
+    "CI payload must contain exactly sessionId, teamId, phase, source, repository, commitSha"
   );
 });

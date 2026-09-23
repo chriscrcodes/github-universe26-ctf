@@ -6,9 +6,11 @@ loop.
 
 Discuss:
 
-- what Red observed and why the public boundary was broken;
+- what Red observed, which flag it captured, and why the public boundary broke;
 - how Green connected CodeQL's source, flow, and sink to runtime evidence;
-- why parameter binding addressed the root cause;
+- why parameter binding addressed the root cause, and why the normalization
+  helper never could;
+- what Mentor's check proved that an agent summary could not;
 - where your explicit approval changed the workflow;
 - what local regressions proved, and why CodeQL pending is different from
   CodeQL clean;

@@ -1,12 +1,11 @@
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { createHmac } from "node:crypto";
 import { once } from "node:events";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFile, rm } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
 
 import { hotelsFrom, request } from "./http.mjs";
@@ -23,13 +22,17 @@ const BOARD_URL = `http://127.0.0.1:${BOARD_PORT}`;
 const BOARD_SESSION_ID = "universe-2026-e2e";
 const BOARD_OPERATOR_KEY = "e2e-test-secret";
 const BOARD_TOKEN = "e2e-board-token";
-const BOARD_CI_TOKEN_KEY = "e2e-ci-token-key-at-least-32-bytes";
 const BOARD_CI_REPOSITORY = "example/participant-one";
-const BOARD_CI_TEAM_ID = "participant-one";
-const BOARD_CI_TOKEN = createHmac("sha256", BOARD_CI_TOKEN_KEY)
-  .update(`board-ci:v1\n${BOARD_SESSION_ID}\n${BOARD_CI_REPOSITORY}\n${BOARD_CI_TEAM_ID}`)
-  .digest("hex");
 const TEAM_STATE_FILE = path.join(appDir, ".team-state-e2e.json");
+const PATCHED_SOURCE_DIR = path.join(appDir, ".e2e-patched-src");
+const GIT_SANDBOX_DIR = path.join(appDir, ".e2e-git-sandbox");
+const GIT_IDENTITY = {
+  GIT_AUTHOR_NAME: "Workshop E2E",
+  GIT_AUTHOR_EMAIL: "e2e@example.invalid",
+  GIT_COMMITTER_NAME: "Workshop E2E",
+  GIT_COMMITTER_EMAIL: "e2e@example.invalid",
+};
+const MENTOR_ANSWERS = "source-city:a,sink-execution:c,flow-unsafe:b";
 
 const managedProcesses = [];
 
@@ -76,6 +79,13 @@ async function runCommand({ cwd, env, args }) {
     env,
     stdio: ["ignore", "pipe", "pipe"],
   });
+  const output = captureProcess(child);
+  const [code, signal] = await once(child, "close");
+  return { code, signal, ...output };
+}
+
+async function runNode({ cwd, env, args }) {
+  const child = spawn(process.execPath, args, { cwd, env, stdio: ["ignore", "pipe", "pipe"] });
   const output = captureProcess(child);
   const [code, signal] = await once(child, "close");
   return { code, signal, ...output };
@@ -153,6 +163,46 @@ async function cleanupManagedProcesses() {
   await Promise.allSettled(managedProcesses.map((handle) => stopProcess(handle)));
 }
 
+async function createPushedGitSandbox() {
+  await rm(GIT_SANDBOX_DIR, { recursive: true, force: true });
+  const workTree = path.join(GIT_SANDBOX_DIR, "participant");
+  const remote = path.join(GIT_SANDBOX_DIR, "remote.git");
+  await mkdir(workTree, { recursive: true });
+  await mkdir(remote, { recursive: true });
+
+  const git = async (args, cwd) => {
+    const child = spawn("git", args, { cwd, env: commandEnv(GIT_IDENTITY), stdio: ["ignore", "pipe", "pipe"] });
+    const output = captureProcess(child);
+    const [code] = await once(child, "close");
+    assert.equal(code, 0, `git ${args.join(" ")} failed.${formatOutput(output)}`);
+  };
+
+  await git(["init", "--bare", "--initial-branch=main", "."], remote);
+  await git(["init", "--initial-branch=main", "."], workTree);
+  await writeFile(path.join(workTree, "README.md"), "participant sandbox\n");
+  await git(["add", "README.md"], workTree);
+  await git(["commit", "-m", "approved parameter binding"], workTree);
+  await git(["remote", "add", "origin", remote], workTree);
+  await git(["push", "-u", "origin", "main"], workTree);
+  return workTree;
+}
+
+async function buildPatchedSourceTree() {
+  await rm(PATCHED_SOURCE_DIR, { recursive: true, force: true });
+  await mkdir(PATCHED_SOURCE_DIR, { recursive: true });
+  await cp(path.join(appDir, "src"), PATCHED_SOURCE_DIR, { recursive: true });
+
+  const queryFile = path.join(PATCHED_SOURCE_DIR, "search-query.js");
+  const original = await readFile(queryFile, "utf8");
+  const patched = original.replace(
+    /return \{ clause: `city = '\$\{city\}'`, parameters: \[\] \};/,
+    'return { clause: "city = ?", parameters: [city] };'
+  );
+  assert.notEqual(patched, original, "the reference remediation patch must apply to app/src/search-query.js");
+  await writeFile(queryFile, patched);
+  return PATCHED_SOURCE_DIR;
+}
+
 async function readTeamState() {
   return JSON.parse(await readFile(TEAM_STATE_FILE, "utf8"));
 }
@@ -187,6 +237,8 @@ function assertExitOk(result, description) {
 after(async () => {
   await cleanupManagedProcesses();
   await rm(TEAM_STATE_FILE, { force: true });
+  await rm(PATCHED_SOURCE_DIR, { recursive: true, force: true });
+  await rm(GIT_SANDBOX_DIR, { recursive: true, force: true });
 });
 
 test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async () => {
@@ -197,14 +249,11 @@ test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async 
     PORT: String(BOARD_PORT),
     BOARD_OPERATOR_KEY,
     BOARD_TOKEN,
-    BOARD_CI_TOKEN_KEY,
-    BOARD_CI_BINDINGS: JSON.stringify({ [BOARD_CI_REPOSITORY]: BOARD_CI_TEAM_ID }),
     BOARD_SESSION_ID,
   });
   const vulnerableAppEnv = commandEnv({
     APP_URL,
     PORT: String(APP_PORT),
-    VULNERABLE: "1",
   });
   const sharedAppCliEnv = {
     APP_URL,
@@ -281,10 +330,11 @@ test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async 
   console.log("[6/15] completing the source, sink, and flow checkpoint...");
   const checkpoint = await runCommand({
     cwd: appDir,
-    env: commandEnv({ ...sharedAppCliEnv, CHECKPOINT_ANSWERS: "1,1,1" }),
-    args: ["run", "checkpoint"],
+    env: commandEnv(sharedAppCliEnv),
+    args: ["run", "checkpoint", "--", `--answers=${MENTOR_ANSWERS}`],
   });
-  assertExitOk(checkpoint, "CodeQL checkpoint");
+  assertExitOk(checkpoint, "Mentor understanding check");
+  assert.match(checkpoint.stdout, /PASS: understanding confirmed/);
 
   console.log("[7/15] participant publishes the purple phase...");
   const purple = await runCommand({
@@ -299,13 +349,14 @@ test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async 
     assert.equal(purpleTeam.source, "participant");
   }
 
-  console.log("[8/15] restarting the app in fixed mode...");
+  console.log("[8/15] applying the reference remediation patch and restarting the app...");
   await stopProcess(app);
+  await buildPatchedSourceTree();
   app = spawnServer({
     name: "application server",
     cwd: appDir,
-    script: "src/server.js",
-    env: commandEnv({ APP_URL, PORT: String(APP_PORT), VULNERABLE: "0" }),
+    script: path.join(PATCHED_SOURCE_DIR, "server.js"),
+    env: commandEnv({ APP_URL, PORT: String(APP_PORT) }),
   });
   await waitForHealth({ name: "application server", url: APP_URL, processHandle: app });
 
@@ -349,11 +400,12 @@ test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async 
   assert.equal(empty.response.status, 200);
   assert.deepEqual(hotelsFrom(empty.body), []);
 
-  console.log("[13/16] running the participant-selected regression matrix...");
-  const regressions = await runCommand({
-    cwd: appDir,
+  console.log("[13/16] running the participant-selected regression matrix on a pushed main...");
+  const sandbox = await createPushedGitSandbox();
+  const regressions = await runNode({
+    cwd: sandbox,
     env: commandEnv(sharedAppCliEnv),
-    args: ["run", "regressions"],
+    args: [path.join(appDir, "scripts", "regressions.js")],
   });
   assertExitOk(regressions, "regressions");
   assert.match(regressions.stdout, /PASS:/, "regression output should report PASS");
@@ -374,7 +426,7 @@ test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async 
     signal: AbortSignal.timeout(1_000),
     headers: {
       "content-type": "application/json",
-      "x-board-ci-token": BOARD_CI_TOKEN,
+      "x-board-reporter-token": BOARD_TOKEN,
     },
     body: JSON.stringify({
       sessionId: BOARD_SESSION_ID,

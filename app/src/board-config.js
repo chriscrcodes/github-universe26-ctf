@@ -6,33 +6,43 @@ function isLocalHostname(hostname) {
     || normalized.startsWith("127.");
 }
 
+function offline(reason) {
+  return { mode: "offline", boardUrl: null, boardToken: null, reason };
+}
+
+// The board is a scoreboard, never a gate: a missing or unreachable board
+// downgrades the run to offline play instead of blocking the participant.
 function resolveBoardConfig(env = process.env) {
   const rawUrl = env.BOARD_URL?.trim();
+  const boardToken = env.BOARD_TOKEN?.trim();
+  if (!rawUrl && !boardToken) {
+    return offline("BOARD_URL and BOARD_TOKEN are not provisioned.");
+  }
   if (!rawUrl) {
-    throw new Error("BOARD_URL is required. Ask a facilitator for the shared progress board URL.");
+    return offline("BOARD_URL is not provisioned.");
+  }
+  if (!boardToken) {
+    return offline("BOARD_TOKEN is not provisioned.");
   }
 
   let parsedUrl;
   try {
     parsedUrl = new URL(rawUrl);
   } catch {
-    throw new Error("BOARD_URL must be a valid HTTP or HTTPS URL.");
+    return offline("BOARD_URL is not a valid HTTP or HTTPS URL.");
   }
   if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-    throw new Error("BOARD_URL must use HTTP or HTTPS.");
+    return offline("BOARD_URL must use HTTP or HTTPS.");
   }
   if (isLocalHostname(parsedUrl.hostname) && env.ALLOW_LOCAL_BOARD !== "1") {
-    throw new Error("BOARD_URL must be the shared facilitator board, not localhost.");
-  }
-
-  const boardToken = env.BOARD_TOKEN?.trim();
-  if (!boardToken) {
-    throw new Error("BOARD_TOKEN is required. Ask a facilitator for the shared progress board token.");
+    return offline("BOARD_URL points at localhost instead of the shared board.");
   }
 
   return {
+    mode: "board",
     boardUrl: parsedUrl.toString().replace(/\/$/, ""),
     boardToken,
+    reason: null,
   };
 }
 

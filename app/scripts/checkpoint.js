@@ -1,49 +1,64 @@
-const readline = require("node:readline/promises");
-const { stdin, stdout } = require("node:process");
 const { recordEvidence } = require("../src/workshop-progress");
+const {
+  gradeAnswers,
+  loadQuestionBank,
+  parseAnswers,
+  selectQuestions,
+} = require("../src/quiz");
 
-const questions = [
-  {
-    prompt: "Source of untrusted data?\n  1. Request city parameter\n  2. Database result\n  3. Board alias\n> ",
-    answer: "1",
-  },
-  {
-    prompt: "SQL execution sink?\n  1. db.prepare(statement).all()\n  2. city input element\n  3. console.log()\n> ",
-    answer: "1",
-  },
-  {
-    prompt: "Unsafe data flow?\n  1. String concatenation builds SQL\n  2. JSON serialization\n  3. CSS rendering\n> ",
-    answer: "1",
-  },
-];
-
-async function main() {
-  const supplied = (process.env.CHECKPOINT_ANSWERS || "").split(",").filter(Boolean);
-  const terminal = supplied.length ? null : readline.createInterface({ input: stdin, output: stdout });
-  try {
-    for (const [index, question] of questions.entries()) {
-      const answer = supplied[index] || (await terminal.question(question.prompt));
-      if (answer.trim() !== question.answer) {
-        throw new Error(`Checkpoint answer ${index + 1} is incorrect. Revisit the source, sink, and data flow.`);
-      }
-    }
-  } finally {
-    terminal?.close();
+function parseArguments(argv) {
+  const options = { answers: null, list: false };
+  for (const argument of argv) {
+    if (argument === "--list") options.list = true;
+    else if (argument.startsWith("--answers=")) options.answers = argument.slice("--answers=".length);
   }
+  return options;
+}
+
+function printQuestions(bank) {
+  for (const question of selectQuestions(bank)) {
+    console.log(`${question.id} [${question.topic}] ${question.prompt}`);
+    for (const option of question.options) {
+      console.log(`  ${option.id}. ${option.text}`);
+    }
+  }
+}
+
+function main(argv = process.argv.slice(2)) {
+  const options = parseArguments(argv);
+  const bank = loadQuestionBank();
+
+  if (options.list) {
+    printQuestions(bank);
+    return;
+  }
+
+  if (!options.answers) {
+    throw new Error(
+      "Ask Mentor to run the understanding check. Mentor grades it with --answers=<question-id>:<option-id>,..."
+    );
+  }
+
+  const result = gradeAnswers(bank, parseAnswers(options.answers));
+  if (!result.passed) throw new Error(result.error);
 
   recordEvidence("purple", {
     command: "npm run checkpoint",
     result: "request city -> string-concatenated SQL -> database execution",
+    topics: result.topics,
+    gradedBy: "mentor",
   });
-  console.log("PASS: source, sink, and unsafe data flow confirmed.");
-  console.log("Evidence recorded. Run npm run phase -- purple yourself.");
+  console.log(`PASS: understanding confirmed across ${result.topics.join(", ")}.`);
+  console.log("Evidence recorded. Publish the purple phase yourself.");
 }
 
 if (require.main === module) {
-  main().catch((error) => {
+  try {
+    main();
+  } catch (error) {
     console.error(`Checkpoint failed: ${error.message}`);
     process.exitCode = 1;
-  });
+  }
 }
 
-module.exports = { main, questions };
+module.exports = { main, parseArguments };

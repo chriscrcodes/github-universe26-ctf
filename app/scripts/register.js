@@ -1,6 +1,8 @@
 const fs = require("node:fs");
 const crypto = require("node:crypto");
 const { resolveBoardConfig } = require("../src/board-config");
+const { publishEvent } = require("../src/board-client");
+const { resolveParticipantIdentity } = require("../src/participant-identity");
 const { stateFilePath, writeWorkshopState } = require("../src/workshop-progress");
 
 const stateFile = stateFilePath();
@@ -14,17 +16,6 @@ function randomItem(items) {
 
 function createAlias() {
   return `${randomItem(adjectives)} ${randomItem(nouns)}`;
-}
-
-function createTeamId() {
-  const configured = process.env.BOARD_TEAM_ID?.trim();
-  if (!configured) {
-    throw new Error("BOARD_TEAM_ID is required. Ask a facilitator to provision this repository.");
-  }
-  if (configured.length < 3 || configured.length > 80) {
-    throw new Error("BOARD_TEAM_ID must contain between 3 and 80 characters.");
-  }
-  return configured;
 }
 
 function readExistingTeamState() {
@@ -59,47 +50,31 @@ function readExistingTeamState() {
   return null;
 }
 
-async function publishStarted(payload, { boardUrl, boardToken }) {
-  try {
-    const response = await fetch(`${boardUrl}/api/events`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-board-reporter-token": boardToken,
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(3000),
-    });
-    if (!response.ok) {
-      console.warn(`Board registration returned HTTP ${response.status}.`);
-    }
-  } catch (error) {
-    console.warn(`Board registration skipped: ${error.message}`);
+function resolveTeamState(identity, existingTeamState) {
+  if (!existingTeamState) {
+    return {
+      teamId: identity.teamId,
+      sessionId: identity.sessionId,
+      alias: createAlias(),
+      approvals: {},
+      evidence: {},
+      completedPhases: ["started"],
+    };
   }
+  if (existingTeamState.teamId !== identity.teamId) {
+    throw new Error(
+      `Existing participant state belongs to ${existingTeamState.teamId}, not ${identity.teamId}.`
+    );
+  }
+  // A Codespace resumed on another day keeps its evidence and only moves to
+  // the current session identifier.
+  return { ...existingTeamState, sessionId: identity.sessionId };
 }
 
 async function main() {
   const boardConfig = resolveBoardConfig();
-  const sessionId = process.env.BOARD_SESSION_ID?.trim();
-  if (!sessionId) {
-    throw new Error("BOARD_SESSION_ID is required. Ask a facilitator to provision this repository.");
-  }
-  const provisionedTeamId = createTeamId();
-  const existingTeamState = readExistingTeamState();
-  if (
-    existingTeamState
-    && (existingTeamState.teamId !== provisionedTeamId || existingTeamState.sessionId !== sessionId)
-  ) {
-    throw new Error("Existing participant state does not match the provisioned board identity.");
-  }
-  const teamState = existingTeamState || {
-    teamId: provisionedTeamId,
-    sessionId,
-    alias: createAlias(),
-    approvals: {},
-    evidence: {},
-    completedPhases: ["started"],
-  };
+  const identity = resolveParticipantIdentity();
+  const teamState = resolveTeamState(identity, readExistingTeamState());
   writeWorkshopState(teamState);
 
   const payload = {
@@ -110,8 +85,11 @@ async function main() {
     source: "participant",
   };
 
-  await publishStarted(payload, boardConfig);
-  console.log(`Registered ${teamState.alias} (${teamState.teamId}).`);
+  await publishEvent(payload, boardConfig);
+  console.log(`Registered ${teamState.alias} (${teamState.teamId}) for session ${teamState.sessionId}.`);
+  if (boardConfig.mode !== "board") {
+    console.log("The scoreboard is unavailable; the whole game still runs locally.");
+  }
   console.log("You publish each later board phase yourself after its evidence command passes.");
 }
 
@@ -122,4 +100,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createTeamId, main, publishStarted, readExistingTeamState };
+module.exports = { main, readExistingTeamState, resolveTeamState };

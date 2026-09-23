@@ -16,4 +16,7 @@ board/worker/.dev.vars
 board/worker/.wrangler/
 app/data/
 app/.team-state*.json
+app/.board-outbox.log
 Universe 2026 Presentation Template_1785239102627001lY3Z.potx
+app/.e2e-patched-src/
+app/.e2e-git-sandbox/

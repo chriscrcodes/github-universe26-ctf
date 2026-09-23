@@ -3,6 +3,7 @@ const {
   recordCompletedPhase,
 } = require("../src/workshop-progress");
 const { resolveBoardConfig } = require("../src/board-config");
+const { publishEvent } = require("../src/board-client");
 
 const phases = ["red", "purple", "green", "blue"];
 
@@ -38,7 +39,7 @@ function validatePhaseGate(state, phase) {
   return null;
 }
 
-async function publishToBoard(state, phase, source, { boardUrl, boardToken }) {
+async function publishToBoard(state, phase, source, boardConfig) {
   const payload = {
     sessionId: state.sessionId,
     teamId: state.teamId,
@@ -47,22 +48,7 @@ async function publishToBoard(state, phase, source, { boardUrl, boardToken }) {
     source,
   };
 
-  try {
-    const response = await fetch(`${boardUrl}/api/events`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-board-reporter-token": boardToken,
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(3000),
-    });
-    if (!response.ok) {
-      console.warn(`Board phase publish returned HTTP ${response.status}; local progress is preserved.`);
-    }
-  } catch (error) {
-    console.warn(`Board phase publish skipped: ${error.message}`);
-  }
+  return publishEvent(payload, boardConfig);
 }
 
 async function main() {
@@ -83,6 +69,21 @@ async function main() {
   await publishToBoard(state, phase, source, boardConfig);
   recordCompletedPhase(phase);
   console.log(`Phase ${phase} recorded. You advanced the squad after reviewing its evidence.`);
+  if (phase === "blue") {
+    printLocalRecap();
+  }
+}
+
+function printLocalRecap() {
+  const state = readWorkshopState();
+  const captured = Object.values(state.evidence)
+    .map((entry) => entry?.flag)
+    .filter(Boolean);
+  console.log("");
+  console.log(`CAPTURE COMPLETE for ${state.alias} (${state.teamId}).`);
+  console.log(`Phases: ${state.completedPhases.join(" -> ")}`);
+  console.log(`Flags captured: ${captured.length ? captured.join(", ") : "none recorded"}`);
+  console.log("This local recap is authoritative even when the scoreboard is offline.");
 }
 
 if (require.main === module) {
@@ -92,4 +93,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { main, publishToBoard, validatePhaseGate, validateSource };
+module.exports = { main, printLocalRecap, publishToBoard, validatePhaseGate, validateSource };

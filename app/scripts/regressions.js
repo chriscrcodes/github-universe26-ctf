@@ -25,11 +25,19 @@ async function main() {
   assert.deepEqual(unknown, [], "unknown city should return no listings");
   assert.deepEqual(empty, [], "empty city should return no listings");
   assert.deepEqual(payload, [], "canonical payload should be treated as literal data");
+  assert.equal(
+    payload.filter((hotel) => String(hotel.internalReference || "").startsWith("FLAG{")).length,
+    0,
+    "the capture-the-flag token should no longer be reachable"
+  );
 
   const commit = git(["rev-parse", "HEAD"]);
   const branch = git(["branch", "--show-current"]);
   const upstream = git(["rev-parse", "@{upstream}"], true);
-  const remediationChanges = git(["status", "--porcelain", "--", "app/src/hotels.js"], true);
+  const remediationChanges = git(
+    ["status", "--porcelain", "--", "app/src/hotels.js", "app/src/search-query.js"],
+    true
+  );
   const pushed = branch === "main" && upstream === commit && remediationChanges === "";
   assert.ok(
     pushed,

@@ -17,16 +17,10 @@ for (const [command, args] of requiredCommands) {
   console.log(`PASS: ${command} ${result.stdout.split("\n")[0].trim()}`);
 }
 
-if (
-  !process.env.BOARD_URL
-  || !process.env.BOARD_TOKEN
-  || !process.env.BOARD_TEAM_ID
-  || !process.env.BOARD_SESSION_ID
-) {
-  console.error(
-    "BLOCKED: BOARD_URL, BOARD_TOKEN, BOARD_TEAM_ID, and BOARD_SESSION_ID must be provisioned."
+if (!process.env.BOARD_URL || !process.env.BOARD_TOKEN) {
+  console.warn(
+    "WARN: BOARD_URL or BOARD_TOKEN is missing. The scoreboard stays offline; the capture-the-flag run continues locally."
   );
-  process.exit(1);
 }
 
 const register = spawnSync("npm", ["run", "register"], {

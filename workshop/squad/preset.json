@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "github-universe26-purple-team",
-  "version": 1,
+  "version": 2,
   "squadVersion": "0.13.1",
   "createdAt": "2026-09-22T00:00:00.000Z",
   "agents": [
@@ -21,6 +21,12 @@
       "slug": "green",
       "name": "Green",
       "role": "Read-only CodeQL remediator",
+      "universe": "descriptive"
+    },
+    {
+      "slug": "mentor",
+      "name": "Mentor",
+      "role": "Understanding examiner",
       "universe": "descriptive"
     },
     {

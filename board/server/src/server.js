@@ -10,7 +10,6 @@ const aliasPattern = /^[A-Za-z0-9]+(?:[ '-][A-Za-z0-9]+)*$/;
 const repositoryPattern = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const commitShaPattern = /^[a-fA-F0-9]{40,64}$/;
 const staticRoot = path.resolve(__dirname, "../../web");
-const ciCredentialContext = "board-ci:v1";
 
 function jsonError(res, status, error) {
   return res.status(status).json({ error });
@@ -34,54 +33,6 @@ function validSecret(provided, expected) {
   const expectedBuffer = Buffer.from(expected, "utf8");
   const providedBuffer = Buffer.from(provided, "utf8");
   return providedBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(providedBuffer, expectedBuffer);
-}
-
-function parseCiBindings(value = "") {
-  let bindings = value;
-  if (typeof value === "string") {
-    if (!value.trim()) return new Map();
-    try {
-      bindings = JSON.parse(value);
-    } catch {
-      throw new Error("BOARD_CI_BINDINGS must be valid JSON");
-    }
-  }
-  if (!bindings || typeof bindings !== "object" || Array.isArray(bindings)) {
-    throw new Error("BOARD_CI_BINDINGS must be a repository-to-team object");
-  }
-
-  const result = new Map();
-  const teamIds = new Set();
-  for (const [repository, teamId] of Object.entries(bindings)) {
-    const normalizedRepository = repository.toLowerCase();
-    if (!repositoryPattern.test(repository) || normalizedRepository !== repository) {
-      throw new Error(`invalid CI repository binding: ${repository}`);
-    }
-    if (typeof teamId !== "string" || teamId.length < 3 || teamId.length > 80) {
-      throw new Error(`invalid CI team binding for ${repository}`);
-    }
-    if (teamIds.has(teamId)) {
-      throw new Error(`CI team is bound more than once: ${teamId}`);
-    }
-    result.set(normalizedRepository, teamId);
-    teamIds.add(teamId);
-  }
-  return result;
-}
-
-function deriveCiToken(ciTokenKey, sessionId, repository, teamId) {
-  return crypto
-    .createHmac("sha256", ciTokenKey)
-    .update(`${ciCredentialContext}\n${sessionId}\n${repository.toLowerCase()}\n${teamId}`)
-    .digest("hex");
-}
-
-function validCiToken(req, ciTokenKey, sessionId, repository, teamId) {
-  if (typeof ciTokenKey !== "string" || Buffer.byteLength(ciTokenKey, "utf8") < 32) return false;
-  return validSecret(
-    req.headers["x-board-ci-token"],
-    deriveCiToken(ciTokenKey, sessionId, repository, teamId),
-  );
 }
 
 function createTokenBucketStore({ capacity, refillWindowMs, maxBuckets = 10_000 }) {
@@ -141,9 +92,7 @@ function createEventRateLimiter({
   return function rateLimit(req, res, next) {
     const source = req.body?.source === "ci" ? "ci" : "participant";
     const teamId = typeof req.body?.teamId === "string" ? req.body.teamId : "unknown";
-    const token = source === "ci"
-      ? req.headers["x-board-ci-token"]
-      : req.headers["x-board-reporter-token"];
+    const token = req.headers["x-board-reporter-token"];
     const tokenDigest = crypto
       .createHash("sha256")
       .update(typeof token === "string" ? token : "")
@@ -164,7 +113,7 @@ function hasExactlyFields(payload, allowedFields) {
   return keys.length === allowedFields.length && !keys.some((key) => !allowedFields.includes(key));
 }
 
-function validEvent(payload, sessionId, ciBindings = new Map()) {
+function validEvent(payload, sessionId) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return "payload must be a JSON object";
   }
@@ -184,9 +133,6 @@ function validEvent(payload, sessionId, ciBindings = new Map()) {
     }
     if (typeof payload.repository !== "string" || !repositoryPattern.test(payload.repository)) {
       return "invalid repository";
-    }
-    if (ciBindings.get(payload.repository.toLowerCase()) !== payload.teamId) {
-      return "repository/team binding mismatch";
     }
     if (typeof payload.commitSha !== "string" || !commitShaPattern.test(payload.commitSha)) {
       return "invalid commitSha";
@@ -211,11 +157,6 @@ function validEvent(payload, sessionId, ciBindings = new Map()) {
 function createBoard(options = {}) {
   const sessionId = options.sessionId || process.env.BOARD_SESSION_ID || "universe-2026";
   const reporterToken = options.reporterToken ?? process.env.BOARD_TOKEN ?? "";
-  const ciTokenKey = options.ciTokenKey ?? process.env.BOARD_CI_TOKEN_KEY ?? "";
-  const ciBindings = parseCiBindings(options.ciBindings ?? process.env.BOARD_CI_BINDINGS ?? "");
-  if (ciBindings.size > 0 && Buffer.byteLength(ciTokenKey, "utf8") < 32) {
-    throw new Error("BOARD_CI_TOKEN_KEY must contain at least 32 bytes when CI bindings are configured");
-  }
   const operatorKey = options.operatorKey ?? process.env.BOARD_OPERATOR_KEY ?? "";
   const defaultPort = Number(options.port || process.env.PORT || 8080);
   const teams = new Map();
@@ -230,19 +171,12 @@ function createBoard(options = {}) {
   });
 
   app.post("/api/events", rateLimit, (req, res) => {
-    const isCiEvent = req.body?.source === "ci";
-    if (!isCiEvent && !validReporterToken(req, reporterToken)) {
+    if (!validReporterToken(req, reporterToken)) {
       return jsonError(res, 401, "unauthorized");
     }
-    const validationError = validEvent(req.body, sessionId, ciBindings);
+    const validationError = validEvent(req.body, sessionId);
     if (validationError) {
       return jsonError(res, 400, validationError);
-    }
-    if (
-      isCiEvent
-      && !validCiToken(req, ciTokenKey, sessionId, req.body.repository, req.body.teamId)
-    ) {
-      return jsonError(res, 401, "unauthorized");
     }
 
     const incoming = req.body;
@@ -351,4 +285,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createBoard, createEventRateLimiter, deriveCiToken, parseCiBindings, validEvent };
+module.exports = { createBoard, createEventRateLimiter, validEvent };

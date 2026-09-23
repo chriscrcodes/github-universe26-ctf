@@ -6,18 +6,18 @@ const dataDirectory = path.resolve(__dirname, "..", "data");
 const databaseFile = path.join(dataDirectory, "hotels.sqlite");
 
 const seedHotels = Object.freeze([
-  { id: 1, city: "Paris", name: "Hôtel Montparnasse Jardin", pricePerNight: 225, listingStatus: "PUBLIC", partnerNetRate: 164, forecastOccupancyPct: 82, syntheticReservationCount: 1840 },
-  { id: 2, city: "Paris", name: "Maison Saint-Clair", pricePerNight: 268, listingStatus: "PUBLIC", partnerNetRate: 196, forecastOccupancyPct: 76, syntheticReservationCount: 1320 },
-  { id: 3, city: "Berlin", name: "Lindenhof Berlin", pricePerNight: 154, listingStatus: "PUBLIC", partnerNetRate: 109, forecastOccupancyPct: 79, syntheticReservationCount: 1680 },
-  { id: 4, city: "Berlin", name: "Spreeblick Hotel", pricePerNight: 182, listingStatus: "PUBLIC", partnerNetRate: 128, forecastOccupancyPct: 73, syntheticReservationCount: 1460 },
-  { id: 5, city: "Berlin", name: "Charlottenburg Court", pricePerNight: 238, listingStatus: "UNPUBLISHED", partnerNetRate: 171, forecastOccupancyPct: 88, syntheticReservationCount: 7200 },
-  { id: 6, city: "Lisbon", name: "Casa do Miradouro", pricePerNight: 176, listingStatus: "PUBLIC", partnerNetRate: 122, forecastOccupancyPct: 81, syntheticReservationCount: 1510 },
-  { id: 7, city: "Lisbon", name: "Tejo Garden Hotel", pricePerNight: 201, listingStatus: "PUBLIC", partnerNetRate: 143, forecastOccupancyPct: 77, syntheticReservationCount: 1370 },
-  { id: 8, city: "Lisbon", name: "Alfama Terrace House", pricePerNight: 249, listingStatus: "UNPUBLISHED", partnerNetRate: 178, forecastOccupancyPct: 84, syntheticReservationCount: 6800 },
-  { id: 9, city: "Tokyo", name: "Sakura Lane Hotel", pricePerNight: 287, listingStatus: "PUBLIC", partnerNetRate: 207, forecastOccupancyPct: 86, syntheticReservationCount: 1950 },
-  { id: 10, city: "Tokyo", name: "Ginza Harbor Inn", pricePerNight: 324, listingStatus: "PUBLIC", partnerNetRate: 235, forecastOccupancyPct: 80, syntheticReservationCount: 1620 },
-  { id: 11, city: "Tokyo", name: "Kiyosumi House", pricePerNight: 362, listingStatus: "UNPUBLISHED", partnerNetRate: 261, forecastOccupancyPct: 91, syntheticReservationCount: 7100 },
-  { id: 12, city: "Paris", name: "Canal Saint-Martin Residence", pricePerNight: 315, listingStatus: "UNPUBLISHED", partnerNetRate: 228, forecastOccupancyPct: 89, syntheticReservationCount: 6300 }
+  { id: 1, city: "Paris", name: "Hôtel Montparnasse Jardin", pricePerNight: 225, listingStatus: "PUBLIC", partnerNetRate: 164, forecastOccupancyPct: 82, syntheticReservationCount: 1840, internalReference: "PUB-PAR-0001" },
+  { id: 2, city: "Paris", name: "Maison Saint-Clair", pricePerNight: 268, listingStatus: "PUBLIC", partnerNetRate: 196, forecastOccupancyPct: 76, syntheticReservationCount: 1320, internalReference: "PUB-PAR-0002" },
+  { id: 3, city: "Berlin", name: "Lindenhof Berlin", pricePerNight: 154, listingStatus: "PUBLIC", partnerNetRate: 109, forecastOccupancyPct: 79, syntheticReservationCount: 1680, internalReference: "PUB-BER-0003" },
+  { id: 4, city: "Berlin", name: "Spreeblick Hotel", pricePerNight: 182, listingStatus: "PUBLIC", partnerNetRate: 128, forecastOccupancyPct: 73, syntheticReservationCount: 1460, internalReference: "PUB-BER-0004" },
+  { id: 5, city: "Berlin", name: "Charlottenburg Court", pricePerNight: 238, listingStatus: "UNPUBLISHED", partnerNetRate: 171, forecastOccupancyPct: 88, syntheticReservationCount: 7200, internalReference: "INTERNAL-BER-0005" },
+  { id: 6, city: "Lisbon", name: "Casa do Miradouro", pricePerNight: 176, listingStatus: "PUBLIC", partnerNetRate: 122, forecastOccupancyPct: 81, syntheticReservationCount: 1510, internalReference: "PUB-LIS-0006" },
+  { id: 7, city: "Lisbon", name: "Tejo Garden Hotel", pricePerNight: 201, listingStatus: "PUBLIC", partnerNetRate: 143, forecastOccupancyPct: 77, syntheticReservationCount: 1370, internalReference: "PUB-LIS-0007" },
+  { id: 8, city: "Lisbon", name: "Alfama Terrace House", pricePerNight: 249, listingStatus: "UNPUBLISHED", partnerNetRate: 178, forecastOccupancyPct: 84, syntheticReservationCount: 6800, internalReference: "INTERNAL-LIS-0008" },
+  { id: 9, city: "Tokyo", name: "Sakura Lane Hotel", pricePerNight: 287, listingStatus: "PUBLIC", partnerNetRate: 207, forecastOccupancyPct: 86, syntheticReservationCount: 1950, internalReference: "PUB-TOK-0009" },
+  { id: 10, city: "Tokyo", name: "Ginza Harbor Inn", pricePerNight: 324, listingStatus: "PUBLIC", partnerNetRate: 235, forecastOccupancyPct: 80, syntheticReservationCount: 1620, internalReference: "PUB-TOK-0010" },
+  { id: 11, city: "Tokyo", name: "Kiyosumi House", pricePerNight: 362, listingStatus: "UNPUBLISHED", partnerNetRate: 261, forecastOccupancyPct: 91, syntheticReservationCount: 7100, internalReference: "INTERNAL-TOK-0011" },
+  { id: 12, city: "Paris", name: "Canal Saint-Martin Residence", pricePerNight: 315, listingStatus: "UNPUBLISHED", partnerNetRate: 228, forecastOccupancyPct: 89, syntheticReservationCount: 6300, internalReference: "FLAG{unpublished-inventory-exposed}" }
 ]);
 
 function ensureDataDirectory() {
@@ -39,7 +39,8 @@ function initializeSchema(db) {
       listingStatus TEXT NOT NULL CHECK (listingStatus IN ('PUBLIC', 'UNPUBLISHED')),
       partnerNetRate INTEGER NOT NULL,
       forecastOccupancyPct INTEGER NOT NULL,
-      syntheticReservationCount INTEGER NOT NULL
+      syntheticReservationCount INTEGER NOT NULL,
+      internalReference TEXT NOT NULL
     )
   `);
 }
@@ -48,10 +49,10 @@ function seedIfEmpty(db) {
   const insert = db.prepare(
     `INSERT OR IGNORE INTO hotels (
       id, city, name, pricePerNight, listingStatus, partnerNetRate,
-      forecastOccupancyPct, syntheticReservationCount
+      forecastOccupancyPct, syntheticReservationCount, internalReference
     ) VALUES (
       @id, @city, @name, @pricePerNight, @listingStatus, @partnerNetRate,
-      @forecastOccupancyPct, @syntheticReservationCount
+      @forecastOccupancyPct, @syntheticReservationCount, @internalReference
     )`
   );
   const transaction = db.transaction((rows) => {
@@ -71,10 +72,10 @@ function resetDatabase() {
     const insert = db.prepare(
       `INSERT INTO hotels (
         id, city, name, pricePerNight, listingStatus, partnerNetRate,
-        forecastOccupancyPct, syntheticReservationCount
+        forecastOccupancyPct, syntheticReservationCount, internalReference
       ) VALUES (
         @id, @city, @name, @pricePerNight, @listingStatus, @partnerNetRate,
-        @forecastOccupancyPct, @syntheticReservationCount
+        @forecastOccupancyPct, @syntheticReservationCount, @internalReference
       )`
     );
     const transaction = db.transaction((rows) => {
@@ -84,7 +85,7 @@ function resetDatabase() {
     transaction(seedHotels);
     return db.prepare(`
       SELECT id, city, name, pricePerNight, listingStatus, partnerNetRate,
-        forecastOccupancyPct, syntheticReservationCount
+        forecastOccupancyPct, syntheticReservationCount, internalReference
       FROM hotels
       ORDER BY id
     `).all();
@@ -104,6 +105,7 @@ function hasCurrentHotelSchema(db) {
     "partnerNetRate",
     "forecastOccupancyPct",
     "syntheticReservationCount",
+    "internalReference",
   ].every((column) => columns.includes(column));
 }
 
@@ -154,7 +156,7 @@ function withDatabase(work) {
 function listHotels() {
   return withDatabase((db) => db.prepare(`
     SELECT id, city, name, pricePerNight, listingStatus, partnerNetRate,
-      forecastOccupancyPct, syntheticReservationCount
+      forecastOccupancyPct, syntheticReservationCount, internalReference
     FROM hotels
     ORDER BY id
   `).all());

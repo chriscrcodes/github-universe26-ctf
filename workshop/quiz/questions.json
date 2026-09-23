@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "salt": "universe26-ctf-quiz-v1",
+  "minimumAnswers": 3,
+  "minimumTopics": 3,
+  "questions": [
+    {
+      "id": "source-city",
+      "topic": "source",
+      "prompt": "Which value is the untrusted source in the hotel search?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The `city` query-string parameter of GET /api/hotels"
+        },
+        {
+          "id": "b",
+          "text": "The `listingStatus` column stored in SQLite"
+        },
+        {
+          "id": "c",
+          "text": "The participant alias generated at registration"
+        }
+      ],
+      "answerHash": "844415e365ece115200c7d124e33076c7340b57d5192e3178ac7174fde20cfba"
+    },
+    {
+      "id": "source-entry",
+      "topic": "source",
+      "prompt": "Where does that untrusted value first enter the application code?",
+      "options": [
+        {
+          "id": "a",
+          "text": "In `app/public/app.js`, when the browser renders a card"
+        },
+        {
+          "id": "b",
+          "text": "In `app/src/server.js`, when the route reads `req.query`"
+        },
+        {
+          "id": "c",
+          "text": "In `app/src/database.js`, when the fixture is seeded"
+        }
+      ],
+      "answerHash": "3ebfc3c5dfdc4a34ba0c7295eeed7103685cae05d95e24da2d97a059f475803e"
+    },
+    {
+      "id": "sink-execution",
+      "topic": "sink",
+      "prompt": "Which operation is the security-sensitive sink?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`console.log` in the server startup handler"
+        },
+        {
+          "id": "b",
+          "text": "`res.json` returning the hotels array"
+        },
+        {
+          "id": "c",
+          "text": "`db.prepare(query.sql)` executing the composed statement"
+        }
+      ],
+      "answerHash": "e3e2828e873235ab595358077803d504095e72b6eedf2ee41d950c3fe0ef678c"
+    },
+    {
+      "id": "sink-file",
+      "topic": "sink",
+      "prompt": "Which file builds the statement that reaches that sink?",
+      "options": [
+        {
+          "id": "a",
+          "text": "`app/src/search-query.js`"
+        },
+        {
+          "id": "b",
+          "text": "`app/src/workshop-progress.js`"
+        },
+        {
+          "id": "c",
+          "text": "`app/src/board-client.js`"
+        }
+      ],
+      "answerHash": "324cf639e77d85832260ba361a54b075471407fa8dad1e1943f5863ce8f0c6dd"
+    },
+    {
+      "id": "flow-unsafe",
+      "topic": "flow",
+      "prompt": "What makes the data flow unsafe?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The result set is serialized to JSON"
+        },
+        {
+          "id": "b",
+          "text": "One filter clause is built by string interpolation instead of binding"
+        },
+        {
+          "id": "c",
+          "text": "The ORDER BY column is chosen from an allowlist"
+        }
+      ],
+      "answerHash": "f7f6ca4c4d6b24a3489287337ed1a11f91841394405ce4f6ab8c9d5bb415464d"
+    },
+    {
+      "id": "flow-normalizer",
+      "topic": "flow",
+      "prompt": "Why does `normalizeSearchTerm` fail to stop the attack?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It runs after the SQL statement is prepared"
+        },
+        {
+          "id": "b",
+          "text": "It only rejects `;` and comment markers, so a quote still reaches SQL"
+        },
+        {
+          "id": "c",
+          "text": "It is never called for the city parameter"
+        }
+      ],
+      "answerHash": "827d5a06c3bc98a300653f979e281185a113a7c84f5e30e526e1455ad04637c5"
+    },
+    {
+      "id": "boundary-impact",
+      "topic": "boundary",
+      "prompt": "Which business boundary does the payload break?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Only listings with `listingStatus = 'PUBLIC'` may be returned"
+        },
+        {
+          "id": "b",
+          "text": "Prices must be returned in US dollars"
+        },
+        {
+          "id": "c",
+          "text": "A search must return at most ten results"
+        }
+      ],
+      "answerHash": "b9228047ebb156fb3d9b3b3d9d6e6c87223bf4d199c784d2e5aa1db9b848c828"
+    },
+    {
+      "id": "boundary-evidence",
+      "topic": "boundary",
+      "prompt": "What is the runtime evidence that the boundary broke?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The application returned HTTP 500"
+        },
+        {
+          "id": "b",
+          "text": "A normal Paris search returned two listings"
+        },
+        {
+          "id": "c",
+          "text": "The search returned 12 listings, 4 of them unpublished, including the flag"
+        }
+      ],
+      "answerHash": "a91b36456134b47cb3e95408e528cfc73cc422b8319d6d1387bec19add8f8f0f"
+    },
+    {
+      "id": "remediation-choice",
+      "topic": "remediation",
+      "prompt": "Which correction addresses the root cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Blocking requests that contain `OR 1=1`"
+        },
+        {
+          "id": "b",
+          "text": "Binding the city value as a query parameter"
+        },
+        {
+          "id": "c",
+          "text": "Hiding the internal reference from the API response"
+        }
+      ],
+      "answerHash": "5e8a779b9e3d1e2eccb2bb610a9d3112ada09d1aed6e836696f09d65bc7a5c65"
+    }
+  ]
+}

@@ -29,8 +29,13 @@ assert.equal(
   0,
   "parameterized query must not expose unpublished listings"
 );
+assert.equal(
+  exploitHotels.filter((hotel) => String(hotel.internalReference || "").startsWith("FLAG{")).length,
+  0,
+  "the capture-the-flag token must no longer be reachable"
+);
 console.log("PASS: Paris -> 2 public listings.");
 console.log("PASS: unknown city -> 0 listings.");
 console.log("PASS: empty city -> 0 listings.");
-console.log("PASS: canonical payload -> 0 listings and 0 unpublished listings.");
+console.log("PASS: canonical payload -> 0 listings, 0 unpublished listings, and no flag token.");
 console.log("PASS: parameterized-query verification preserved normal search and the public-listing boundary.");

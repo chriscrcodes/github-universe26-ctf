@@ -29,6 +29,7 @@ immediate evidence; CodeQL may remain pending until its scan completes.
    | Empty city | No listings |
    | Supplied payload | No listings |
    | Publication boundary | No `UNPUBLISHED` listing |
+   | Flag | No `FLAG{...}` reference is reachable |
 
 1. After Blue applies only Green's approved patch, restart the application and
    verify that specific remediation:
@@ -51,11 +52,9 @@ immediate evidence; CodeQL may remain pending until its scan completes.
    queued/running, and **CodeQL clean** only after the completed scan reports no
    relevant alert. Local regressions passing does not by itself mean CodeQL is
    clean.
-1. Publish the `blue` phase after the evidence is complete:
-
-   ```bash
-   npm run phase -- blue
-   ```
+1. Ask Squad to publish the `blue` phase after the evidence is complete. Squad
+   then prints your local capture recap: the phases you completed and the flag
+   you captured. That recap is authoritative even if the scoreboard is offline.
 
 <details>
 <summary>Having trouble? 🤷</summary><br/>
@@ -66,6 +65,8 @@ immediate evidence; CodeQL may remain pending until its scan completes.
 - If `git push` is rejected, verify that this is your participant repository;
   shared `main` is unsupported.
 - Never report CodeQL clean while the scan is pending.
+- The scoreboard updating the CodeQL-clean state is a bonus; a missing or
+  offline board never blocks the end of the round.
 - Keep the commit limited to the approved patch and its tests.
 
 </details>

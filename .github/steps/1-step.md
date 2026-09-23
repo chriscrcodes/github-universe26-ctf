@@ -1,4 +1,4 @@
-## Step 1: Red detects the broken boundary
+## Step 1: Red captures the flag
 
 **Hands-on target: minutes 10–17.** You are the decision-maker. Red supplies
 runtime evidence; you predict first and distinguish facts from conclusions.
@@ -10,9 +10,15 @@ behavior with the supplied read-only request.
 
 A useful security result distinguishes expected behavior, observed behavior, and
 the conclusion supported by the difference. The public hotel search must return
-only published inventory.
+only published inventory. Unpublished listings carry an internal reference, and
+one of those references is the flag for this round.
 
-### ⌨️ Activity: Reproduce the supplied payload
+Nothing in the code is labelled as vulnerable. Several queries in the same
+files are already parameterized, and the search input is passed through a
+normalization helper. Evidence, not reading speed, is what tells you which
+query is unsafe.
+
+### ⌨️ Activity: Capture the flag with the supplied payload
 
 1. Ask Squad to start the local application in the background:
 
@@ -31,8 +37,9 @@ only published inventory.
    supplied local read-only payload against the local application:
    city=%27%20OR%201%3D1%20--%20
    (URL-encoded form of the supplied read-only payload: `' OR 1=1 -- `)
-   Separate observed facts from conclusions. Do not invent another payload,
-   target an external system, or edit code.
+   Report the internal reference of every listing that should not have been
+   returned. Separate observed facts from conclusions. Do not invent another
+   payload, target an external system, or edit code.
    ```
 
 1. Before Red runs anything, predict the result:
@@ -42,6 +49,7 @@ only published inventory.
    | Normal `Paris` search | 2 public listings |
    | Supplied payload | 12 listings, including 4 unpublished |
    | Synthetic unpublished impact | 27,400 reservations |
+   | Captured flag | One `FLAG{...}` internal reference |
 
 1. Ask Red to explain what changed and what each part of the supplied payload
    does. Red must not edit code, introduce a vulnerability, invent a payload,
@@ -62,5 +70,6 @@ only published inventory.
   **Allow all**, and used the complete prompt above.
 - If the output differs, record the actual output and ask Red to explain it
   before moving on.
+- If the scoreboard is offline, keep going: Squad records every phase locally.
 
 </details>

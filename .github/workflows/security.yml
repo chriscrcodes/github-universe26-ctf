@@ -103,17 +103,20 @@ jobs:
           exit 1
 
       - name: Publish CodeQL-clean completion
-        if: github.ref == 'refs/heads/main' && vars.BOARD_TEAM_ID != '' && vars.BOARD_SESSION_ID != '' && vars.BOARD_URL != ''
+        if: github.ref == 'refs/heads/main' && vars.BOARD_URL != ''
         env:
           BOARD_URL: ${{ vars.BOARD_URL }}
-          BOARD_TEAM_ID: ${{ vars.BOARD_TEAM_ID }}
+          BOARD_TOKEN: ${{ secrets.BOARD_TOKEN }}
           BOARD_SESSION_ID: ${{ vars.BOARD_SESSION_ID }}
-          BOARD_CI_TOKEN: ${{ secrets.BOARD_CI_TOKEN }}
         run: |
-          test -n "$BOARD_CI_TOKEN"
-          payload="$(node -e 'process.stdout.write(JSON.stringify({
-            sessionId: process.env.BOARD_SESSION_ID || "universe-2026",
-            teamId: process.env.BOARD_TEAM_ID,
+          if [ -z "$BOARD_TOKEN" ]; then
+            echo "BOARD_TOKEN is not configured; skipping the optional scoreboard update."
+            exit 0
+          fi
+          payload="$(node -e 'const day = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+          process.stdout.write(JSON.stringify({
+            sessionId: process.env.BOARD_SESSION_ID || day,
+            teamId: (process.env.GITHUB_ACTOR || "").toLowerCase(),
             phase: "ci-clean",
             source: "ci",
             repository: process.env.GITHUB_REPOSITORY,
@@ -122,5 +125,5 @@ jobs:
           curl --fail-with-body --retry 3 \
             -X POST "${BOARD_URL%/}/api/events" \
             -H "content-type: application/json" \
-            -H "x-board-ci-token: ${BOARD_CI_TOKEN}" \
+            -H "x-board-reporter-token: ${BOARD_TOKEN}" \
             --data "$payload"

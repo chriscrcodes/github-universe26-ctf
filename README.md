@@ -1,12 +1,12 @@
 <div align="center">
 
-<h1>Break it, prove it, fix it</h1>
+<h1>Capture the flag: Three AI teams, one codebase, zero mercy</h1>
 
-<p><strong>Lead an AI Purple Team with GitHub Copilot and secure a vulnerable hotel search.</strong></p>
+<p><strong>Lead an AI purple team with GitHub Copilot, capture the hidden flag, and close the hole you just walked through.</strong></p>
 
 <p>
   <a href="https://githubuniverse.com/"><img src="https://img.shields.io/badge/GitHub%20Universe-2026-181717?logo=github&amp;logoColor=white" alt="GitHub Universe 2026"></a>
-  <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/workshop-45%20minutes-8250df" alt="45-minute workshop"></a>
+  <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/capture%20the%20flag-45%20minutes-8250df" alt="45-minute capture the flag"></a>
   <a href="https://github.com/features/codespaces"><img src="https://img.shields.io/badge/GitHub-Codespaces-24292f?logo=github&amp;logoColor=white" alt="GitHub Codespaces"></a>
 </p>
 
@@ -22,8 +22,8 @@
   who want to collaborate with AI agents while retaining engineering judgment.
 - **What you'll learn**: Define a trust boundary, combine runtime and CodeQL
   evidence, approve a safe correction, and verify it with local regressions.
-- **What you'll build**: An evidence-backed correction to a local SQL injection
-  and a regression matrix that protects the public-listing boundary.
+- **What you'll build**: An evidence-backed correction to a hidden SQL
+  injection and a regression matrix that protects the public-listing boundary.
 - **Prerequisites**:
   - A GitHub account and access to GitHub Copilot CLI.
   - Basic familiarity with source code and a terminal.
@@ -33,20 +33,31 @@
 
 In this exercise, you will:
 
-1. 🔴 [Detect the boundary break](.github/steps/1-step.md).
-1. 🟣 [Explain the CodeQL source-to-sink flow](.github/steps/2-step.md).
+1. 🔴 [Capture the flag behind the broken boundary](.github/steps/1-step.md).
+1. 🟣 [Prove that you understand the CodeQL flow](.github/steps/2-step.md).
 1. 🟢 [Review and explicitly approve a correction](.github/steps/3-step.md).
 1. 🔵 [Apply, test, commit, and push the approved patch](.github/steps/4-step.md).
+
+### The flag
+
+A hotel search returns published inventory only. Somewhere behind that search,
+unpublished listings carry an internal reference — and one of them is your
+`FLAG{...}`. Nothing in the source announces itself as vulnerable: there is no
+debug switch, no `TODO`, and several nearby queries are already written safely.
+You capture the flag by finding the one query that mixes request data with SQL,
+and you win the round by closing it with evidence.
 
 ## Meet Squad
 
 **Squad** is a custom GitHub Copilot CLI agent that coordinates several
 specialists inside this repository. You talk to the coordinator in natural
 language; it routes your request to the right role and manages the handoffs.
+Every action in this exercise goes through Squad — you never run the internal
+tooling yourself.
 
 > [!NOTE]
-> Red, Green, and Blue are workshop roles. The participant remains responsible
-> for predictions, approval, evidence review, and phase publication.
+> Red, Green, Blue, and Mentor are workshop roles. The participant remains
+> responsible for predictions, approval, evidence review, and phase publication.
 > This is not an official Squad product demonstration.
 
 <p align="center">
@@ -61,7 +72,8 @@ language; it routes your request to the right role and manages the handoffs.
 | Member | Responsibility | Boundary |
 | --- | --- | --- |
 | 🧭 **Squad** | Coordinate the investigation and route requests | Does not make your decisions |
-| 🔴 **Red** | Detect and demonstrate the pre-existing vulnerability | Never edits code or introduces a vulnerability |
+| 🔴 **Red** | Capture the flag by detecting the pre-existing vulnerability | Never edits code or introduces a vulnerability |
+| 🟣 **Mentor** | Check that *you* understood the capture before a fix is discussed | Never reveals an expected answer |
 | 🟢 **Green** | Explain CodeQL and propose the correction | Waits for your explicit approval |
 | 🔵 **Blue** | Apply the approved patch, run tests, and publish it | Changes only the approved scope |
 
@@ -78,7 +90,7 @@ There is no `/squad` slash command. Useful Copilot CLI commands include:
 | --- | --- |
 | `/agent` | Browse and select the **Squad** custom agent |
 | `/help` | Display Copilot CLI commands |
-| `@app/src/hotels.js` | Add the vulnerable file to your message context |
+| `@app/src/hotels.js` | Add a search file to your message context |
 
 For example:
 
@@ -93,26 +105,26 @@ Learn more about the upstream project in the
 ### Workshop timing
 
 **10 min — Intro:** meet the speakers, understand Squad, and see the Onepoint
-use case. **30 min — Hands-on:** initialize the team, Red detects, Green
-explains and proposes, you approve, and Blue applies and verifies.
-**5 min — Debrief:** compare runtime evidence with CodeQL and discuss the
-human/automation boundary.
+use case. **30 min — Hands-on:** initialize the team, Red captures the flag,
+Mentor checks your understanding, Green explains and proposes, you approve, and
+Blue applies and verifies. **5 min — Debrief:** compare runtime evidence with
+CodeQL and discuss the human/automation boundary.
 
 ### How to start this exercise
 
 1. Select **Code → Codespaces → Create codespace on main**, or clone this
    repository locally.
-1. Open a terminal in the repository. The facilitator-provisioned board
-   configuration remains private, and this one-time command checks the
-   environment and registers your participant identity:
+1. Open a terminal in the repository. This one-time command checks the
+   environment and registers you on the scoreboard:
 
    ```bash
    npm run workshop:start
    ```
 
-   Do not create a `.env` file or commit these values. The facilitator injects
-   `BOARD_URL`, `BOARD_TOKEN`, `BOARD_TEAM_ID`, and `BOARD_SESSION_ID` into the
-   Codespace environment.
+   Your board identity is your GitHub handle. The facilitator injects
+   `BOARD_URL` and `BOARD_TOKEN` into the Codespace; you never create a `.env`
+   file or commit those values. If the scoreboard is unavailable, registration
+   prints a warning and the whole capture-the-flag run continues locally.
 
 1. Initialize the participant's Squad configuration without adding workflows:
 
@@ -131,9 +143,10 @@ human/automation boundary.
 
 1. Open Copilot CLI, select the local **Squad** agent with `/agent`, and choose
    **Allow all** when Copilot asks for permission to run the workshop tools.
-   Continue with [Step 1](.github/steps/1-step.md). From this point, ask Squad
-   to start the application and run the workshop checks; you do not need to
-   type the individual npm evidence commands.
+   Continue with [Step 1](.github/steps/1-step.md). From this point on, ask
+   Squad for everything: starting the application, gathering evidence,
+   publishing phases, and committing the fix. These four bootstrap commands are
+   the only ones you type yourself.
 
 > [!IMPORTANT]
 > For EMU, **one repository per participant is recommended**. A shared `main`
@@ -158,6 +171,8 @@ human/automation boundary.
   --no-workflows`; do not add workflows manually.
 - If `squad doctor` reports a problem, save the diagnostic output and ask the
   facilitator before continuing.
+- If the scoreboard is offline, keep playing. Squad records every phase
+  locally and prints your final recap at the end of the round.
 - If CodeQL is still pending, use the workshop's reference finding, label it as
   fallback evidence, and continue the source/flow/sink explanation. A clean
   result after the approved patch is expected even when the first scan is

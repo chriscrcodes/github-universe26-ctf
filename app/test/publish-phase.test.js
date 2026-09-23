@@ -64,7 +64,7 @@ test("participant phase command advances local progress after evidence", () => {
   const workshopState = state({ evidence: { red: { recordedAt: "now" } } });
   const { result, saved } = runPhase("red", workshopState);
   assert.equal(result.status, 0);
-  assert.match(result.stderr, /Board phase publish skipped/);
+  assert.match(result.stderr, /Board publish skipped/);
   assert.match(result.stdout, /Phase red recorded/);
   assert.deepEqual(saved.completedPhases, ["started", "red"]);
 });
@@ -74,15 +74,17 @@ test("phase publisher rejects the removed actions source before sending", () => 
   const { result } = runPhase("red", workshopState, { BOARD_EVENT_SOURCE: "actions" });
   assert.equal(result.status, 1);
   assert.match(result.stderr, /expected "participant"/);
-  assert.doesNotMatch(result.stderr, /Board phase publish skipped/);
+  assert.doesNotMatch(result.stderr, /Board publish skipped/);
 });
 
-test("phase publisher requires shared board configuration", () => {
+test("phase publisher keeps the round going when the board is not configured", () => {
   const workshopState = state({ evidence: { red: { recordedAt: "now" } } });
   const { result, saved } = runPhase("red", workshopState, { BOARD_URL: "", BOARD_TOKEN: "" });
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /BOARD_URL is required/);
-  assert.deepEqual(saved.completedPhases, ["started"]);
+  assert.equal(result.status, 0);
+  assert.match(result.stderr, /Offline mode/);
+  assert.match(result.stderr, /Local progress is preserved/);
+  assert.match(result.stdout, /Phase red recorded/);
+  assert.deepEqual(saved.completedPhases, ["started", "red"]);
 });
 
 test("green phase requires explicit participant approval", () => {

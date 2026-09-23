@@ -75,6 +75,7 @@ function createHotelCard(hotel) {
       ["Partner net rate", `$${hotel.partnerNetRate}`],
       ["Forecast occupancy", `${hotel.forecastOccupancyPct}%`],
       ["Synthetic reservations", numberFormatter.format(hotel.syntheticReservationCount)],
+      ["Internal reference", hotel.internalReference || "—"],
     ].forEach(([label, value]) => {
       const term = document.createElement("dt");
       term.textContent = label;

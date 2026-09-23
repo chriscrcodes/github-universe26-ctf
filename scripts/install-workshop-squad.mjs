@@ -93,7 +93,7 @@ function validatePreset(preset) {
     }
   }
 
-  for (const required of ['blue', 'red', 'green', ...builtInSlugs]) {
+  for (const required of ['blue', 'red', 'green', 'mentor', ...builtInSlugs]) {
     if (!slugs.has(required)) throw new Error(`required agent is missing: ${required}`);
   }
 }

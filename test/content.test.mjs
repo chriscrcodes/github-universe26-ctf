@@ -190,12 +190,14 @@ test("facilitator runbook documents EMU provisioning and deterministic gates", a
     "Romain and Christophe",
     "Onepoint example",
     "one private repository",
-    "BOARD_TEAM_ID",
+    "BOARD_URL",
+    "BOARD_TOKEN",
     "BOARD_SESSION_ID",
-    "BOARD_CI_TOKEN",
-    "BOARD_CI_BINDINGS",
-    "BOARD_CI_TOKEN_KEY",
-    "HMAC-SHA256",
+    "There is no per-repository CI credential",
+    "Mentor graded the participant's answers",
+    "app/src/search-query.js",
+    "app/.board-outbox.log",
+    "Board is unavailable",
     "0003_ci_completion.sql",
     "Only GitHub Actions",
     "approved operator",
@@ -216,6 +218,9 @@ test("facilitator runbook documents EMU provisioning and deterministic gates", a
     "startup staggering only as a fallback",
   ]) {
     assert.match(runbook, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  for (const absent of ["BOARD_TEAM_ID", "BOARD_CI_", "HMAC"]) {
+    assert.doesNotMatch(runbook, new RegExp(absent.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
   for (const link of [
     "https://docs.github.com/en/enterprise-cloud@latest/admin/managing-iam/understanding-iam-for-enterprises/abilities-and-restrictions-of-managed-user-accounts",

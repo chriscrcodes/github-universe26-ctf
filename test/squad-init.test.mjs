@@ -58,7 +58,7 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   const result = runInstaller(participant);
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Installed workshop Squad 1 for Squad 0\.13\.1/);
+  assert.match(result.stdout, /Installed workshop Squad 2 for Squad 0\.13\.1/);
 
   const registry = JSON.parse(
     readFileSync(path.join(participant, '.squad', 'casting', 'registry.json'), 'utf8'),
@@ -67,6 +67,7 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
     'blue',
     'red',
     'green',
+    'mentor',
     'scribe',
     'ralph',
     'rai-agent',
@@ -102,6 +103,13 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   assert.match(blue, /run `npm run verify`/);
   assert.match(blue, /push `main`/);
   assert.match(red, /Never edit code/);
+
+  const mentor = readFileSync(
+    path.join(participant, '.squad', 'agents', 'mentor', 'charter.md'),
+    'utf8',
+  );
+  assert.match(mentor, /never reveal|Never reveal/i);
+  assert.match(mentor, /--answers=/);
 });
 
 test('is byte-for-byte idempotent for managed participant state', (t) => {
@@ -186,6 +194,7 @@ test('portable preset definitions enforce the workshop role boundary', () => {
     path.join(presetRoot, 'agents', 'blue', 'charter.md'),
     path.join(presetRoot, 'agents', 'green', 'charter.md'),
     path.join(presetRoot, 'agents', 'red', 'charter.md'),
+    path.join(presetRoot, 'agents', 'mentor', 'charter.md'),
   ].map((file) => readFileSync(file, 'utf8'));
 
   const combined = files.join('\n');
@@ -195,6 +204,8 @@ test('portable preset definitions enforce the workshop role boundary', () => {
   assert.match(combined, /Blue applies only|Accept only Green's exact patch/i);
   assert.match(combined, /push(?:es)? `main`|push `main`/i);
   assert.match(combined, /Red is read-only|Red never edits code|Never edit code/i);
+  assert.match(combined, /Mentor gates the purple phase/);
+  assert.match(combined, /Mentor never edits code/);
 });
 
 test('participant template does not ship an active Squad team', () => {

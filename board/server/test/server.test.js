@@ -1,9 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { createBoard, deriveCiToken, parseCiBindings, validEvent } = require("../src/server");
-
-const ciTokenKey = "server-test-ci-token-key-at-least-32-bytes";
-const ciBindings = { "octo/ctf": "hybrid-team" };
+const { createBoard, validEvent } = require("../src/server");
 
 async function withBoard(fn, options = {}) {
   const board = createBoard({ sessionId: "universe-2026", operatorKey: "secret", port: 0, ...options });
@@ -106,9 +103,9 @@ test("event validation enforces the phase source contract", () => {
   }
 });
 
-test("CI completion requires its own credential and cannot be declared by a participant", async () => {
+test("CI completion uses the shared reporter token and cannot be declared by a participant", async () => {
   await withBoard(async (baseUrl) => {
-    const participantHeaders = {
+    const headers = {
       "content-type": "application/json",
       "x-board-reporter-token": "participant-token",
     };
@@ -124,7 +121,7 @@ test("CI completion requires its own credential and cannot be declared by a part
     for (const phase of ["started", "red", "purple", "green", "blue"]) {
       const response = await fetch(`${baseUrl}/api/events`, {
         method: "POST",
-        headers: participantHeaders,
+        headers,
         body: JSON.stringify({
           sessionId: "universe-2026",
           teamId: "hybrid-team",
@@ -136,39 +133,31 @@ test("CI completion requires its own credential and cannot be declared by a part
       assert.equal(response.status, phase === "started" ? 201 : 200);
     }
 
-    const rejected = await fetch(`${baseUrl}/api/events`, {
-      method: "POST",
-      headers: participantHeaders,
-      body: JSON.stringify(ciEvent),
-    });
-    assert.equal(rejected.status, 401);
-
     const participantClaim = await fetch(`${baseUrl}/api/events`, {
       method: "POST",
-      headers: participantHeaders,
+      headers,
       body: JSON.stringify({ ...ciEvent, source: "participant" }),
     });
     assert.equal(participantClaim.status, 400);
 
+    const unauthenticated = await fetch(`${baseUrl}/api/events`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(ciEvent),
+    });
+    assert.equal(unauthenticated.status, 401);
+
     const accepted = await fetch(`${baseUrl}/api/events`, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-board-ci-token": deriveCiToken(ciTokenKey, "universe-2026", "octo/ctf", "hybrid-team"),
-      },
+      headers,
       body: JSON.stringify(ciEvent),
     });
     assert.equal(accepted.status, 200);
     assert.equal((await accepted.json()).team.ciStatus, "clean");
-  }, {
-    reporterToken: "participant-token",
-    ciTokenKey,
-    ciBindings,
-  });
+  }, { reporterToken: "participant-token" });
 });
 
-test("CI completion validates its repository/team binding and commit SHA", async () => {
-  const bindings = parseCiBindings({ "octo/ctf": "validation-team" });
+test("CI completion validates its repository and commit SHA", () => {
   const base = {
     sessionId: "universe-2026",
     teamId: "validation-team",
@@ -177,20 +166,15 @@ test("CI completion validates its repository/team binding and commit SHA", async
     repository: "octo/ctf",
     commitSha: "b".repeat(40),
   };
-  assert.equal(validEvent(base, "universe-2026", bindings), null);
-  assert.equal(
-    validEvent({ ...base, repository: "octo/other" }, "universe-2026", bindings),
-    "repository/team binding mismatch",
-  );
-  assert.equal(
-    validEvent({ ...base, teamId: "another-team" }, "universe-2026", bindings),
-    "repository/team binding mismatch",
-  );
-  assert.equal(validEvent({ ...base, commitSha: "not-a-sha" }, "universe-2026", bindings), "invalid commitSha");
+  assert.equal(validEvent(base, "universe-2026"), null);
+  assert.equal(validEvent({ ...base, repository: "not a repo" }, "universe-2026"), "invalid repository");
+  assert.equal(validEvent({ ...base, commitSha: "not-a-sha" }, "universe-2026"), "invalid commitSha");
+  assert.equal(validEvent({ ...base, phase: "blue" }, "universe-2026"), "invalid CI phase");
 });
 
 test("CI completion follows the locally verified participant phases", async () => {
   await withBoard(async (baseUrl) => {
+    const headers = { "content-type": "application/json", "x-board-reporter-token": "participant-token" };
     const participant = (phase) => ({
       sessionId: "universe-2026",
       teamId: "ordered-team",
@@ -206,102 +190,27 @@ test("CI completion follows the locally verified participant phases", async () =
       repository: "octo/ctf",
       commitSha: "c".repeat(40),
     };
-    const participantHeaders = { "content-type": "application/json", "x-board-reporter-token": "participant-token" };
-    const ciHeaders = {
-      "content-type": "application/json",
-      "x-board-ci-token": deriveCiToken(ciTokenKey, "universe-2026", "octo/ctf", "ordered-team"),
-    };
 
     let response = await fetch(`${baseUrl}/api/events`, {
-      method: "POST", headers: participantHeaders, body: JSON.stringify(participant("started")),
+      method: "POST", headers, body: JSON.stringify(participant("started")),
     });
     assert.equal(response.status, 201);
     response = await fetch(`${baseUrl}/api/events`, {
-      method: "POST", headers: ciHeaders, body: JSON.stringify(ciEvent),
+      method: "POST", headers, body: JSON.stringify(ciEvent),
     });
     assert.equal(response.status, 409);
 
     for (const phase of ["red", "purple", "green", "blue"]) {
       response = await fetch(`${baseUrl}/api/events`, {
-        method: "POST", headers: participantHeaders, body: JSON.stringify(participant(phase)),
+        method: "POST", headers, body: JSON.stringify(participant(phase)),
       });
       assert.equal(response.status, 200);
     }
     response = await fetch(`${baseUrl}/api/events`, {
-      method: "POST", headers: ciHeaders, body: JSON.stringify(ciEvent),
+      method: "POST", headers, body: JSON.stringify(ciEvent),
     });
     assert.equal(response.status, 200);
-  }, {
-    reporterToken: "participant-token",
-    ciTokenKey,
-    ciBindings: { "octo/ctf": "ordered-team" },
-  });
-});
-
-test("CI credentials cannot claim another repository or team", async () => {
-  const bindings = {
-    "octo/team-one": "team-one",
-    "octo/team-two": "team-two",
-  };
-  await withBoard(async (baseUrl) => {
-    const participantHeaders = { "content-type": "application/json" };
-    for (const teamId of ["team-one", "team-two"]) {
-      for (const phase of ["started", "red", "purple", "green", "blue"]) {
-        const response = await fetch(`${baseUrl}/api/events`, {
-          method: "POST",
-          headers: participantHeaders,
-          body: JSON.stringify({
-            sessionId: "universe-2026",
-            teamId,
-            alias: teamId === "team-one" ? "Team One" : "Team Two",
-            phase,
-            source: "participant",
-          }),
-        });
-        assert.equal(response.status, phase === "started" ? 201 : 200);
-      }
-    }
-
-    const teamOneToken = deriveCiToken(ciTokenKey, "universe-2026", "octo/team-one", "team-one");
-    const event = {
-      sessionId: "universe-2026",
-      teamId: "team-two",
-      phase: "ci-clean",
-      source: "ci",
-      repository: "octo/team-two",
-      commitSha: "d".repeat(40),
-    };
-    const wrongCredential = await fetch(`${baseUrl}/api/events`, {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-board-ci-token": teamOneToken },
-      body: JSON.stringify(event),
-    });
-    assert.equal(wrongCredential.status, 401);
-
-    const wrongTeam = await fetch(`${baseUrl}/api/events`, {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-board-ci-token": teamOneToken },
-      body: JSON.stringify({ ...event, repository: "octo/team-one" }),
-    });
-    assert.equal(wrongTeam.status, 400);
-    assert.deepEqual(await wrongTeam.json(), { error: "repository/team binding mismatch" });
-
-    const state = await (await fetch(`${baseUrl}/api/state`)).json();
-    assert.ok(state.teams.every((team) => team.ciStatus === "pending"));
-  }, { ciTokenKey, ciBindings: bindings });
-});
-
-test("CI binding configuration is strict and one-to-one", () => {
-  assert.throws(() => parseCiBindings("{"), /valid JSON/);
-  assert.throws(() => parseCiBindings({ "Octo/repo": "team-one" }), /invalid CI repository/);
-  assert.throws(
-    () => parseCiBindings({ "octo/one": "same-team", "octo/two": "same-team" }),
-    /bound more than once/,
-  );
-  assert.throws(
-    () => createBoard({ ciBindings: { "octo/repo": "team-one" }, ciTokenKey: "too-short" }),
-    /at least 32 bytes/,
-  );
+  }, { reporterToken: "participant-token" });
 });
 
 test("board retains its sixty-team capacity without evicting registered squads", async () => {
