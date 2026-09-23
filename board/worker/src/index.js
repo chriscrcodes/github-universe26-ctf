@@ -115,6 +115,15 @@ function createEventRateLimiter({
   };
 }
 
+function resolveSessionId(env = {}, now = new Date()) {
+  if (env.BOARD_SESSION_ID) return env.BOARD_SESSION_ID;
+
+  const year = now.getUTCFullYear().toString().padStart(4, "0");
+  const month = (now.getUTCMonth() + 1).toString().padStart(2, "0");
+  const day = now.getUTCDate().toString().padStart(2, "0");
+  return `${year}${month}${day}`;
+}
+
 function validEvent(payload, sessionId) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return "payload must be a JSON object";
@@ -184,7 +193,7 @@ const app = new Hono();
 const eventRateLimiter = createEventRateLimiter();
 
 app.get("/health", (c) => {
-  const sessionId = c.env.BOARD_SESSION_ID || "universe-2026";
+  const sessionId = resolveSessionId(c.env);
   return c.json({ ok: true, sessionId });
 });
 
@@ -194,7 +203,7 @@ app.post("/api/events", async (c) => {
     return jsonError(c, parsed.status, parsed.error);
   }
 
-  const sessionId = c.env.BOARD_SESSION_ID || "universe-2026";
+  const sessionId = resolveSessionId(c.env);
   const isCiEvent = parsed.value?.source === "ci";
   if (!eventRateLimiter.take({
     ip: getIpAddress(c),
@@ -344,5 +353,6 @@ export default app;
 export {
   constantTimeEqual,
   createEventRateLimiter,
+  resolveSessionId,
   validEvent,
 };

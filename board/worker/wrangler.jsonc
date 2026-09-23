@@ -7,9 +7,6 @@
     "directory": "../web",
     "binding": "ASSETS"
   },
-  "vars": {
-    "BOARD_SESSION_ID": "universe-2026"
-  },
   "d1_databases": [
     {
       "binding": "BOARD_DB",

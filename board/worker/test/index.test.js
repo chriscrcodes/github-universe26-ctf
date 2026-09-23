@@ -1,6 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createEventRateLimiter, validEvent } from "../src/index.js";
+import { readFile } from "node:fs/promises";
+import { createEventRateLimiter, resolveSessionId, validEvent } from "../src/index.js";
+
+test("worker defaults its session ID to the current UTC day and accepts a shared override", () => {
+  const now = new Date("2026-09-23T23:30:00-07:00");
+  assert.equal(resolveSessionId({}, now), "20260924");
+  assert.equal(resolveSessionId({ BOARD_SESSION_ID: "rehearsal-2026" }, now), "rehearsal-2026");
+});
+
+test("worker deployment config does not pin the session ID", async () => {
+  const config = await readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8");
+  assert.doesNotMatch(config, /"BOARD_SESSION_ID"\s*:/);
+});
 
 test("worker rate limiter permits sixty registrations behind one NAT", () => {
   const limiter = createEventRateLimiter();

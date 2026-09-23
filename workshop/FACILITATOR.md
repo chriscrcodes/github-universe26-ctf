@@ -37,11 +37,12 @@ per participant. Everything else is derived at runtime.
 | `BOARD_TOKEN` | Codespaces secret, Actions secret | The shared scoreboard reporter token |
 
 The participant's board identity is their GitHub handle, resolved from
-`BOARD_USER`, then `GITHUB_USER`, then `gh api user`. The session identifier is
-the event day in `yyyyMMdd` form, computed locally, so every participant lands
-on the same board without any per-repository configuration. Set the optional
-`BOARD_SESSION_ID` variable only to override that day, for example during a
-rehearsal or a session that crosses midnight UTC.
+`BOARD_USER`, then `GITHUB_USER`, then `gh api user`. By default, both the
+participant app and the scoreboard worker use the current UTC day in `yyyyMMdd`
+form as the session identifier. If you set `BOARD_SESSION_ID` to override that
+default, use the same value for the scoreboard worker, participant environment,
+and Actions variable; this is useful for rehearsals or events spanning midnight
+UTC.
 
 There is no per-repository CI credential. The optional `ci-clean` event posted
 by GitHub Actions uses the same shared `BOARD_TOKEN` and reports
@@ -168,7 +169,7 @@ Authoritative references: [EMU managed-user restrictions](https://docs.github.co
 | Board state | Required evidence |
 | --- | --- |
 | Started | Participant handle registered by `npm run workshop:start` |
-| Red | Canonical local exploit returns the expected 2-to-12 boundary break and the flag |
+| Red | Canonical local exploit returns the expected 2-to-24 boundary break and the flag |
 | Purple | Mentor graded the participant's answers across at least three topics |
 | Green | Participant approval exists and the fixed behavior check passes |
 | Blue | Regression matrix passes for a clean commit pushed on `main` |
