@@ -195,8 +195,8 @@ async function buildPatchedSourceTree() {
   const queryFile = path.join(PATCHED_SOURCE_DIR, "search-query.js");
   const original = await readFile(queryFile, "utf8");
   const patched = original.replace(
-    /return \{ clause: `city = '\$\{city\}'`, parameters: \[\] \};/,
-    'return { clause: "city = ?", parameters: [city] };'
+    /return \{ clause: `city = '\$\{city\}' COLLATE NOCASE`, parameters: \[\] \};/,
+    'return { clause: "city = ? COLLATE NOCASE", parameters: [city] };'
   );
   assert.notEqual(patched, original, "the reference remediation patch must apply to app/src/search-query.js");
   await writeFile(queryFile, patched);
@@ -290,10 +290,17 @@ test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async 
   });
   assertExitOk(initialReset, "initial reset");
   const initialParis = await request(APP_URL, "/api/hotels?city=Paris", { signal: AbortSignal.timeout(1_000) });
+  const initialLowercaseParis = await request(APP_URL, "/api/hotels?city=paris", { signal: AbortSignal.timeout(1_000) });
   assert.equal(initialParis.response.status, 200);
+  assert.equal(initialLowercaseParis.response.status, 200);
   const baselineParisHotels = hotelsFrom(initialParis.body);
   assert.equal(baselineParisHotels.length, 2, "baseline Paris dataset must contain two public listings");
   assert.ok(baselineParisHotels.every((hotel) => hotel.listingStatus === "PUBLIC"));
+  assert.deepEqual(
+    hotelsFrom(initialLowercaseParis.body),
+    baselineParisHotels,
+    "city search should be case-insensitive before remediation"
+  );
 
   console.log("[3/15] registering the team and confirming the board shows started...");
   const register = await runCommand({
@@ -389,9 +396,16 @@ test("participant workshop journey runs end-to-end", { timeout: 30_000 }, async 
 
   console.log("[12/16] checking intended behavior...");
   const paris = await request(APP_URL, "/api/hotels?city=Paris", { signal: AbortSignal.timeout(1_000) });
+  const lowercaseParis = await request(APP_URL, "/api/hotels?city=paris", { signal: AbortSignal.timeout(1_000) });
   assert.equal(paris.response.status, 200);
+  assert.equal(lowercaseParis.response.status, 200);
   const parisHotels = hotelsFrom(paris.body);
   assert.deepEqual(parisHotels, baselineParisHotels, "Paris results should match the deterministic baseline");
+  assert.deepEqual(
+    hotelsFrom(lowercaseParis.body),
+    baselineParisHotels,
+    "the approved parameterized query should remain case-insensitive"
+  );
   assert.ok(parisHotels.every((hotel) => hotel.city === "Paris" && hotel.listingStatus === "PUBLIC"));
   const unknown = await request(APP_URL, "/api/hotels?city=NoSuchCity", { signal: AbortSignal.timeout(1_000) });
   assert.equal(unknown.response.status, 200);

@@ -1,5 +1,6 @@
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { APP_URL, available, hotelsFrom, request } from "./http.mjs";
 
 let running = false;
@@ -10,6 +11,11 @@ before(async () => {
 const serviceTest = (name, fn) => test(name, async (t) => {
   if (!running) return t.skip(`application unavailable at ${APP_URL}`);
   return fn(t);
+});
+
+test("hotel search suggestions include San Francisco", async () => {
+  const html = await readFile(new URL("../app/public/index.html", import.meta.url), "utf8");
+  assert.match(html, /data-city="San Francisco">San Francisco<\/button>/);
 });
 
 serviceTest("health endpoint is available", async () => {
@@ -53,7 +59,7 @@ serviceTest("read-only tautology either bypasses or preserves the publication bo
   const exploitHotels = hotelsFrom(exploit.body);
   if (health.body?.vulnerable) {
     assert.equal(normalHotels.length, 2);
-    assert.equal(exploitHotels.length, 12, "tautology should return all listings");
+    assert.equal(exploitHotels.length, 24, "tautology should return all listings");
     const unpublished = exploitHotels.filter((hotel) => hotel.listingStatus === "UNPUBLISHED");
     assert.equal(unpublished.length, 4, "tautology should expose four unpublished listings");
     assert.equal(

@@ -28,7 +28,7 @@ here.
 | # | Checkpoint | Expected outcome |
 | --- | --- | --- |
 | 1 | Squad starts the application on request | `npm run workshop:app` is run by Squad, not by the participant |
-| 2 | Red reproduces only the supplied payload | 2 public listings become 12 listings, 4 unpublished |
+| 2 | Red reproduces only the supplied payload | 2 public listings become 24 listings, 4 unpublished |
 | 3 | Red reports the captured flag | A single `FLAG{...}` internal reference is quoted |
 | 4 | Mentor runs the understanding check | Questions asked one at a time, answers never revealed |
 | 5 | Mentor grading gates the purple phase | Evidence is recorded only for answers covering at least three topics |

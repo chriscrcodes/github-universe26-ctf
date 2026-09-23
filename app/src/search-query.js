@@ -22,7 +22,7 @@ function buildStatusFilter() {
 
 function buildCityFilter(city) {
   // Inlined while the reporting prototype needed a stable cache key per city.
-  return { clause: `city = '${city}'`, parameters: [] };
+  return { clause: `city = '${city}' COLLATE NOCASE`, parameters: [] };
 }
 
 function buildMaxPriceFilter(maxPrice) {
@@ -61,7 +61,7 @@ function summarizePartnerRates(db, city) {
     .prepare(`
       SELECT COUNT(*) AS listings, AVG(partnerNetRate) AS averageNetRate
       FROM hotels
-      WHERE city = ? AND ${PUBLISHED_ONLY}
+      WHERE city = ? COLLATE NOCASE AND ${PUBLISHED_ONLY}
     `)
     .get(city);
 }

@@ -16,12 +16,14 @@ async function hotels(city) {
 
 async function main() {
   const paris = await hotels("Paris");
+  const lowercaseParis = await hotels("paris");
   const unknown = await hotels("NoSuchWorkshopCity");
   const empty = await hotels("");
   const payload = await hotels("' OR 1=1 -- ");
 
   assert.equal(paris.length, 2, "Paris should return two listings");
   assert.ok(paris.every((hotel) => hotel.city === "Paris" && hotel.listingStatus === "PUBLIC"));
+  assert.deepEqual(lowercaseParis, paris, "city searches should not depend on input capitalization");
   assert.deepEqual(unknown, [], "unknown city should return no listings");
   assert.deepEqual(empty, [], "empty city should return no listings");
   assert.deepEqual(payload, [], "canonical payload should be treated as literal data");
@@ -46,7 +48,7 @@ async function main() {
 
   recordEvidence("blue", {
     command: "npm run regressions",
-    cases: ["Paris", "unknown city", "empty city", "canonical payload", "publication boundary"],
+    cases: ["Paris (case-insensitive)", "unknown city", "empty city", "canonical payload", "publication boundary"],
     branch,
     commit,
     pushed: true,

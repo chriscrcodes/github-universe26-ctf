@@ -43,6 +43,7 @@ test("the price and name filters bind their values", () => {
   });
   const query = buildPublicListingQuery([buildCityFilter("Paris"), buildMaxPriceFilter(200)]);
   assert.match(query.sql, /listingStatus = 'PUBLIC'/);
+  assert.match(query.sql, /city = 'Paris' COLLATE NOCASE/);
   // Before the approved fix the city value is inlined; afterwards it is bound.
   assert.deepEqual(
     query.parameters.filter((value) => value !== "Paris"),

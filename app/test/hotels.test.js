@@ -1,13 +1,15 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const { resetDatabase, seedHotels } = require("../src/database");
 const { findHotelById, partnerRateSummary, searchHotelsByCity } = require("../src/hotels");
 
 const payload = "' OR 1=1 -- ";
 
-test("resetDatabase restores the deterministic twelve-hotel fixture", () => {
+test("resetDatabase restores the deterministic twenty-four-hotel fixture", () => {
   const hotels = resetDatabase();
-  assert.equal(hotels.length, 12);
+  assert.equal(hotels.length, 24);
   assert.deepEqual(hotels, seedHotels);
 });
 
@@ -16,6 +18,7 @@ test("a normal city search returns only the two public Paris listings", () => {
   const hotels = searchHotelsByCity("Paris");
   assert.equal(hotels.length, 2);
   assert.ok(hotels.every((hotel) => hotel.city === "Paris" && hotel.listingStatus === "PUBLIC"));
+  assert.deepEqual(searchHotelsByCity("paris"), hotels);
   assert.ok(hotels.every((hotel) =>
     Number.isInteger(hotel.pricePerNight) &&
     Number.isInteger(hotel.partnerNetRate) &&
@@ -27,14 +30,48 @@ test("a normal city search returns only the two public Paris listings", () => {
   assert.deepEqual(searchHotelsByCity(null), []);
 });
 
+test("the hotel search suggests San Francisco", () => {
+  const html = fs.readFileSync(path.join(__dirname, "../public/index.html"), "utf8");
+  assert.match(html, /data-city="San Francisco">San Francisco<\/button>/);
+});
+
+test("each city has a distinct public result count, including San Francisco", () => {
+  resetDatabase();
+  const expectedCounts = {
+    Paris: 2,
+    Berlin: 3,
+    Lisbon: 4,
+    Tokyo: 5,
+    "San Francisco": 6,
+  };
+
+  for (const [city, count] of Object.entries(expectedCounts)) {
+    const hotels = searchHotelsByCity(city);
+    assert.equal(hotels.length, count, `${city} result count`);
+    assert.ok(hotels.every((hotel) => hotel.city === city && hotel.listingStatus === "PUBLIC"));
+  }
+
+  assert.deepEqual(
+    searchHotelsByCity("San Francisco").map((hotel) => hotel.name),
+    [
+      "Presidio Harbor House",
+      "Embarcadero Lantern Hotel",
+      "Pacific Heights Garden Inn",
+      "Mission Terrace Hotel",
+      "North Beach Gallery House",
+      "Sunset Commons Lodge",
+    ],
+  );
+});
+
 test("the optional filters narrow the public result set", () => {
   resetDatabase();
   assert.equal(searchHotelsByCity("Paris", { maxPrice: "230" }).length, 1);
   assert.equal(searchHotelsByCity("Paris", { maxPrice: "not-a-number" }).length, 2);
   assert.equal(searchHotelsByCity("Paris", { name: "Saint-Clair" }).length, 1);
   assert.equal(searchHotelsByCity("Paris", { name: "%" }).length, 0);
-  assert.equal(searchHotelsByCity("Tokyo", { sort: "price" })[0].name, "Sakura Lane Hotel");
-  assert.equal(searchHotelsByCity("Tokyo", { sort: "'; DROP TABLE hotels; --" }).length, 2);
+  assert.equal(searchHotelsByCity("Tokyo", { sort: "price" })[0].name, "Asakusa Paper Lantern Inn");
+  assert.equal(searchHotelsByCity("Tokyo", { sort: "'; DROP TABLE hotels; --" }).length, 5);
 });
 
 test("the single-listing and partner lookups stay inside the public boundary", () => {
@@ -43,13 +80,14 @@ test("the single-listing and partner lookups stay inside the public boundary", (
   assert.equal(findHotelById("12"), null, "an unpublished listing must not be addressable");
   assert.equal(findHotelById(payload), null);
   assert.deepEqual(partnerRateSummary("Paris"), { listings: 2, averageNetRate: 180 });
+  assert.deepEqual(partnerRateSummary("paris"), { listings: 2, averageNetRate: 180 });
   assert.deepEqual(partnerRateSummary(payload), { listings: 0, averageNetRate: null });
 });
 
 test("the starting application leaks unpublished inventory until the fix is applied", () => {
   resetDatabase();
   const exploit = searchHotelsByCity(payload);
-  assert.ok([0, 12].includes(exploit.length));
+  assert.ok([0, 24].includes(exploit.length));
   if (exploit.length === 0) return;
   const unpublished = exploit.filter((hotel) => hotel.listingStatus === "UNPUBLISHED");
   assert.equal(unpublished.length, 4);
@@ -66,5 +104,5 @@ test("the starting application leaks unpublished inventory until the fix is appl
 test("statement-terminating payloads are rejected before reaching SQL", () => {
   resetDatabase();
   assert.deepEqual(searchHotelsByCity("'; DROP TABLE hotels; --"), []);
-  assert.equal(resetDatabase().length, 12);
+  assert.equal(resetDatabase().length, 24);
 });
