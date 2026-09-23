@@ -13,9 +13,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # CodeQL runs in its own job on purpose. The verification job below fails by
+  # design while the vulnerability is still present, and a CodeQL step sharing
+  # that job would report the failed job back to GitHub as a code scanning
+  # configuration error.
+  codeql:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3.28.17
+        with:
+          languages: javascript-typescript
+          build-mode: none
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v3.28.17
+        with:
+          category: /language:javascript-typescript
+
   verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    needs: codeql
     steps:
       - name: Check out repository
         uses: actions/checkout@v4.2.2
@@ -31,17 +54,6 @@ jobs:
 
       - name: Run behavior tests
         run: npm test
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3.28.17
-        with:
-          languages: javascript-typescript
-          build-mode: none
-
-      - name: Analyze with CodeQL
-        uses: github/codeql-action/analyze@v3.28.17
-        with:
-          category: /language:javascript-typescript
 
       - name: Start the application from the pushed commit
         run: |

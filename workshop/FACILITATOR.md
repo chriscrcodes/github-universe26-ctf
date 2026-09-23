@@ -97,11 +97,13 @@ Before opening the room:
    scoreboard update is wanted.
 5. Keep the advanced CodeQL workflow in the template, confirm it is enabled,
    and run it once so the SQL injection alert is already present before the
-   event. That pre-event run is **expected to fail**: it analyses the
-   deliberately vulnerable baseline, so `Verify the remediation behavior` and
-   `Confirm the SQL injection alert is closed` both report a failure while
-   CodeQL still uploads the alert. The run turns green only after the
-   participant pushes the approved patch.
+   event. The workflow has two jobs. The `codeql` job is green from the start
+   and uploads the alert. The `verify` job is **expected to fail** before the
+   fix, because it checks remediated behavior against the deliberately
+   vulnerable baseline; it turns green once the participant pushes the
+   approved patch. Keep CodeQL in its own job: a CodeQL step sharing the
+   failing job makes GitHub display a misleading "Code scanning configuration
+   error" in the Security tab.
 6. Confirm Code Security licensing for the private repositories and the
    expected unique active committers; private-repository Code Security usage
    is licensed, not covered by public-repository free use.
@@ -175,6 +177,9 @@ security-extended suite reports no alerts.
   label it as fallback evidence.
 - **Post-push CodeQL is pending:** leave the board at CI pending and use a
   reference green repository during the debrief.
+- **Security tab shows a code scanning configuration error:** confirm CodeQL
+  still runs in its own `codeql` job. That banner reflects the status of the
+  job that ran CodeQL, not the analysis itself.
 - **No workflow run appears:** check that `Security verification` is not
   disabled in **Actions → Security verification**; GitHub disables workflows
   in repositories that stay inactive.
