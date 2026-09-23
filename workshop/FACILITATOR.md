@@ -95,8 +95,13 @@ Before opening the room:
    repository/organization scope and access policy.
 4. Provision the same two values for Actions if the optional CodeQL-clean
    scoreboard update is wanted.
-5. Keep the advanced CodeQL workflow in the template and run it once so the
-   SQL injection alert is already present before the event.
+5. Keep the advanced CodeQL workflow in the template, confirm it is enabled,
+   and run it once so the SQL injection alert is already present before the
+   event. That pre-event run is **expected to fail**: it analyses the
+   deliberately vulnerable baseline, so `Verify the remediation behavior` and
+   `Confirm the SQL injection alert is closed` both report a failure while
+   CodeQL still uploads the alert. The run turns green only after the
+   participant pushes the approved patch.
 6. Confirm Code Security licensing for the private repositories and the
    expected unique active committers; private-repository Code Security usage
    is licensed, not covered by public-repository free use.
@@ -170,6 +175,9 @@ security-extended suite reports no alerts.
   label it as fallback evidence.
 - **Post-push CodeQL is pending:** leave the board at CI pending and use a
   reference green repository during the debrief.
+- **No workflow run appears:** check that `Security verification` is not
+  disabled in **Actions → Security verification**; GitHub disables workflows
+  in repositories that stay inactive.
 - **Push fails:** confirm the participant is on their isolated repository and
   `main` tracks its expected upstream.
 - **Board is unavailable:** nothing blocks. Registration and every phase warn,
