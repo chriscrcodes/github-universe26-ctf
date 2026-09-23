@@ -199,7 +199,7 @@ function install(root, preset) {
     universe_capacity: {},
   };
   const managed = new Map([
-    ['.squad/config.json', stringifyJson({ version: 1 })],
+    ['.squad/config.json', stringifyJson({ version: 1, defaultModel: 'gpt-5.6-luna' })],
     ['.squad/team.md', buildTeam(projectName, preset.agents)],
     ['.squad/routing.md', routing.endsWith('\n') ? routing : `${routing}\n`],
     ['.squad/decisions.md', '# Team Decisions\n\nNo shared decisions recorded.\n'],
