@@ -10,10 +10,6 @@
   <a href="https://github.com/features/codespaces"><img src="https://img.shields.io/badge/GitHub-Codespaces-24292f?logo=github&amp;logoColor=white" alt="GitHub Codespaces"></a>
 </p>
 
-<p>
-  <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>
-</p>
-
 </div>
 
 ## Welcome
@@ -42,18 +38,16 @@ In this exercise, you will:
 
 A hotel search returns published inventory only. Somewhere behind that search,
 unpublished listings carry an internal reference — and one of them is your
-`FLAG{...}`. Nothing in the source announces itself as vulnerable: there is no
-debug switch, no `TODO`, and several nearby queries are already written safely.
-You capture the flag by finding the one query that mixes request data with SQL,
-and you win the round by closing it with evidence.
+`FLAG{...}`.
 
 ## Meet Squad
 
 **Squad** is a custom GitHub Copilot CLI agent that coordinates several
 specialists inside this repository. You talk to the coordinator in natural
 language; it routes your request to the right role and manages the handoffs.
-Every action in this exercise goes through Squad — you never run the internal
-tooling yourself.
+During the workshop, Squad coordinates specialist tasks and helps gather
+evidence. You run the setup commands yourself and remain responsible for
+predictions, approval, evidence review, and phase publication.
 
 > [!NOTE]
 > Red, Green, Blue, and Mentor are workshop roles. The participant remains
@@ -83,79 +77,24 @@ Learn more about the upstream project in the
 ### Workshop timing
 
 **10 min — Intro:** understand Squad and what this exercise sets out to prove.
+
 **30 min — Hands-on:** initialize the team, Red captures the flag,
 Mentor checks your understanding, Green explains and proposes, you approve, and
-Blue applies and verifies. **5 min — Debrief:** compare runtime evidence with
-CodeQL and discuss the human/automation boundary.
+Blue applies and verifies.
+
+**5 min — Debrief:** compare runtime evidence with CodeQL and discuss the
+human/automation boundary.
 
 ### How to start this exercise
 
-1. Select **Code → Codespaces → Create codespace on main**, or clone this
-   repository locally.
-1. Open a terminal in the repository. Confirm with your facilitator whether
-   `BOARD_URL` and `BOARD_TOKEN` were provisioned in this environment. Both
-   are optional: your board identity is your GitHub handle, you never create a
-   `.env` file or commit these values, and if the scoreboard is unavailable
-   the whole capture-the-flag run still works locally.
-1. Once you have confirmed the scoreboard configuration, run this one-time
-   command to check the environment and register:
+Start with [Step 1](.github/steps/1-step.md). It contains the complete setup,
+pre-flight checks, and launch instructions. Run the setup commands in the
+VS Code integrated terminal—not in Copilot Chat.
 
-   ```bash
-   npm run workshop:start
-   ```
+<p align="left">
+  <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>
+</p>
 
-   If the scoreboard is unavailable, registration prints a warning and the
-   whole capture-the-flag run continues locally.
-
-1. Initialize the participant's Squad configuration without adding workflows:
-
-   ```bash
-   squad init --no-workflows
-   ```
-
-   Keep this command interactive. When Squad asks whether to add the Copilot
-   agent, answer **No**; the workshop uses the local Squad team installed
-   below.
-
-   ```bash
-   npm run squad:install-workshop-team
-   squad doctor
-   ```
-
-1. Open Copilot CLI, select the local **Squad** agent with `/agent`, and choose
-   **Allow all** when Copilot asks for permission to run the workshop tools.
-   Continue with [Step 1](.github/steps/1-step.md). From this point on, ask
-   Squad for everything: starting the application, gathering evidence,
-   publishing phases, and committing the fix. These four bootstrap commands are
-   the only ones you type yourself.
-
-> [!CAUTION]
-> Use only the supplied read-only payload against the local workshop
-> application. Do not target external systems, use real credentials, or try
-> destructive SQL.
->
-> Red does not create the SQL injection. The vulnerable query already exists
-> in the starting application; Red only detects it and demonstrates its impact
-> with the supplied read-only request.
-
-<details>
-<summary>Having trouble? 🤷</summary><br/>
-
-- If `squad init` is unavailable, confirm that the Squad CLI is installed and
-  that the terminal is at the repository root.
-- If `npm run squad:install-workshop-team` fails, rerun it after `squad init
-  --no-workflows`; do not add workflows manually.
-- If `squad doctor` reports a problem, save the diagnostic output and ask the
-  facilitator before continuing.
-- If the scoreboard is offline, keep playing. Squad records every phase
-  locally and prints your final recap at the end of the round.
-- If CodeQL is still pending, use the workshop's reference finding, label it as
-  fallback evidence, and continue the source/flow/sink explanation. A clean
-  result after the approved patch is expected even when the first scan is
-  delayed.
-
-</details>
-
-<p align="center">
+<p align="left">
   <img src=".github/images/arcade-scoreboard-participant.png" alt="Workshop scoreboard" width="900">
 </p>

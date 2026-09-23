@@ -39,7 +39,6 @@ test("README follows the official GitHub Skills exercise template", async () => 
     "- **How long**:",
     "In this exercise, you will:",
     "### How to start this exercise",
-    "Having trouble? 🤷",
   ];
 
   let previousIndex = -1;
@@ -51,25 +50,31 @@ test("README follows the official GitHub Skills exercise template", async () => 
   }
 });
 
-test("README explains how to select and direct the Squad team", async () => {
+test("README directs participants to the Step 1 startup instructions", async () => {
   const readme = await readFile(readmePath, "utf8");
-  for (const expected of [
-    "## Meet Squad",
-    "/agent",
-    "**Squad**",
-    "**Red**",
-    "**Green**",
-    "**Blue**",
-    "Squad documentation",
-  ]) {
-    assert.ok(readme.includes(expected), `README.md should mention ${expected}`);
-  }
+  assert.match(readme, /## Meet Squad/);
+  assert.match(readme, /\*\*Squad\*\*/);
+  assert.match(readme, /\*\*Red\*\*/);
+  assert.match(readme, /\*\*Green\*\*/);
+  assert.match(readme, /\*\*Blue\*\*/);
+  assert.match(readme, /Squad documentation/);
+  assert.match(readme, /### How to start this exercise[\s\S]*Step 1/);
+  assert.match(readme, /You run the setup commands yourself/);
+  assert.doesNotMatch(readme, /you never run the internal tooling yourself/i);
 });
 
 test("README presents a GitHub-native hero without official Squad branding", async () => {
   const readme = await readFile(readmePath, "utf8");
+  const heroEnd = readme.indexOf("</div>");
+  const startSection = readme.indexOf("### How to start this exercise");
+  const exerciseButton = readme.indexOf("Start%20the%20exercise");
+  const scoreboardImage = readme.indexOf("arcade-scoreboard-participant.png");
   assert.match(readme, /https:\/\/bradygaster\.github\.io\/squad\//);
-  assert.match(readme, /img\.shields\.io\/badge\/Start%20the%20exercise/);
+  assert.ok(exerciseButton > startSection);
+  assert.ok(exerciseButton < scoreboardImage);
+  assert.ok(exerciseButton > heroEnd);
+  assert.match(readme, /<p align="left">\s*<a href="\.github\/steps\/1-step\.md"><img src="https:\/\/img\.shields\.io\/badge\/Start%20the%20exercise/);
+  assert.match(readme, /<p align="left">\s*<img src="\.github\/images\/arcade-scoreboard-participant\.png"/);
   assert.match(readme, /<div align="center">/);
   assert.match(readme, /not an official Squad product demonstration/);
   assert.match(readme, /\.github\/images\/purple-team-terminal\.svg/);
@@ -97,6 +102,7 @@ test("GitHub Skills step files stay complete and ordered", async () => {
 
 test("README documents the approved 45-minute participant setup", async () => {
   const readme = await readFile(readmePath, "utf8");
+  const step = await readFile(path.join(root, stepFiles[0]), "utf8");
   for (const expected of [
     "10 min intro",
     "30 min hands-on",
@@ -105,7 +111,10 @@ test("README documents the approved 45-minute participant setup", async () => {
     "npm run squad:install-workshop-team",
     "squad doctor",
   ]) {
-    assert.ok(readme.includes(expected), `README.md should mention ${expected}`);
+    assert.ok(
+      readme.includes(expected) || step.includes(expected),
+      `README.md or Step 1 should mention ${expected}`,
+    );
   }
 });
 
@@ -131,7 +140,6 @@ test("steps document participant approval and the Red, Green, and Blue flow", as
 });
 
 test("documentation states that Red detects but never creates the vulnerability", async () => {
-  const readme = await readFile(readmePath, "utf8");
   const step = await readFile(path.join(root, stepFiles[0]), "utf8");
   const redCharter = await readFile(
     path.join(root, "workshop/squad/agents/red/charter.md"),
@@ -139,15 +147,29 @@ test("documentation states that Red detects but never creates the vulnerability"
   );
   const facilitator = await readFile(path.join(root, "workshop/FACILITATOR.md"), "utf8");
 
-  assert.match(readme, /vulnerable query already exists/i);
   assert.match(step, /already present in the starting application/i);
   assert.match(redCharter, /never\s+creates or introduces a vulnerability/i);
   assert.match(facilitator, /Red never creates the vulnerability/i);
 });
 
-test("legacy facilitator board configuration is absent from participant steps", async () => {
+test("Step 1 checks board setup without exposing the token", async () => {
   const step = await readFile(path.join(root, stepFiles[0]), "utf8");
-  assert.doesNotMatch(step, /BOARD_URL|BOARD_TOKEN|BOARD_REPORTER_TOKEN/);
+  assert.match(step, /BOARD_URL/);
+  assert.match(step, /BOARD_TOKEN/);
+  assert.match(step, /\/health/);
+  assert.match(step, /value hidden/i);
+  assert.doesNotMatch(step, /BOARD_REPORTER_TOKEN/);
+});
+
+test("Step 1 withholds the exploit and expected results until evidence is collected", async () => {
+  const step = await readFile(path.join(root, stepFiles[0]), "utf8");
+  assert.doesNotMatch(step, /%27|27,400|12 listings|4 unpublished|FLAG\{\.\.\.\}/);
+  assert.match(step, /This is\s+\*\*not a command\*\*/);
+  assert.match(step, /normal Paris search/i);
+  assert.match(step, /Red—not you—runs `npm run exploit`/);
+  assert.match(step, /Mentor's formal check happens after you have reviewed the evidence/i);
+  assert.match(step, /copilot --yolo --agent squad/);
+  assert.match(step, /GPT-6 Luna/);
 });
 
 test("each Skills lesson routes evidence work through Squad", async () => {
