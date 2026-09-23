@@ -46,7 +46,7 @@
 .arcade__hud-item span { color: #8d84c4; font-size: .62em; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .arcade__hud-item b { color: var(--universe-gold); font-size: .82em; font-weight: 800; }
 
-/* Server integrity: red while the flaw is live, green once the room patches it. */
+/* Progress gauge: low while few squads have reached Blue, green as they finish. */
 .arcade__gauge {
   display: block; width: 9em; height: .8em;
   border: 2px solid #3b3568;
@@ -80,7 +80,7 @@
     0 6px 0 rgba(4, 3, 12, .6);
 }
 
-/* Level plates live in a dedicated right lane, outside every 60-sprite crowd. */
+/* Level plates live in a dedicated right lane, outside the 74-sprite crowd. */
 .arcade__plate {
   position: absolute; left: 79.5%; top: var(--plate-top); width: 18.5%;
   display: grid; grid-template-columns: auto auto; gap: 0 .5rem; align-items: center;
@@ -137,13 +137,18 @@
   background: radial-gradient(circle, rgba(57, 255, 136, .72), rgba(33, 178, 75, .2) 48%, transparent 70%);
   animation: arcade-halo 2.4s ease-in-out infinite; content: "";
 }
-.arcade__flag-pole { width: 3px; height: 3.4em; background: #d8d4ea; }
 .arcade__flag-banner {
-  position: absolute; top: -.1em; left: 50%;
-  color: #39ff88; font-size: 4.4em; line-height: .75;
-  text-shadow: 3px 3px 0 #06040f, 0 0 18px rgba(57, 255, 136, 1), 0 0 38px rgba(33, 178, 75, .9);
-  transform-origin: bottom left;
+  display: grid; width: 5.6em; height: 3.8em; place-items: center;
+  background: linear-gradient(135deg, #39ff88, #21b24b);
+  clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
+  filter: drop-shadow(0 0 18px rgba(57, 255, 136, 1)) drop-shadow(0 0 38px rgba(33, 178, 75, .9));
+  transform-origin: left center;
   animation: arcade-wave 2.4s ease-in-out infinite;
+}
+.arcade__copilot-icon {
+  width: 2.8em; height: 2.8em;
+  filter: brightness(0) invert(1);
+  object-fit: contain;
 }
 .arcade__flag-caption {
   margin-top: .3rem; padding: .1rem .45rem;
@@ -157,26 +162,23 @@
 
 /* ---------- Squad sprites ---------- */
 .arcade .team-marker {
-  --marker: var(--universe-rose);
   position: absolute; z-index: 7; left: var(--x); top: var(--y);
   display: grid; justify-items: center;
   transform: translate(-50%, -100%);
   transition: left 1.2s steps(8, end), top 1.2s steps(8, end);
 }
 .arcade .team-marker__sprite {
-  width: 16px; height: 19px;
-  border-width: 2px;
-  box-shadow: 0 0 9px var(--marker), 2px 2px 0 rgba(4, 3, 12, .5);
+  width: 24px;
+  height: 24px;
+  box-shadow: 0 0 9px rgba(255, 255, 255, .32), 2px 2px 0 rgba(4, 3, 12, .5);
 }
-.arcade .team-marker[data-facing="left"] .team-marker__sprite { transform: scaleX(-1); }
 .arcade .team-marker__label {
-  max-width: 6rem; margin-top: .2rem; padding: .05rem .25rem;
+  width: 2.2rem; margin-top: .2rem; padding: .05rem .15rem;
   overflow: hidden;
-  color: var(--github-white); font-size: .58em; font-weight: 700; text-align: center; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--github-white); font-family: ui-monospace, monospace; font-size: .58em; font-weight: 700; text-align: center; text-overflow: ellipsis; white-space: nowrap;
   background: rgba(4, 3, 12, .88);
-  border: 1px solid var(--marker);
+  border: 1px solid var(--github-gray);
 }
-.arcade .team-marker[data-label="hidden"] .team-marker__label { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .arcade .team-marker { transition: none; }
@@ -186,5 +188,4 @@
 @container (max-width: 700px) {
   .arcade__plate-cue { display: none; }
   .arcade__plate { left: 77%; width: 21%; }
-  .arcade .team-marker__label { display: none; }
 }

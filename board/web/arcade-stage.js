@@ -67,6 +67,13 @@ export function arcadeLevelsDescending() {
   return arcadeLevelsAscending().slice().reverse();
 }
 
+/** Share of squads that have reached the Blue (LV4) phase. */
+export function levelFourProgress(teams) {
+  const levelFour = teams.filter((team) => team.phase === "blue").length;
+  const total = teams.length;
+  return { levelFour, total, ratio: total ? levelFour / total : 0 };
+}
+
 /**
  * How much of the flag the room has captured: the share of squads that reached
  * the summit. This is the headline the audience watches, not a ranking.

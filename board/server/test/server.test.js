@@ -213,9 +213,9 @@ test("CI completion follows the locally verified participant phases", async () =
   }, { reporterToken: "participant-token" });
 });
 
-test("board retains its sixty-team capacity without evicting registered squads", async () => {
+test("board retains its seventy-four-team capacity without evicting registered squads", async () => {
   await withBoard(async (baseUrl) => {
-    for (let index = 0; index < 60; index += 1) {
+    for (let index = 0; index < 74; index += 1) {
       const response = await fetch(`${baseUrl}/api/events`, {
         method: "POST",
         headers: { "content-type": "application/json", "x-forwarded-for": "192.0.2.60" },
@@ -234,7 +234,7 @@ test("board retains its sixty-team capacity without evicting registered squads",
       headers: { "content-type": "application/json", "x-forwarded-for": "192.0.2.60" },
       body: JSON.stringify({
         sessionId: "universe-2026",
-        teamId: "capacity-61",
+        teamId: "capacity-75",
         alias: "Overflow Team",
         phase: "started",
         source: "participant",
@@ -244,7 +244,7 @@ test("board retains its sixty-team capacity without evicting registered squads",
     assert.deepEqual(await overflow.json(), { error: "board capacity reached" });
 
     const state = await (await fetch(`${baseUrl}/api/state`)).json();
-    assert.equal(state.teams.length, 60);
+    assert.equal(state.teams.length, 74);
     assert.ok(state.teams.some((team) => team.teamId === "capacity-0"));
     assert.ok(state.teams.every((team) => team.ciStatus === "pending"));
   });

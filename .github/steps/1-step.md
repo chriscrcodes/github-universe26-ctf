@@ -105,8 +105,16 @@ You should now be in the Copilot CLI session with the local **Squad** agent.
    ```
 
 1. Red—not you—runs `npm run exploit`. Review its evidence, then ask Squad to
-   have Red publish the `red` phase after the exact assertions pass. You do not
-   need to type the npm commands yourself.
+   have Red publish the `red` phase only after every assertion in the canonical
+   exploit passes:
+
+   ```text
+   Squad, have Red run `npm run phase -- red` only if `npm run exploit`
+   succeeds with all canonical assertions passing. If it fails, do not publish;
+   show me the failure. I reviewed the evidence and authorize publication.
+   ```
+
+   You do not need to type the npm commands yourself.
 1. Continue to [Step 2](2-step.md) once the `red` phase is published. Green
    will explain the source, flow, and sink; then Mentor will ask the
    understanding-check questions one at a time without revealing the expected

@@ -166,7 +166,6 @@ h1 span {
 .mission-stage-panel { position: relative; min-width: 0; min-height: 0; }
 
 .team-marker {
-  --marker: var(--universe-rose);
   position: absolute;
   z-index: 9;
   left: var(--x);
@@ -175,42 +174,15 @@ h1 span {
   justify-items: center;
 }
 .team-marker__sprite {
-  position: relative;
-  width: 18px;
-  height: 22px;
-  border: 3px solid var(--github-black);
-  border-radius: 48% 48% 35% 35%;
-  background: linear-gradient(90deg, rgba(255,255,255,.34), transparent 38%), var(--marker);
+  display: block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--github-white);
+  border-radius: 50%;
+  background: #24292f;
+  object-fit: cover;
+  box-shadow: 0 0 9px rgba(255, 255, 255, .32);
 }
-.team-marker__sprite::before {
-  position: absolute;
-  top: 3px;
-  right: -3px;
-  width: 11px;
-  height: 7px;
-  border: 2px solid var(--github-black);
-  border-radius: 5px;
-  background: linear-gradient(135deg, #efffff 0 45%, #66dbea 46% 100%);
-  box-shadow: inset 2px 1px rgba(255,255,255,.65);
-  content: "";
-}
-.team-marker__sprite::after {
-  position: absolute;
-  z-index: -1;
-  left: -7px;
-  top: 8px;
-  width: 7px;
-  height: 11px;
-  border: 3px solid var(--github-black);
-  border-radius: 4px 0 0 4px;
-  background: var(--marker);
-  content: "";
-}
-.team-marker--gold { --marker: var(--universe-gold); }
-.team-marker--mint { --marker: var(--universe-green); }
-.team-marker--sky { --marker: var(--universe-blue); }
-.team-marker--violet { --marker: var(--universe-violet); }
-.team-marker--rose { --marker: var(--universe-orange); }
 
 .team-list-panel {
   display: grid;
@@ -269,7 +241,7 @@ h1 span {
 .team-list__item[data-phase="purple"] { --accent: var(--phase-purple); }
 .team-list__item[data-phase="green"] { --accent: var(--phase-green); }
 .team-list__item[data-phase="blue"] { --accent: var(--phase-blue); }
-.team-list__item strong { overflow: hidden; font-size: .85em; text-overflow: ellipsis; white-space: nowrap; }
+.team-list__item strong { overflow-wrap: anywhere; font-size: .85em; }
 .team-list__item span, .team-list__item time {
   grid-column: 1;
   display: block;
@@ -306,7 +278,6 @@ h1 span {
   .mission-stage-panel { aspect-ratio: 3 / 2; }
   .team-list-panel { height: auto; }
   .team-list { max-height: 24rem; }
-  .team-marker__label { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

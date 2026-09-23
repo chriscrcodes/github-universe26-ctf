@@ -1,7 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { MISSION_PHASES, MAX_FORMATION_TEAMS, formationPositions } from "./mission-progress.js";
-import { ARCADE_LEVELS, ARCADE_FLAG, arcadeLevelsAscending, arcadeLevelsDescending, arcadeDetailsFor, flagProgress } from "./arcade-stage.js";
+import {
+  ARCADE_LEVELS,
+  ARCADE_FLAG,
+  arcadeLevelsAscending,
+  arcadeLevelsDescending,
+  arcadeDetailsFor,
+  flagProgress,
+  levelFourProgress,
+} from "./arcade-stage.js";
 
 test("the arcade stage covers exactly the mission phases", () => {
   assert.deepEqual(Object.keys(ARCADE_LEVELS).sort(), [...MISSION_PHASES].sort());
@@ -85,4 +93,17 @@ test("flag progress counts the squads whose CodeQL CI completed", () => {
   ];
   assert.deepEqual(flagProgress(teams), { captured: 2, total: 5, ratio: 0.4 });
   assert.deepEqual(flagProgress([]), { captured: 0, total: 0, ratio: 0 });
+});
+
+test("level-four progress counts all Blue squads, including those with pending CI", () => {
+  assert.deepEqual(
+    levelFourProgress([
+      { phase: "blue", ciStatus: "clean" },
+      { phase: "blue", ciStatus: "pending" },
+      { phase: "green" },
+      { phase: "red" },
+    ]),
+    { levelFour: 2, total: 4, ratio: 0.5 },
+  );
+  assert.deepEqual(levelFourProgress([]), { levelFour: 0, total: 0, ratio: 0 });
 });

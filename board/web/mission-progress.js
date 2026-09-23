@@ -1,4 +1,4 @@
-export const MAX_FORMATION_TEAMS = 60;
+export const MAX_FORMATION_TEAMS = 74;
 
 // Up to this many squads in one zone, the formation stays a single column so
 // their name labels stack vertically instead of colliding side by side.
@@ -59,27 +59,13 @@ export function missionPhaseFor(phase) {
 
 export function displayNameFor(team, index = 0) {
   const login = typeof team?.githubLogin === "string" ? team.githubLogin.trim() : "";
-  const alias = typeof team?.alias === "string" ? team.alias.trim() : "";
-  return login || alias || `Team ${index + 1}`;
+  const teamId = typeof team?.teamId === "string" ? team.teamId.trim() : "";
+  const handle = login || teamId;
+  return handle ? handle.slice(0, 3) : `Team ${index + 1}`;
 }
 
-export function stableNumber(value) {
-  let hash = 2166136261;
-  for (const character of String(value)) {
-    hash ^= character.charCodeAt(0);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
-}
-
-export function avatarFor(teamId) {
-  const hash = stableNumber(teamId);
-  return {
-    color: ["coral", "gold", "mint", "sky", "violet", "rose"][hash % 6],
-    facing: hash % 2 ? "right" : "left",
-    offsetX: ((hash >>> 4) % 7) - 3,
-    offsetY: ((hash >>> 8) % 5) - 2,
-  };
+export function avatarUrlFor(handle) {
+  return `https://github.com/${encodeURIComponent(handle)}.png?size=64`;
 }
 
 /**

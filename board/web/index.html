@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arcade Capture the Flag — GitHub Universe workshop board</title>
+    <title>Mission Capture the Flag — GitHub Universe workshop board</title>
     <link rel="stylesheet" href="board.css" />
     <link rel="stylesheet" href="arcade.css" />
   </head>
@@ -12,7 +12,7 @@
       <header class="board-header">
         <div class="board-header__identity">
           <p class="eyebrow">GitHub Universe · Blue Team Capture the Flag</p>
-          <h1>Arcade <span>Capture the Flag</span></h1>
+          <h1>Mission <span>Capture the Flag</span></h1>
         </div>
         <ol class="phase-rail" aria-label="Mission phases in order">
           <li class="phase-rail__step" data-phase="red">
@@ -43,7 +43,7 @@
         </ol>
         <div class="board-status">
           <p id="board-status" aria-live="polite">Connecting to board…</p>
-          <p id="team-count">0 active squads · capacity 60</p>
+          <p id="team-count">0 active squads</p>
         </div>
       </header>
 
@@ -53,14 +53,19 @@
           <div class="arcade__sky" aria-hidden="true"></div>
 
           <div class="arcade__hud" aria-hidden="true">
-            <p class="arcade__hud-item"><span>Server integrity</span><b id="arcade-integrity" class="arcade__gauge" data-level="0"></b></p>
-            <p class="arcade__hud-item"><span>Flag</span><b id="arcade-flag-status">0 / 0 squads</b></p>
+            <p class="arcade__hud-item"><span>Progress</span><b id="arcade-progress" class="arcade__gauge" data-level="0"></b></p>
+            <p class="arcade__hud-item"><span>Flag</span><b id="arcade-flag-status">0 / 0 squads at LV4</b></p>
           </div>
 
           <div class="arcade__summit" aria-hidden="true"></div>
           <div class="arcade__flag" aria-hidden="true">
-            <span class="arcade__flag-pole"></span>
-            <span class="arcade__flag-banner">⚑</span>
+            <div class="arcade__flag-banner">
+              <img
+                class="arcade__copilot-icon"
+                src="https://raw.githubusercontent.com/primer/octicons/main/icons/copilot-24.svg"
+                alt=""
+              />
+            </div>
             <span class="arcade__flag-caption">Capture the Flag</span>
           </div>
 

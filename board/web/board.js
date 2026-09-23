@@ -1,19 +1,18 @@
 import {
   PHASE_DETAILS,
   MISSION_PHASES,
-  avatarFor,
+  avatarUrlFor,
   displayNameFor,
-  LABELLED_FORMATION_MAX,
   formationPositions,
   missionPhaseFor,
 } from "./mission-progress.js";
-import { ARCADE_LEVELS, flagProgress } from "./arcade-stage.js";
+import { ARCADE_LEVELS, levelFourProgress } from "./arcade-stage.js";
 
 const POLL_INTERVAL_MS = 2_000;
-const MAX_TEAMS = 60;
+const MAX_TEAMS = 74;
 
 const stageElement = document.querySelector("#arcade-stage");
-const arcadeGauge = document.querySelector("#arcade-integrity");
+const arcadeProgress = document.querySelector("#arcade-progress");
 const arcadeFlagStatus = document.querySelector("#arcade-flag-status");
 const teamListElement = document.querySelector("#team-list");
 const statusElement = document.querySelector("#board-status");
@@ -39,6 +38,7 @@ function normalizeTeam(team, index) {
 
   return {
     teamId,
+    handle: teamId,
     name,
     phase,
     ciStatus: team.ciStatus === "clean" ? "clean" : "pending",
@@ -79,29 +79,29 @@ function renderStage(teams) {
     const position = positions.get(team.teamId);
     if (!position) continue;
 
-    const avatar = avatarFor(team.teamId);
     let marker = currentMarkers.get(team.teamId);
     if (!marker) {
       marker = document.createElement("div");
-      marker.className = `team-marker team-marker--${avatar.color}`;
+      marker.className = "team-marker";
       marker.dataset.teamId = team.teamId;
-      marker.dataset.facing = avatar.facing;
 
-      const sprite = document.createElement("span");
-      sprite.className = "team-marker__sprite";
-      sprite.setAttribute("aria-hidden", "true");
+      const avatar = document.createElement("img");
+      avatar.className = "team-marker__sprite";
+      avatar.src = avatarUrlFor(team.handle);
+      avatar.alt = `GitHub avatar for ${team.handle}`;
+      avatar.width = 64;
+      avatar.height = 64;
+      avatar.loading = "lazy";
+      avatar.referrerPolicy = "no-referrer";
       const label = document.createElement("span");
       label.className = "team-marker__label";
-      marker.append(sprite, label);
+      marker.append(avatar, label);
       stageElement.append(marker);
     }
 
     marker.style.setProperty("--x", `${position.x}%`);
     marker.style.setProperty("--y", `${position.y}%`);
-    marker.dataset.label = teams.filter((entry) => entry.phase === team.phase).length <= LABELLED_FORMATION_MAX
-      ? "visible"
-      : "hidden";
-    marker.title = `${team.name}: ${PHASE_DETAILS[team.phase].title}${team.phase === "blue" ? ` (${team.ciStatus === "clean" ? "CodeQL clean" : "CI pending"})` : ""}`;
+    marker.title = `${team.handle}: ${PHASE_DETAILS[team.phase].title}${team.phase === "blue" ? ` (${team.ciStatus === "clean" ? "CodeQL clean" : "CI pending"})` : ""}`;
     marker.querySelector(".team-marker__label").textContent = team.name;
 
     if (didAdvance(team) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -116,14 +116,11 @@ function renderStage(teams) {
 }
 
 function renderArcadeHud(teams) {
-  const { captured, total } = flagProgress(teams);
-  const repaired = teams.filter((team) => team.phase === "green" || team.phase === "blue").length;
-  const fill = total ? Math.round((repaired / total) * 100) : 0;
-  arcadeGauge.style.setProperty("--fill", `${fill}`);
-  arcadeGauge.dataset.level = fill < 34 ? "low" : fill < 67 ? "mid" : "high";
-  arcadeFlagStatus.textContent = total
-    ? `${captured} / ${total} squad${total === 1 ? "" : "s"}`
-    : "Awaiting squads";
+  const { levelFour, total, ratio } = levelFourProgress(teams);
+  const fill = Math.round(ratio * 100);
+  arcadeProgress.style.setProperty("--fill", `${fill}`);
+  arcadeProgress.dataset.level = fill < 34 ? "low" : fill < 67 ? "mid" : "high";
+  arcadeFlagStatus.textContent = `${levelFour} / ${total} squads at LV4`;
 }
 
 function renderPhaseCounts(teams) {
@@ -152,7 +149,7 @@ function renderList(teams) {
     item.dataset.phase = team.phase;
 
     const name = document.createElement("strong");
-    name.textContent = team.name;
+    name.textContent = team.handle;
     const squad = document.createElement("span");
     squad.className = "team-list__phase";
     squad.textContent = details.squad;
@@ -178,7 +175,7 @@ function render(teams) {
   renderStage(teams);
   renderCollectiveProgress(teams);
   renderList(teams);
-  countElement.textContent = `${teams.length} active squad${teams.length === 1 ? "" : "s"} · capacity ${MAX_TEAMS}`;
+  countElement.textContent = `${teams.length} active squads`;
 }
 
 async function pollState() {
@@ -190,7 +187,7 @@ async function pollState() {
     latestTeams = teamsFrom(await response.json())
       .map(normalizeTeam)
       .filter(Boolean)
-      .sort((left, right) => left.name.localeCompare(right.name))
+      .sort((left, right) => left.handle.localeCompare(right.handle))
       .slice(0, MAX_TEAMS);
     render(latestTeams);
     statusElement.textContent = "Live board connected";
