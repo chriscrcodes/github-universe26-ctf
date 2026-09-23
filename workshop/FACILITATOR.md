@@ -50,6 +50,37 @@ the participant still finishes the round.
 
 The participant never creates a `.env` file and never commits these values.
 
+## Running the board locally
+
+To test or demo the scoreboard without the hosted `BOARD_URL`, run the board
+server directly from the repository root:
+
+```bash
+BOARD_SESSION_ID=$(date -u +%Y%m%d) BOARD_TOKEN=<any-token> PORT=8080 \
+  node board/server/src/server.js
+```
+
+- `BOARD_SESSION_ID` must be `yyyyMMdd` (today, UTC) so it matches what
+  `workshop:start` computes automatically.
+- `BOARD_TOKEN` is the shared reporter token; if omitted, the server accepts
+  events without checking `X-Board-Reporter-Token`.
+- `PORT` defaults to `8080`. The server serves both the JSON API
+  (`/health`, `/api/events`, `/api/state`) and the static scoreboard UI
+  (`board/web/`) on that same port — open `http://localhost:<port>` to view it.
+
+Point a participant environment at it with:
+
+```
+BOARD_URL=http://localhost:8080
+BOARD_TOKEN=<same-token>
+```
+
+This only works end-to-end when the board and the participant share the same
+network reachability (for example, both running in the same Codespace, or the
+board's port made public with `gh codespace ports visibility`). A board
+started on the facilitator's machine is not reachable from a participant's
+separate Codespace unless its port is exposed.
+
 ## Recommended EMU provisioning
 
 EMU organizations support only internal and private repositories. Have an
@@ -190,6 +221,9 @@ security-extended suite reports no alerts.
   recap. Do not claim CodeQL clean without the CI receipt.
 - **A participant cannot resolve their handle:** set `BOARD_USER` in their
   Codespace terminal and rerun `npm run workshop:start`.
+- **Need a quick local board for testing or a demo:** see "Running the board
+  locally" above; remember it is only reachable from environments that share
+  network access with it.
 - **Provisioning is rate-limited:** use startup staggering only as a fallback
   to recover from observed tenant/API throttling; it is not part of the
   capacity design and does not change the 60-participant board limit.
