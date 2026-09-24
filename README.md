@@ -15,43 +15,48 @@
 ## Welcome
 
 - **Who is this for**: Developers, security practitioners, and technical leads
-  who want to collaborate with AI agents while retaining engineering judgment.
-- **What you'll learn**: Define a trust boundary, combine runtime and CodeQL
-  evidence, approve a safe correction, and verify it with local regressions.
-- **What you'll build**: An evidence-backed correction to a hidden SQL
-  injection and a regression matrix that protects the public-listing boundary.
+  who want to work with AI agents without handing over engineering judgment.
+- **What you'll learn**: Prove a SQL injection with runtime evidence, trace it
+  as a CodeQL flow (source → flow → sink), approve a parameter-binding fix, and
+  verify it with local regressions.
+- **What you'll build**: A one-line parameter-binding fix to a hidden SQL
+  injection, verified by a regression matrix that protects the public-listing
+  boundary and pushed to your repository's `main`.
 - **Prerequisites**:
-  - A GitHub account and access to GitHub Copilot CLI.
-  - Basic familiarity with source code and a terminal.
-  - No penetration-testing experience is required.
+  - The private participant repository and Codespace your facilitator
+    provisioned for you. The Codespace includes Node.js 22, `git`, `gh`, and
+    `squad`.
+  - Access to GitHub Copilot CLI.
+  - Basic terminal and source-code familiarity. No penetration-testing
+    experience is required.
 - **How long**: 45 minutes: **10 min intro**, **30 min hands-on**, and
   **5 min debrief**.
 
 In this exercise, you will:
 
-1. 🔴 [Capture the flag behind the broken boundary](.github/steps/1-step.md).
-1. 🟣 [Prove that you understand the CodeQL flow](.github/steps/2-step.md).
-1. 🟢 [Review and explicitly approve a correction](.github/steps/3-step.md).
-1. 🔵 [Apply, test, commit, and push the approved patch](.github/steps/4-step.md).
+1. 🔴 [Capture the flag with Red](.github/steps/1-step.md) and publish the `red` phase.
+1. 🟣 [Trace the CodeQL flow and pass Mentor's check](.github/steps/2-step.md), then publish `purple`.
+1. 🟢 [Approve the smallest safe correction](.github/steps/3-step.md) and record the approval.
+1. 🔵 [Apply, test, commit, and push the approved patch](.github/steps/4-step.md), then publish `green` and `blue`.
+
+Each phase is gated: it publishes only after the previous phase and its
+evidence command have passed.
 
 ### The flag
 
-A hotel search returns published inventory only. Somewhere behind that search,
-unpublished listings carry an internal reference — and one of them is your
-`FLAG{...}`.
+The hotel search must return `PUBLIC` listings only. Unpublished listings carry
+an internal reference, and one of them is your `FLAG{...}`.
 
 ## Meet Squad
 
-**Squad** is a custom GitHub Copilot CLI agent that coordinates several
-specialists inside this repository. You talk to the coordinator in natural
-language; it routes your request to the right role and manages the handoffs.
-During the workshop, Squad coordinates specialist tasks and helps gather
-evidence. You run the setup commands yourself and remain responsible for
-predictions, approval, evidence review, and phase publication.
+**Squad** is a custom GitHub Copilot CLI agent that routes your natural-language
+requests to specialist roles and manages the handoffs.
+You run the setup commands yourself. You own every prediction, approval,
+evidence review, and phase-ready decision; after that decision, the routed
+agent runs the phase command.
 
 > [!NOTE]
-> Red, Green, Blue, and Mentor are workshop roles. The participant remains
-> responsible for predictions, approval, evidence review, and phase publication.
+> Red, Green, Blue, and Mentor are workshop roles defined in this repository.
 > This is not an official Squad product demonstration.
 
 <p align="center">
@@ -63,33 +68,34 @@ predictions, approval, evidence review, and phase publication.
   remains responsible for approval and phase publication.</sub>
 </p>
 
-| Member | Responsibility | Boundary |
+| Member | Does | Never |
 | --- | --- | --- |
-| 🧭 **Squad** | Coordinate the investigation and route requests | Does not make your decisions |
-| 🔴 **Red** | Capture the flag by detecting the pre-existing vulnerability | Never edits code or introduces a vulnerability |
-| 🟣 **Mentor** | Check that *you* understood the capture before a fix is discussed | Never reveals an expected answer |
-| 🟢 **Green** | Explain CodeQL and propose the correction | Waits for your explicit approval |
-| 🔵 **Blue** | Apply the approved patch, run tests, and publish it | Changes only the approved scope |
+| 🧭 **Squad** | Routes requests and manages handoffs | Makes your decisions |
+| 🔴 **Red** | Runs the canonical read-only exploit and captures the flag | Edits code or introduces a vulnerability |
+| 🟣 **Mentor** | Grades your answers on the CodeQL flow before any fix is discussed | Reveals an expected answer |
+| 🟢 **Green** | Explains the CodeQL flow and shows the exact fix diff | Edits code, or proceeds without your explicit approval |
+| 🔵 **Blue** | Applies the approved patch, runs verification and regressions, commits and pushes `main` | Changes anything outside the approved scope |
 
 Learn more about the upstream project in the
 [Squad documentation](https://bradygaster.github.io/squad/).
 
 ### Workshop timing
 
-**10 min — Intro:** understand Squad and what this exercise sets out to prove.
-
-**30 min — Hands-on:** initialize the team, Red captures the flag,
-Mentor checks your understanding, Green explains and proposes, you approve, and
-Blue applies and verifies.
-
-**5 min — Debrief:** compare runtime evidence with CodeQL and discuss the
-human/automation boundary.
+| Minutes | Segment | What happens |
+| --- | --- | --- |
+| 0–10 | Intro | Squad, roles, and what the exercise proves |
+| 10–17 | Step 1 | Setup, prediction, Red captures the flag |
+| 17–24 | Step 2 | Green traces the CodeQL flow, Mentor checks you |
+| 24–30 | Step 3 | You approve the exact patch |
+| 30–40 | Step 4 | Blue applies, verifies, commits, and pushes |
+| 40–45 | Debrief | Runtime evidence vs CodeQL, human vs automation boundary |
 
 ### How to start this exercise
 
-Start with [Step 1](.github/steps/1-step.md). It contains the complete setup,
-pre-flight checks, and launch instructions. Run the setup commands in the
-VS Code integrated terminal—not in Copilot Chat.
+1. Open the Codespace for your participant repository.
+1. Go to [Step 1](.github/steps/1-step.md). It contains the full setup,
+   pre-flight checks, and launch commands.
+1. Run setup commands in the VS Code terminal, not in Copilot Chat.
 
 <p align="left">
   <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>

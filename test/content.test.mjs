@@ -16,7 +16,6 @@ const stepFiles = [
 const workshopDocumentation = [
   "README.md",
   ...stepFiles,
-  "workshop/FACILITATOR.md",
   "workshop/squad/README.md",
   "workshop/squad/routing.md",
   "workshop/squad/agents/blue/charter.md",
@@ -145,11 +144,9 @@ test("documentation states that Red detects but never creates the vulnerability"
     path.join(root, "workshop/squad/agents/red/charter.md"),
     "utf8",
   );
-  const facilitator = await readFile(path.join(root, "workshop/FACILITATOR.md"), "utf8");
 
   assert.match(step, /already present in the starting application/i);
   assert.match(redCharter, /never\s+creates or introduces a vulnerability/i);
-  assert.match(facilitator, /Red never creates the vulnerability/i);
 });
 
 test("Step 1 checks board setup without exposing the token", async () => {
@@ -201,56 +198,10 @@ test("legacy workshop document locations remain removed", async () => {
   }
 });
 
-test("facilitator runbook documents EMU provisioning and deterministic gates", async () => {
-  const runbook = await readFile(path.join(root, "workshop/FACILITATOR.md"), "utf8");
-  for (const expected of [
-    "Romain and Christophe",
-    "Onepoint example",
-    "one private repository",
-    "BOARD_URL",
-    "BOARD_TOKEN",
-    "BOARD_SESSION_ID",
-    "There is no per-repository CI credential",
-    "Mentor graded the participant's answers",
-    "app/src/search-query.js",
-    "app/.board-outbox.log",
-    "Board is unavailable",
-    "0003_ci_completion.sql",
-    "Only GitHub Actions",
-    "approved operator",
-    "internal/private workshop template",
-    "5–10",
-    "60 participants",
-    "development environment secrets",
-    "Repository-level values",
-    "Actions **variables**",
-    "organization-paid, organization-owned Codespaces",
-    "non-zero budget",
-    "Prebuilds can reduce startup time",
-    "advanced CodeQL workflow",
-    "unique active committers",
-    "external public template",
-    "clone",
-    "concurrency and capacity",
-    "startup staggering only as a fallback",
-  ]) {
-    assert.ok(runbook.includes(expected), `FACILITATOR.md should mention ${expected}`);
-  }
-  for (const absent of ["BOARD_TEAM_ID", "BOARD_CI_", "HMAC"]) {
-    assert.ok(!runbook.includes(absent), `FACILITATOR.md should no longer mention ${absent}`);
-  }
-  for (const link of [
-    "https://docs.github.com/en/enterprise-cloud@latest/admin/managing-iam/understanding-iam-for-enterprises/abilities-and-restrictions-of-managed-user-accounts",
-    "https://docs.github.com/en/enterprise-cloud@latest/codespaces/managing-codespaces-for-your-organization/managing-development-environment-secrets-for-your-repository-or-organization",
-    "https://docs.github.com/en/enterprise-cloud@latest/codespaces/managing-codespaces-for-your-organization/choosing-who-owns-and-pays-for-codespaces-in-your-organization",
-    "https://docs.github.com/en/billing/concepts/product-billing/github-codespaces",
-    "https://docs.github.com/en/codespaces/prebuilding-your-codespaces/about-github-codespaces-prebuilds",
-    "https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets",
-    "https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-code-scanning",
-    "https://docs.github.com/en/billing/concepts/product-billing/github-advanced-security",
-  ]) {
-    assert.ok(runbook.includes(link), `FACILITATOR.md should link ${link}`);
-  }
+test("facilitator runbook is not included in the participant repository", async () => {
+  await assert.rejects(access(path.join(root, "workshop/FACILITATOR.md")), {
+    code: "ENOENT",
+  });
 });
 
 test("all workshop documentation is English-only", async () => {
