@@ -1,0 +1,23 @@
+# Squad: ignore runtime state (logs, inbox, sessions)
+# Note: .squad/casting/* is identity and MUST be committed to main, not ignored
+.squad/orchestration-log/
+.squad/log/
+.squad/decisions/inbox/
+.squad/sessions/
+.squad/.scratch/
+.squad/.cache/
+# Squad: SubSquad activation file (local to this machine)
+.squad-workstream
+
+node_modules/
+app/node_modules/
+board/server/node_modules/
+board/worker/.dev.vars
+board/worker/.wrangler/
+app/data/
+app/.team-state*.json
+app/.board-outbox.log
+Universe 2026 Presentation Template_1785239102627001lY3Z.potx
+facilitator/
+app/.e2e-patched-src/
+app/.e2e-git-sandbox/

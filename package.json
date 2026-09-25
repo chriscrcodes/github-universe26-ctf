@@ -1,0 +1,32 @@
+{
+  "name": "github-universe26-ctf",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Universe purple-team workshop",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "app",
+    "board/server",
+    "board/worker"
+  ],
+  "scripts": {
+    "start": "npm --workspace app start",
+    "workshop:app": "node scripts/start-workshop-app.mjs",
+    "register": "npm --workspace app run register",
+    "approve": "npm --workspace app run approve --",
+    "exploit": "npm --workspace app run exploit",
+    "verify": "npm --workspace app run verify",
+    "checkpoint": "npm --workspace app run checkpoint --",
+    "codeql:review": "npm --workspace app run codeql:review --",
+    "regressions": "npm --workspace app run regressions",
+    "reset": "npm --workspace app run reset",
+    "phase": "npm --workspace app run phase --",
+    "workshop:start": "node scripts/workshop-start.mjs",
+    "squad:install-workshop-team": "node scripts/install-workshop-squad.mjs",
+    "test:e2e": "node --test test/e2e.test.mjs",
+    "test": "node --test test/*.test.mjs app/test/*.test.js board/server/test/*.test.js board/web/*.test.mjs board/worker/test/*.test.js",
+    "load:board": "node scripts/load-board.mjs"
+  }
+}

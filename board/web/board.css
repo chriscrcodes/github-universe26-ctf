@@ -1,0 +1,289 @@
+:root {
+  color-scheme: dark;
+  --github-black: #101411;
+  --github-white: #ffffff;
+  --github-gray: #b0bac2;
+  --universe-green: #08872a;
+  --universe-gold: #bb9f0a;
+  --universe-violet: #5738f8;
+  --universe-blue: #178ffa;
+  --universe-rose: #f63678;
+  --universe-orange: #e96d11;
+  --phase-onboarding: #f4c542;
+  --phase-red: #f63678;
+  --phase-purple: #7b62fc;
+  --phase-green: #21b24b;
+  --phase-blue: #178ffa;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  overflow: hidden;
+  color: var(--github-white);
+  background:
+    radial-gradient(circle at 86% -12%, rgba(87, 56, 248, .26), transparent 28rem),
+    radial-gradient(circle at 3% 8%, rgba(8, 135, 42, .2), transparent 24rem),
+    var(--github-black);
+  font-family: "Mona Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(14px, .83vw, 17px);
+  line-height: 1.4;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.board-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(19rem, 19vw, 25rem);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(.6rem, .8vw, 1.1rem);
+  height: 100vh;
+  height: 100dvh;
+  padding: clamp(.6rem, .9vw, 1.2rem) clamp(.8rem, 1.2vw, 1.6rem);
+}
+
+.board-header {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(1rem, 1.6vw, 2.5rem);
+  align-items: center;
+  padding-bottom: clamp(.5rem, .7vw, .9rem);
+  border-bottom: 1px solid rgba(23, 143, 250, .55);
+  box-shadow: 0 1px 16px rgba(23, 143, 250, .18);
+}
+
+.eyebrow {
+  margin: 0 0 .25rem;
+  color: var(--github-gray);
+  font-size: .68em;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+h1, h2, p { margin-top: 0; }
+h1 {
+  margin-bottom: 0;
+  font-family: "Mona Sans Display", "Mona Sans", sans-serif;
+  font-size: clamp(1.7rem, 2.5vw, 3rem);
+  font-weight: 650;
+  line-height: .95;
+  letter-spacing: -.05em;
+  white-space: nowrap;
+}
+h1 span {
+  color: var(--universe-green);
+  text-shadow: 0 0 22px rgba(8, 135, 42, .7);
+}
+
+.phase-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: clamp(.4rem, .7vw, 1rem);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.phase-rail__step {
+  --accent: var(--phase-red);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 0 .5rem;
+  align-items: center;
+  padding: .4rem .6rem;
+  border: 1px solid rgba(176, 186, 194, .3);
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent), rgba(0, 0, 0, .3));
+}
+.phase-rail__step[data-phase="purple"] { --accent: var(--phase-purple); }
+.phase-rail__step[data-phase="green"] { --accent: var(--phase-green); }
+.phase-rail__step[data-phase="blue"] { --accent: var(--phase-blue); }
+.phase-rail__step::after {
+  position: absolute;
+  right: -.75rem;
+  top: 50%;
+  z-index: 1;
+  color: var(--github-gray);
+  font-size: .8em;
+  content: "›";
+  transform: translateY(-50%);
+}
+.phase-rail__step:last-child::after { content: none; }
+.phase-rail__badge {
+  grid-row: 1 / 3;
+  display: grid;
+  width: 1.7em;
+  aspect-ratio: 1;
+  place-items: center;
+  color: var(--github-white);
+  font-size: .82em;
+  background: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.phase-rail__squad { font-size: .95em; font-weight: 800; letter-spacing: -.01em; }
+.phase-rail__title { grid-column: 2; color: var(--github-gray); font-size: .76em; font-weight: 600; }
+.phase-rail__count {
+  grid-row: 1 / 3;
+  grid-column: 3;
+  display: grid;
+  min-width: 2em;
+  place-items: center;
+  padding: .1rem .3rem;
+  color: var(--github-black);
+  font-size: 1.05em;
+  font-weight: 800;
+  background: var(--universe-gold);
+}
+
+.board-status {
+  min-width: 10rem;
+  padding: .5rem .8rem;
+  border: 1px solid rgba(23, 143, 250, .7);
+  border-left: 4px solid var(--universe-green);
+  background: rgba(0, 0, 0, .34);
+  text-align: right;
+}
+.board-status p { margin: 0; color: var(--github-gray); font-size: .76em; }
+.board-status p:last-child { color: var(--github-white); font-size: .92em; font-weight: 700; }
+.board-status [data-tone="warning"] { color: #ffd976; }
+
+.mission-stage-panel { position: relative; min-width: 0; min-height: 0; }
+
+.team-marker {
+  position: absolute;
+  z-index: 9;
+  left: var(--x);
+  top: var(--y);
+  display: grid;
+  justify-items: center;
+}
+.team-marker__sprite {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--github-white);
+  border-radius: 50%;
+  background: #24292f;
+  object-fit: cover;
+  box-shadow: 0 0 9px rgba(255, 255, 255, .32);
+}
+
+.team-list-panel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: .6rem;
+  min-height: 0;
+  padding: clamp(.6rem, .8vw, 1rem);
+  border: 1px solid rgba(176, 186, 194, .42);
+  background: linear-gradient(135deg, rgba(21, 27, 23, .98), rgba(9, 18, 27, .98));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .05);
+}
+.team-list-panel__heading { display: flex; gap: .75rem; align-items: baseline; justify-content: space-between; }
+.team-list-panel__heading h2 { margin: 0; font-family: "Mona Sans Display", "Mona Sans", sans-serif; font-size: 1.15em; letter-spacing: -.02em; }
+.team-list-panel__heading .eyebrow { margin: 0; }
+
+.collective-progress {
+  padding: .45rem .55rem .55rem;
+  border: 1px solid rgba(116, 192, 252, .45);
+  background: linear-gradient(135deg, rgba(16, 52, 76, .82), rgba(16, 20, 17, .9));
+  box-shadow: inset 0 0 22px rgba(116, 192, 252, .12);
+}
+.collective-progress h3 {
+  margin: 0 0 .35rem;
+  color: var(--universe-blue);
+  font-size: .68em;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.collective-progress__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin: 0; }
+.collective-progress__stats div { padding: .35rem; background: rgba(0, 0, 0, .38); text-align: center; }
+.collective-progress__stats dt { color: var(--github-gray); font-size: .58em; letter-spacing: .05em; text-transform: uppercase; }
+.collective-progress__stats dd { margin: .12rem 0 0; color: var(--universe-gold); font-size: 1.15em; font-weight: 900; }
+.team-list-panel__note { margin: 0; color: var(--github-gray); font-size: .7em; }
+
+.team-list {
+  display: grid;
+  grid-auto-rows: min-content;
+  gap: .3rem;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.team-list__item {
+  --accent: var(--phase-onboarding);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 .5rem;
+  padding: .35rem .5rem;
+  border-left: 4px solid var(--accent);
+  background: rgba(0, 0, 0, .45);
+}
+.team-list__item[data-phase="red"] { --accent: var(--phase-red); }
+.team-list__item[data-phase="purple"] { --accent: var(--phase-purple); }
+.team-list__item[data-phase="green"] { --accent: var(--phase-green); }
+.team-list__item[data-phase="blue"] { --accent: var(--phase-blue); }
+.team-list__item strong { overflow-wrap: anywhere; font-size: .85em; }
+.team-list__item span, .team-list__item time {
+  grid-column: 1;
+  display: block;
+  overflow: hidden;
+  color: var(--github-gray);
+  font-size: .7em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.team-list__item .team-list__phase {
+  grid-row: 1 / 4;
+  grid-column: 2;
+  align-self: center;
+  color: var(--accent);
+  font-size: .68em;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.team-list__empty { margin: 0; color: var(--github-gray); font-size: .78em; }
+
+@media (max-width: 1100px), (max-aspect-ratio: 1/1) {
+  body { overflow: auto; }
+  .board-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: min-content;
+    height: auto;
+    min-height: 100vh;
+  }
+  .board-header { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+  .board-status { text-align: left; }
+  .phase-rail { grid-auto-flow: row; grid-auto-columns: auto; }
+  .phase-rail__step::after { content: none; }
+  .mission-stage-panel { aspect-ratio: 3 / 2; }
+  .team-list-panel { height: auto; }
+  .team-list { max-height: 24rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

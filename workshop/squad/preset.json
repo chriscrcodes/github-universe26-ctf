@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "github-universe26-purple-team",
+  "version": 2,
+  "squadVersion": "0.13.1",
+  "createdAt": "2026-09-22T00:00:00.000Z",
+  "agents": [
+    {
+      "slug": "blue",
+      "name": "Blue",
+      "role": "Application startup and approved delivery",
+      "universe": "descriptive"
+    },
+    {
+      "slug": "red",
+      "name": "Red",
+      "role": "Read-only attacker",
+      "universe": "descriptive"
+    },
+    {
+      "slug": "green",
+      "name": "Green",
+      "role": "CodeQL remediator and approved patch implementer",
+      "universe": "descriptive"
+    },
+    {
+      "slug": "mentor",
+      "name": "Mentor",
+      "role": "Participant journey guide and understanding examiner",
+      "universe": "descriptive"
+    },
+    {
+      "slug": "scribe",
+      "name": "Scribe",
+      "role": "Session Logger and Memory Manager",
+      "universe": "built-in"
+    },
+    {
+      "slug": "ralph",
+      "name": "Ralph",
+      "role": "Work Monitor",
+      "universe": "built-in"
+    },
+    {
+      "slug": "rai-agent",
+      "name": "Rai",
+      "role": "RAI Reviewer",
+      "universe": "built-in"
+    },
+    {
+      "slug": "fact-checker",
+      "name": "Fact Checker",
+      "role": "Fact Checker",
+      "universe": "built-in"
+    }
+  ]
+}

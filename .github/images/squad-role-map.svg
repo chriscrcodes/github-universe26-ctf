@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title description">
+  <title id="title">Squad workshop role map</title>
+  <desc id="description">Mentor guides the participant through Squad: Blue starts the app, Red investigates, Green implements the approved correction, and Blue delivers it. The participant reads both CodeQL reports and retains approval and phase decisions. Scribe, Ralph, RAI Reviewer, and Fact Checker support the workshop.</desc>
+  <defs>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#30363d"/>
+      <stop offset="1" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a371f7" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#58a6ff" stop-opacity=".16"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#010409" flood-opacity=".5"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="760" fill="#0d1117"/>
+  <circle cx="105" cy="112" r="190" fill="#a371f7" opacity=".07"/>
+  <circle cx="1100" cy="650" r="220" fill="#58a6ff" opacity=".06"/>
+  <rect x="42" y="30" width="1116" height="700" rx="26" fill="url(#glow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="58" y="44" width="1084" height="672" rx="18" fill="#0d1117" stroke="url(#frame)" stroke-width="2"/>
+    <path d="M58 62a18 18 0 0 1 18-18h1048a18 18 0 0 1 18 18v62H58z" fill="#161b22"/>
+    <line x1="58" y1="124" x2="1142" y2="124" stroke="#30363d" stroke-width="2"/>
+
+    <circle cx="91" cy="83" r="8" fill="#f85149"/>
+    <circle cx="117" cy="83" r="8" fill="#d29922"/>
+    <circle cx="143" cy="83" r="8" fill="#3fb950"/>
+    <text x="174" y="90" fill="#8b949e" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">GitHub Copilot CLI · Squad roster</text>
+    <text x="94" y="158" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="23" font-weight="700">Squad routes the work. You stay in control of decisions.</text>
+
+    <rect x="94" y="180" width="1012" height="58" rx="11" fill="#161b22" stroke="#8b949e" stroke-opacity=".45"/>
+    <rect x="94" y="180" width="7" height="58" rx="3.5" fill="#d2a8ff"/>
+    <text x="120" y="205" fill="#d2a8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="17" font-weight="700">SQUAD · ROUTER &amp; HANDOFFS</text>
+    <text x="120" y="227" fill="#b1bac4" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">Delegates tasks to specialists and coordinates built-in support agents.</text>
+
+    <rect x="94" y="258" width="644" height="300" rx="14" fill="#0f1720" stroke="#a371f7" stroke-opacity=".65" stroke-width="2"/>
+    <text x="116" y="287" fill="#d2a8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="16" font-weight="700" letter-spacing=".8">SPECIALISTS · DEFINED FOR THIS WORKSHOP</text>
+
+    <g transform="translate(112 306)">
+      <rect width="294" height="103" rx="10" fill="#161b22" stroke="#f85149" stroke-opacity=".65"/>
+      <rect width="6" height="103" rx="3" fill="#f85149"/>
+      <text x="23" y="31" fill="#ff7b72" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">RED</text>
+      <text x="23" y="57" fill="#c9d1d9" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">Read-only exploit test</text>
+      <text x="23" y="80" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Proves the runtime boundary</text>
+    </g>
+
+    <g transform="translate(420 306)">
+      <rect width="300" height="103" rx="10" fill="#161b22" stroke="#3fb950" stroke-opacity=".65"/>
+      <rect width="6" height="103" rx="3" fill="#3fb950"/>
+      <text x="23" y="31" fill="#56d364" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">GREEN</text>
+      <text x="23" y="57" fill="#c9d1d9" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">CodeQL flow and fix options</text>
+      <text x="23" y="80" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Applies only the approved fix</text>
+    </g>
+
+    <g transform="translate(112 425)">
+      <rect width="294" height="103" rx="10" fill="#161b22" stroke="#58a6ff" stroke-opacity=".65"/>
+      <rect width="6" height="103" rx="3" fill="#58a6ff"/>
+      <text x="23" y="31" fill="#79c0ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">BLUE</text>
+      <text x="23" y="57" fill="#c9d1d9" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">Starts app; commits and pushes</text>
+      <text x="23" y="80" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Verifies and runs regressions</text>
+    </g>
+
+    <g transform="translate(420 425)">
+      <rect width="300" height="103" rx="10" fill="#211b2e" stroke="#d2a8ff" stroke-width="2"/>
+      <rect width="6" height="103" rx="3" fill="#d2a8ff"/>
+      <text x="23" y="31" fill="#e2c5ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">MENTOR</text>
+      <rect x="169" y="13" width="113" height="22" rx="11" fill="#3b2b50"/>
+      <text x="180" y="28" fill="#e2c5ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" font-weight="700">EXERCISE-ONLY</text>
+      <text x="23" y="57" fill="#c9d1d9" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">Guides the participant journey</text>
+      <text x="23" y="80" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Created specifically for this exercise</text>
+    </g>
+
+    <rect x="762" y="258" width="344" height="300" rx="14" fill="#101a1d" stroke="#3fb950" stroke-opacity=".55" stroke-width="2"/>
+    <text x="784" y="287" fill="#7ee787" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="16" font-weight="700" letter-spacing=".5">SUPPORT · SQUAD BUILT-INS</text>
+
+    <g transform="translate(780 306)">
+      <rect width="308" height="49" rx="8" fill="#161b22"/>
+      <circle cx="22" cy="24" r="6" fill="#a371f7"/>
+      <text x="39" y="22" fill="#e6edf3" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="15" font-weight="700">SCRIBE</text>
+      <text x="39" y="40" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Session notes and memory</text>
+    </g>
+    <g transform="translate(780 365)">
+      <rect width="308" height="49" rx="8" fill="#161b22"/>
+      <circle cx="22" cy="24" r="6" fill="#d29922"/>
+      <text x="39" y="22" fill="#e6edf3" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="15" font-weight="700">RALPH</text>
+      <text x="39" y="40" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Monitors long-running work</text>
+    </g>
+    <g transform="translate(780 424)">
+      <rect width="308" height="49" rx="8" fill="#161b22"/>
+      <circle cx="22" cy="24" r="6" fill="#58a6ff"/>
+      <text x="39" y="22" fill="#e6edf3" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="15" font-weight="700">RAI REVIEWER</text>
+      <text x="39" y="40" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Safety and privacy review</text>
+    </g>
+    <g transform="translate(780 483)">
+      <rect width="308" height="49" rx="8" fill="#161b22"/>
+      <circle cx="22" cy="24" r="6" fill="#79c0ff"/>
+      <text x="39" y="22" fill="#e6edf3" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="15" font-weight="700">FACT CHECKER</text>
+      <text x="39" y="40" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Checks claims against evidence</text>
+    </g>
+
+    <rect x="94" y="578" width="1012" height="89" rx="14" fill="#161b22" stroke="#58a6ff" stroke-opacity=".55" stroke-width="2"/>
+    <circle cx="127" cy="622" r="15" fill="#58a6ff" opacity=".2"/>
+    <text x="121" y="628" fill="#79c0ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="17" font-weight="700">YOU</text>
+    <text x="159" y="611" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Participant decisions stay with you</text>
+    <text x="159" y="638" fill="#b1bac4" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Test canonical payload · review evidence · approve patch · choose when later phases are ready</text>
+    <rect x="894" y="605" width="187" height="34" rx="17" fill="#238636"/>
+    <text x="918" y="627" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">HUMAN IN CONTROL</text>
+
+    <text x="600" y="696" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Mentor is a workshop-created agent, not a standard Squad built-in.</text>
+  </g>
+</svg>
