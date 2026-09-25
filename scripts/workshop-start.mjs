@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { probeCodeqlAccess } from "./codeql-preflight.mjs";
 
 const requiredCommands = [
   ["node", ["--version"]],
@@ -22,6 +23,9 @@ if (!process.env.BOARD_URL || !process.env.BOARD_TOKEN) {
     "WARN: BOARD_URL or BOARD_TOKEN is missing. The scoreboard stays offline; the capture-the-flag run continues locally."
   );
 }
+
+const codeql = probeCodeqlAccess();
+(codeql.ok ? console.log : console.warn)(codeql.message);
 
 const register = spawnSync("npm", ["run", "register"], {
   encoding: "utf8",

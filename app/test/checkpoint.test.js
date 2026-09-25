@@ -139,6 +139,23 @@ test("Mentor can check each answer immediately and reveal the correct option aft
   assert.match(correct.result.stdout, /ANSWER CORRECT/);
 });
 
+test("each checked answer prints the next question so Mentor never relists the quiz", () => {
+  const seed = "participant-one";
+  const selected = selectQuestions(bank, "purple", seededRandom(seed));
+  const [first, second, third] = selected;
+
+  const afterFirst = runCheckpoint(["--phase=purple", `--seed=${seed}`, `--check=${first.id}:a`]);
+  assert.equal(afterFirst.result.status, 0);
+  assert.match(afterFirst.result.stdout, new RegExp(`NEXT QUESTION 2/3:\\n${second.id} \\[`));
+  second.options.forEach((option) => assert.ok(afterFirst.result.stdout.includes(`  ${option.id}. ${option.text}`)));
+  assert.doesNotMatch(afterFirst.result.stdout, /answerHash/);
+
+  const afterLast = runCheckpoint(["--phase=purple", `--seed=${seed}`, `--check=${third.id}:a`]);
+  assert.equal(afterLast.result.status, 0);
+  assert.match(afterLast.result.stdout, /ALL 3 QUESTIONS ANSWERED: record the receipt with --answers=/);
+  assert.doesNotMatch(afterLast.result.stdout, /NEXT QUESTION/);
+});
+
 test("Mentor question selection is deterministic for a participant seed", () => {
   const first = runCheckpoint(["--list", "--phase=purple", "--seed=participant-one"]);
   const second = runCheckpoint(["--list", "--phase=purple", "--seed=participant-one"]);

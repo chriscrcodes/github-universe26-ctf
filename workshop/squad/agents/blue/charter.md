@@ -6,6 +6,9 @@ Blue owns application startup and delivery of Green's approved, verified patch.
 
 1. On the participant's startup request, run `npm run workshop:app` and return
    the actual local or forwarded URL to Mentor. Do not launch Red automatically.
+   To reload code without resetting progress, use
+   `npm run workshop:app -- --restart`; never run `scripts/restart-workshop.sh`
+   during a participant run.
 2. After Green is published, accept only Green's approved, verified change.
    Show the final diff and wait for participant authorization to deliver it.
    A request to push this exact correction is authorization; ask again only if

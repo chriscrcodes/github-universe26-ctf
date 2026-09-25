@@ -34,6 +34,7 @@ Use the VS Code terminal at the repository root for initialization only. After S
    ```
 
    ✅ Output ends with `READY: participant registered.` In confirmed offline mode, a `WARN: BOARD_URL or BOARD_TOKEN is missing` line is expected.
+   The output also includes a CodeQL pre-flight line. `PASS: CodeQL reports are readable` means you will read real reports in Steps 2 and 4. `WARN: CodeQL reports are not readable … (403)` means you should tell the facilitator now; otherwise, expect to accept an unverified CodeQL override later.
 1. Run:
 
    ```bash
@@ -64,8 +65,12 @@ Use the VS Code terminal at the repository root for initialization only. After S
 
 #### 🤖 Part B — Squad in Copilot CLI
 
-1. In the Copilot CLI session, confirm that the local **Squad** agent and `gpt-6-luna` are selected. Keep the participant conversation here for the rest of the exercise; Squad runs commands and delegates to Red, Green, Blue, and Mentor.
-1. Ask Squad to start the app by sending:
+From here on, **Mentor leads the conversation**. You send one prompt, then you
+only answer Mentor's questions. You do not switch agents or type workshop
+commands; Squad runs them and delegates to Red, Green, Blue, and Mentor.
+
+1. In the Copilot CLI session, confirm that the local **Squad** agent and `gpt-6-luna` are selected. Keep the participant conversation here for the rest of the exercise.
+1. Send the only prompt you need:
 
    ```text
    Squad, start the app and ask Mentor to guide me through the workshop.
@@ -74,34 +79,40 @@ Use the VS Code terminal at the repository root for initialization only. After S
    ✅ Blue runs `npm run workshop:app` and returns the actual browser URL.
    Mentor introduces Harborlight Stays, developed by Blue in this workshop
    scenario, and explains that it searches hotels by city.
-1. Open the URL Mentor supplies. No application account or login is needed.
-   Mentor asks you to try a **normal Paris search** and describe what you observe.
-   Reply in the same Squad conversation; Mentor waits before interpreting results.
-
-1. In the same conversation, ask Red to explain the vulnerability and guide a
-   browser test:
-
-   ```text
-   Red, explain where the SQL injection is, show me the canonical payload, then
-   ask me to test it in the hotel search interface. Do not change the application.
-   ```
-
-   Red explains that `app/src/search-query.js`, in `buildCityFilter`, inserts
-   the city text into SQL instead of binding it. The quote closes the city
-   string, `OR 1=1` makes the filter true, and `--` comments out the remaining
-   publication filter. Red must not ask questions or propose a fix.
-1. In the browser, replace the city with the supplied payload (the canonical
-   payload below)
-   and select **Search**:
+1. Open the URL. No application account or login is needed. Mentor asks you to
+   try a **normal Paris search** and describe what you observe. Reply in one
+   short sentence; Mentor waits before interpreting results.
+1. Mentor hands over to Red. Red explains that `app/src/search-query.js`, in
+   `buildCityFilter`, inserts the city text into SQL instead of binding it. The
+   quote closes the city string, `OR 1=1` makes the filter true, and `--`
+   comments out the remaining publication filter. Red shows the canonical
+   payload and asks you to test it in the hotel search interface.
+   Red must not ask questions or propose a fix.
+1. In the browser, replace the city with the supplied payload and select **Search**:
 
    ```text
    ' OR 1=1 --
    ```
 
-   The app displays all 24 listings, including 4 unpublished listings. When the
-   server confirms the canonical result, it records the evidence and advances
-   `red` on the scoreboard automatically. No Red checkpoint, separate command,
-   or phase confirmation is needed. Green proposes remediation only after Purple.
+   Tell Mentor what you see. The app displays all 24 listings, including 4
+   unpublished listings. When the server confirms the canonical result, it
+   records the evidence and advances `red` on the scoreboard automatically.
+   No Red checkpoint, separate command, or phase confirmation is needed.
+
+**What you decide in this step:** what you observe in the app, and running the
+payload test yourself.
+
+<details>
+<summary>If Mentor stalls</summary><br/>
+
+Send `Mentor, continue.` If Red was not dispatched, ask Red:
+
+```text
+Red, explain where the SQL injection is, show me the canonical payload, then
+ask me to test it in the hotel search interface. Do not change the application.
+```
+
+</details>
 
 **Expected evidence:**
 

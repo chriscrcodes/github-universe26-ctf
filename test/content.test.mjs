@@ -124,7 +124,7 @@ test("steps document participant approval and the Red, Green, and Blue flow", as
   for (const expected of [
     "supplied payload",
     "CodeQL",
-    "I explicitly approve this exact patch",
+    "Any explicit yes in reply to the",
     "ask Squad",
     "`red`",
     "`purple`",
@@ -210,19 +210,23 @@ test("Mentor checkpoint guidance provides corrections without repeating question
   assert.match(mentor, /Do not repeat the same question/i);
 });
 
-test("each Skills lesson routes evidence work through Squad", async () => {
+test("each Skills lesson is Mentor-led with a Squad fallback prompt", async () => {
   const steps = await Promise.all(stepFiles.slice(0, 4).map((file) => readFile(path.join(root, file), "utf8")));
   const expected = [
     ["ask Red", "`red`"],
     ["Ask Squad", "`purple`"],
-    ["Ask Green", "Continue to Step 4"],
-    ["Ask Blue", "`blue`"],
+    ["ask Green", "Continue to Step 4"],
+    ["ask Blue", "`blue`"],
   ];
 
   expected.forEach(([evidence, phase], index) => {
-    assert.ok(steps[index].includes(evidence), `step ${index + 1} should mention ${evidence}`);
+    assert.ok(steps[index].toLowerCase().includes(evidence.toLowerCase()), `step ${index + 1} should mention ${evidence}`);
     assert.ok(steps[index].includes(phase), `step ${index + 1} should mention ${phase}`);
+    assert.match(steps[index], /<summary>If Mentor stalls<\/summary>[\s\S]*Mentor, continue\./);
   });
+  assert.match(steps[0], /Mentor leads the conversation/);
+  assert.match(steps[0], /only answer Mentor's questions/);
+  steps.slice(1).forEach((step) => assert.match(step, /\*\*Your decision/));
   assert.match(steps[0], /npm run workshop:app/);
   assert.match(steps[3], /phase[\s\S]*blue/);
 });
@@ -232,7 +236,9 @@ test("lessons require actual CodeQL reading and Green implementation before Blue
   assert.match(steps[0], /describe what you observe/);
   assert.match(steps[1], /--phase=purple --confirm --analysis=ID --commit=SHA/);
   assert.doesNotMatch(steps[1], /use the facilitator's reference finding/);
-  assert.match(steps[2], /Only after approval, Green implements[\s\S]*Red retests[\s\S]*npm run phase -- green/);
+  assert.match(steps[2], /Only after approval, Green implements[\s\S]*npm run workshop:app -- --restart[\s\S]*Red retests[\s\S]*npm run phase -- green/);
+  assert.match(steps[1], /Green explains the finding in every case, including after an override/);
+  assert.match(steps[0], /CodeQL pre-flight/);
   assert.match(steps[3], /After the push[\s\S]*npm run regressions[\s\S]*--phase=blue --confirm[\s\S]*npm run phase -- blue/);
 });
 

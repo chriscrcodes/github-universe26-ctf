@@ -123,6 +123,11 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   assert.match(mentor, /API success is not human confirmation/);
   assert.match(mentor, /--phase=purple --confirm --analysis=ID --commit=SHA/);
   assert.match(mentor, /--phase=blue --confirm --analysis=ID --commit=SHA/);
+  assert.match(mentor, /--list --phase=<phase>` once/);
+  assert.match(mentor, /do\s+not run `--list` again/);
+  assert.match(mentor, /Always route to Green next, even when the report is inaccessible/);
+  assert.match(green, /Do not edit any file before that output/);
+  assert.match(green, /npm run workshop:app -- --restart/);
   const routing = readFileSync(path.join(participant, '.squad', 'routing.md'), 'utf8');
   assert.match(routing, /Return to Mentor/);
 });

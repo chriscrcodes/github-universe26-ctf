@@ -21,13 +21,28 @@ function parseArguments(argv) {
   return options;
 }
 
+function printQuestion(question) {
+  console.log(`${question.id} [${question.topic}] ${question.prompt}`);
+  for (const option of question.options) {
+    console.log(`  ${option.id}. ${option.text}`);
+  }
+}
+
 function printQuestions(bank, phase, seed) {
   console.log(`CHECKPOINT ${phase}`);
-  for (const question of selectQuestions(bank, phase, seededRandom(seed))) {
-    console.log(`${question.id} [${question.topic}] ${question.prompt}`);
-    for (const option of question.options) {
-      console.log(`  ${option.id}. ${option.text}`);
-    }
+  for (const question of selectQuestions(bank, phase, seededRandom(seed))) printQuestion(question);
+}
+
+// Printing the next question after each check spares Mentor a new --list call.
+function printNextQuestion(bank, phase, seed, questionId) {
+  const selected = selectQuestions(bank, phase, seededRandom(seed));
+  const index = selected.findIndex((question) => question.id === questionId);
+  const next = selected[index + 1];
+  if (next) {
+    console.log(`NEXT QUESTION ${index + 2}/${selected.length}:`);
+    printQuestion(next);
+  } else {
+    console.log(`ALL ${selected.length} QUESTIONS ANSWERED: record the receipt with --answers=<question-id>:<option-id>,...`);
   }
 }
 
@@ -55,8 +70,9 @@ function main(argv = process.argv.slice(2)) {
     if (answers.length !== 1) throw new Error("Check exactly one answer with --check=<question-id>:<option-id>.");
     const result = checkAnswer(bank, answers[0].questionId, answers[0].optionId, { phase, seed });
     if (result.error) throw new Error(result.error);
-    if (result.correct) console.log(`ANSWER CORRECT: ${answers[0].questionId}. Continue to the next question.`);
+    if (result.correct) console.log(`ANSWER CORRECT: ${answers[0].questionId}.`);
     else console.log(`MENTOR COACHING: ${answers[0].questionId}: correct answer is ${result.correctOptionId}. ${result.correctOptionText}`);
+    printNextQuestion(bank, phase, seed, answers[0].questionId);
     return;
   }
 

@@ -88,7 +88,18 @@ approval, delivery authorization, actual human CodeQL reading or Purple/Green/
 Blue phase readiness. Preserve the participant checkpoints for Purple, Green
 and Blue. Pending scans never authorize publication unless the participant
 explicitly records an unverified CodeQL override. Squad executes the commands;
-the participant does not switch agents or run internal tooling.
+the participant does not switch agents, run internal tooling or type scripted
+prompts: Mentor leads and the participant only answers.
+
+Human decisions are limited to: app observation, the browser payload test,
+CodeQL reading or override (with reason), each quiz answer, phase readiness,
+approval of Green's displayed diff (any explicit "yes" to that diff) and Blue
+delivery authorization. Chain every other step without asking, including each
+CodeQL review launch and Green's CodeQL explanation. For quizzes, run
+`npm run checkpoint -- --list` once, then run each `--check` directly in the
+conversation (it prints the next question) instead of dispatching a new Mentor
+task per answer. To reload code, use `npm run workshop:app -- --restart`, never
+`scripts/restart-workshop.sh`.
 
 ---
 

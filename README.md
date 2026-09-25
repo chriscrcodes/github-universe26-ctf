@@ -42,7 +42,6 @@ In this exercise, you will:
 1. 🟢 [Approve and verify Green's correction](.github/steps/3-step.md), then publish `green`.
 1. 🔵 [Deliver with Blue and read the final CodeQL report](.github/steps/4-step.md), then publish `blue`.
 
-evidence command and three-question checkpoint have passed. Purple and Blue also
 Each phase follows the participant journey: Red publishes after the server
 verifies your canonical browser test. Purple, Green and Blue retain their
 evidence and three-question checkpoints. Purple and Blue require your actual
@@ -57,14 +56,16 @@ an internal reference, and one of them is your `FLAG{...}`.
 ## Meet Squad
 
 **Squad** is a custom GitHub Copilot CLI agent that routes your natural-language
-requests to specialist roles and manages the handoffs. **Mentor** guides the
+requests to specialist roles and manages the handoffs. **Mentor** leads the
 whole journey in one conversation, returning after every specialist report.
-You run the setup commands yourself. You test Red's supplied payload in the
-interface; the server advances Red when the expected evidence is confirmed.
-You own every patch approval, CodeQL override, and later phase-ready decision.
-Start with: **"Squad, start the app and ask Mentor to guide me."**
-Blue starts Harborlight Stays; Mentor asks you to open it and describe what you see.
-No application login or manual agent switching is required.
+You run the setup commands yourself, then send a single prompt:
+**"Squad, start the app and ask Mentor to guide me through the workshop."**
+From there you only answer Mentor: describe what you observe, test Red's
+supplied payload in the interface, choose quiz answers (`a`, `b`, or `c`), and
+make the human decisions — CodeQL reading or override, exact-diff approval,
+delivery authorization, and each phase-ready call. The server advances Red when
+the expected evidence is confirmed. No application login, scripted prompts or
+manual agent switching is required.
 
 > [!NOTE]
 > Red, Green, Blue, and Mentor are workshop roles defined in this repository.
@@ -85,7 +86,7 @@ No application login or manual agent switching is required.
 | 🧭 **Squad** | Routes requests and manages handoffs | Makes your decisions |
 | 🔴 **Red** | Explains the SQL injection and guides the canonical browser test | Edits code or introduces a vulnerability |
 | 🟣 **Mentor** | Guides observations, CodeQL reading and checkpoints for Purple, Green and Blue | Answers before you try or skips a human decision |
-| 🟢 **Green** | Explains CodeQL, proposes the exact diff, then implements and verifies it after approval | Edits before approval, commits or pushes |
+| 🟢 **Green** | Explains CodeQL, proposes the exact diff, then implements, restarts the app and verifies it after approval | Edits before approval, commits or pushes |
 | 🔵 **Blue** | Starts the app; after Green, verifies, commits and pushes `main`, then runs regressions | Changes anything outside the approved scope |
 
 Learn more about the upstream project in the
@@ -96,10 +97,10 @@ Learn more about the upstream project in the
 | Minutes | Segment | What happens |
 | --- | --- | --- |
 | 0–10 | Intro | Squad, roles, and what the exercise proves |
-| 10–17 | Step 1 | Setup, Red explains the flaw, participant tests the payload |
-| 17–24 | Step 2 | Green traces the CodeQL flow, Mentor checks you |
-| 24–30 | Step 3 | You approve; Green implements and verifies; Red retests |
-| 30–40 | Step 4 | Blue delivers; you read the clean CodeQL report |
+| 10–17 | Step 1 | Setup (with CodeQL pre-flight), Red explains the flaw, you test the payload |
+| 17–24 | Step 2 | You read the CodeQL report (or override), Green traces the flow, Mentor checks you |
+| 24–30 | Step 3 | You approve the diff; Green implements, restarts and verifies; Red retests |
+| 30–40 | Step 4 | You authorize delivery; Blue pushes; you read the final CodeQL report (or override) |
 | 40–45 | Debrief | Runtime evidence vs CodeQL, human vs automation boundary |
 
 ### How to start this exercise

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { APP_URL, available, hotelsFrom, request } from "../test/http.mjs";
 
 if (!(await available(APP_URL))) {
-  console.error(`BLOCKED: application is not running at ${APP_URL}. Start it with npm start.`);
+  console.error(`BLOCKED: application is not running at ${APP_URL}. Start it with npm run workshop:app.`);
   process.exit(2);
 }
 
@@ -22,6 +23,14 @@ const lowercaseParisHotels = hotelsFrom(lowercaseParis.body);
 const unknownHotels = hotelsFrom(unknown.body);
 const emptyHotels = hotelsFrom(empty.body);
 const exploitHotels = hotelsFrom(exploit.body);
+const cityFilterSource = readFileSync(new URL("../app/src/search-query.js", import.meta.url), "utf8");
+if (exploitHotels.length > 0 && /city = \? COLLATE NOCASE/.test(cityFilterSource)) {
+  console.error(
+    "BLOCKED: app/src/search-query.js binds the city, but the running application still serves the old code. " +
+      "Restart it without resetting progress: npm run workshop:app -- --restart"
+  );
+  process.exit(3);
+}
 assert.equal(normalHotels.length, 2, "baseline Paris search should return two public listings");
 assert.ok(normalHotels.every((hotel) => hotel.listingStatus === "PUBLIC"));
 assert.deepEqual(lowercaseParisHotels, normalHotels, "city search should be case-insensitive");

@@ -21,3 +21,5 @@ Universe 2026 Presentation Template_1785239102627001lY3Z.potx
 facilitator/
 app/.e2e-patched-src/
 app/.e2e-git-sandbox/
+.workshop-app.pid
+.workshop-app.log

@@ -247,8 +247,8 @@
       "topic": "approval",
       "prompt": "What does the participant's explicit approval authorize?",
       "options": [
-        { "id": "a", "text": "Blue to apply only the exact reviewed patch" },
-        { "id": "b", "text": "Any cleanup Blue considers useful" },
+        { "id": "a", "text": "Green to apply only the exact reviewed patch" },
+        { "id": "b", "text": "Any cleanup Green considers useful" },
         { "id": "c", "text": "Red to modify the exploit" }
       ],
       "answerHash": "dfb322cb6a6277df0226648b40786b881e20bc0873f3cf094044c99ddd1f71bb"

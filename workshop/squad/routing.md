@@ -18,14 +18,17 @@
 ## Rules
 
 1. Red is read-only and never broadens the supplied local exploit.
-2. Green explains CodeQL before Purple, but proposes a fix only after Purple
-   publication. Green waits for explicit participant approval before applying
-   the exact patch, restarting the app and running `npm run verify`.
+2. Green explains CodeQL before Purple, even after an unverified override, but
+   proposes a fix only after Purple publication. Green waits for explicit
+   participant approval and the recorded `npm run approve -- parameter-binding`
+   before applying the exact patch, restarting the app with
+   `npm run workshop:app -- --restart` and running `npm run verify`.
 3. Mentor guides the participant throughout the workshop. Red publishes
    automatically when the server verifies the participant's canonical browser
    test; there is no Red quiz. For Purple, Green and Blue, Mentor asks the
    deterministic three-question quiz in Squad's conversation and Squad runs the
-   checkpoint command; the participant never opens a second terminal or runs
+   checkpoint command (`--list` once, then `--check` per answer, which prints
+   the next question); the participant never opens a second terminal or runs
    workshop commands after initialization.
    Green may not propose a remediation before Purple is published.
    After a wrong quiz answer, Mentor gives the correct option and explanation
@@ -42,7 +45,11 @@
 7. Mentor is the continuous guide in one Squad conversation. Return to Mentor
    after each specialist and never anticipate the next participant decision.
    Blue startup is followed by actual application observation, not an exploit.
-8. Before Purple and Blue, Squad runs `npm run codeql:review -- --phase=<phase>`.
+   Steps that are not participant decisions are chained without asking: Red
+   after the observation, each CodeQL review launch, Green's CodeQL
+   explanation, and Green's remediation proposal after Purple.
+8. Before Purple and Blue, Squad runs `npm run codeql:review -- --phase=<phase>`
+   without asking for permission first.
    Mentor gives the actual report URL and asks the participant to read it.
    Only after that human confirmation, Squad repeats the command with
    `--confirm --analysis=ID --commit=SHA`. If the report is inaccessible, a
