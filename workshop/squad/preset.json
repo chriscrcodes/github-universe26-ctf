@@ -1,32 +1,26 @@
 {
   "schemaVersion": 1,
   "id": "github-universe26-purple-team",
-  "version": 2,
+  "version": 3,
   "squadVersion": "0.13.1",
   "createdAt": "2026-09-22T00:00:00.000Z",
   "agents": [
     {
       "slug": "blue",
       "name": "Blue",
-      "role": "Defender and approved patch implementer",
+      "role": "Developer and approved patch implementer",
       "universe": "descriptive"
     },
     {
       "slug": "red",
       "name": "Red",
-      "role": "Read-only attacker",
+      "role": "Read-only security reviewer",
       "universe": "descriptive"
     },
     {
       "slug": "green",
       "name": "Green",
       "role": "Read-only CodeQL remediator",
-      "universe": "descriptive"
-    },
-    {
-      "slug": "mentor",
-      "name": "Mentor",
-      "role": "Understanding examiner",
       "universe": "descriptive"
     },
     {

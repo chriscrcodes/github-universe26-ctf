@@ -122,11 +122,15 @@ async function searchHotels(city) {
 
   try {
     const response = await fetch(`/api/hotels?city=${encodeURIComponent(normalizedCity)}`);
+    const payload = await response.json();
+    if (response.status === 501 && payload.code === "CITY_SEARCH_NOT_IMPLEMENTED") {
+      renderMessage("Search is not available yet", payload.error);
+      return;
+    }
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
 
-    const payload = await response.json();
     const hotels = Array.isArray(payload.hotels) ? payload.hotels : [];
     renderHotels(normalizedCity, hotels);
   } catch (_error) {

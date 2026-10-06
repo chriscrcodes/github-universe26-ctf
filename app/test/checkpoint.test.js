@@ -26,14 +26,14 @@ function runCheckpoint(args) {
   return { result, state };
 }
 
-test("the understanding check records evidence after correct answers", () => {
+test("the optional self-check never records phase evidence", () => {
   const { result, state } = runCheckpoint([
     "--answers=source-city:a,sink-execution:c,flow-unsafe:b",
   ]);
   assert.equal(result.status, 0);
   assert.match(result.stdout, /understanding confirmed/);
-  assert.equal(state.evidence.purple.gradedBy, "mentor");
-  assert.deepEqual(state.evidence.purple.topics.sort(), ["flow", "sink", "source"]);
+  assert.equal(state.evidence.purple, undefined);
+  assert.deepEqual(state.completedPhases, ["started", "red"]);
 });
 
 test("the understanding check rejects an incorrect answer without revealing the right one", () => {
@@ -60,13 +60,14 @@ test("the understanding check requires several distinct topics", () => {
   assert.match(sameTopic.result.stderr, /at least 3 different topics/);
 });
 
-test("the understanding check cannot be passed without Mentor grading the answers", () => {
-  const { result } = runCheckpoint([]);
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /Ask Mentor/);
+test("the optional self-check lists questions without another agent", () => {
+  const { result, state } = runCheckpoint([]);
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Optional self-check only/);
+  assert.equal(state.evidence.purple, undefined);
 });
 
-test("Mentor can list a randomized set of questions without the answers", () => {
+test("the participant can list optional questions without the answers", () => {
   const { result } = runCheckpoint(["--list"]);
   assert.equal(result.status, 0);
   const lines = result.stdout.trim().split("\n").filter((line) => !line.startsWith("  "));

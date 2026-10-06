@@ -25,7 +25,7 @@ test("participant can approve parameter binding after the CodeQL phase", () => {
     teamId: "participant-one",
     sessionId: "universe-2026",
     alias: "Purple Team",
-    evidence: { purple: { result: "source-flow-sink" } },
+    evidence: { purple: { kind: "codeql-baseline", reviewedBy: "participant" } },
     completedPhases: ["started", "red", "purple"],
   });
   assert.equal(result.status, 0);
@@ -41,6 +41,13 @@ test("approval is rejected before the CodeQL phase", () => {
     evidence: {},
     completedPhases: ["started", "red"],
   });
+  assert.equal(result.status, 1);
+  assert.equal(updated.approvals, undefined);
+});
+
+test("legacy quiz evidence cannot authorize remediation", () => {
+  const { result, updated } = runApproval({ teamId: "participant-one", evidence: { purple: { gradedBy: "mentor" } },
+    completedPhases: ["started", "red", "purple"] });
   assert.equal(result.status, 1);
   assert.equal(updated.approvals, undefined);
 });

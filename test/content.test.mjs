@@ -27,6 +27,32 @@ const workshopDocumentation = [
   "workshop/squad/agents/scribe/charter.md",
 ];
 
+test("participant repository only connects to the facilitator-owned board", async () => {
+  const readme = await readFile(readmePath, "utf8");
+  const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+  assert.deepEqual(manifest.workspaces, ["app"]);
+  assert.equal(manifest.scripts["board:local"], undefined);
+  assert.equal(manifest.scripts["load:board"], undefined);
+  assert.match(readme, /ALLOW_LOCAL_BOARD=1/);
+  assert.match(readme, /BOARD_SESSION_ID=local-workshop/);
+  assert.match(readme, /127\.0\.0\.1:8080/);
+  assert.match(readme, /https:\/\/github\.com\/chriscrcodes\/github-universe26-ctf-facilitator/);
+  assert.doesNotMatch(readme, /BOARD_OPERATOR_KEY|npm run board:local|FACILITATOR\.md/);
+  assert.doesNotMatch(readme, /--request (?:DELETE|POST)|\/api\/teams\/|\/api\/reset/);
+});
+
+test("operator artifacts do not ship in the participant repository", async () => {
+  const files = await readdir(root);
+  assert.ok(!files.includes("FACILITATOR.md"));
+  assert.ok(!files.includes("facilitator.md"));
+  for (const artifact of ["board", "scripts/load-board.mjs", "scripts/restart-workshop.sh",
+    "test/board.test.mjs", "test/facilitator.test.mjs", "test/e2e.test.mjs",
+    "workshop/interaction-log.md",
+    ".github/images/arcade-scoreboard-participant.png"]) {
+    await assert.rejects(access(path.join(root, artifact)), { code: "ENOENT" });
+  }
+});
+
 test("README follows the official GitHub Skills exercise template", async () => {
   const readme = await readFile(readmePath, "utf8");
   const requiredSections = [
@@ -67,13 +93,11 @@ test("README presents a GitHub-native hero without official Squad branding", asy
   const heroEnd = readme.indexOf("</div>");
   const startSection = readme.indexOf("### How to start this exercise");
   const exerciseButton = readme.indexOf("Start%20the%20exercise");
-  const scoreboardImage = readme.indexOf("arcade-scoreboard-participant.png");
   assert.match(readme, /https:\/\/bradygaster\.github\.io\/squad\//);
   assert.ok(exerciseButton > startSection);
-  assert.ok(exerciseButton < scoreboardImage);
   assert.ok(exerciseButton > heroEnd);
   assert.match(readme, /<p align="left">\s*<a href="\.github\/steps\/1-step\.md"><img src="https:\/\/img\.shields\.io\/badge\/Start%20the%20exercise/);
-  assert.match(readme, /<p align="left">\s*<img src="\.github\/images\/arcade-scoreboard-participant\.png"/);
+  assert.doesNotMatch(readme, /arcade-scoreboard-participant\.png/);
   assert.match(readme, /<div align="center">/);
   assert.match(readme, /not an official Squad product demonstration/);
   assert.match(readme, /\.github\/images\/purple-team-terminal\.svg/);
@@ -88,7 +112,7 @@ test("GitHub Skills step files stay complete and ordered", async () => {
 
   const steps = await Promise.all(stepFiles.map((file) => readFile(path.join(root, file), "utf8")));
   steps.forEach((content, index) => {
-    assert.match(content, /^## /);
+    assert.match(content, /^---\ntitle: .+\ndescription: .+\n---\n\n## /);
     if (index < 4) {
       assert.match(content, /### 📖 Theory:/);
       assert.match(content, /### ⌨️ Activity:/);
@@ -99,13 +123,13 @@ test("GitHub Skills step files stay complete and ordered", async () => {
   });
 });
 
-test("README documents the approved 45-minute participant setup", async () => {
+test("README documents the participant-led 30-minute setup", async () => {
   const readme = await readFile(readmePath, "utf8");
   const step = await readFile(path.join(root, stepFiles[0]), "utf8");
   for (const expected of [
-    "10 min intro",
-    "30 min hands-on",
-    "5 min debrief",
+    "30 minutes",
+    "3 min discovery",
+    "9 min delivery",
     "squad init --no-workflows",
     "npm run squad:install-workshop-team",
     "squad doctor",
@@ -121,16 +145,16 @@ test("steps document participant approval and the Red, Green, and Blue flow", as
   const steps = await Promise.all(stepFiles.map((file) => readFile(path.join(root, file), "utf8")));
   const combined = steps.join("\n");
   for (const expected of [
-    "supplied payload",
     "CodeQL",
     "I explicitly approve this exact patch",
-    "ask Squad",
+    "Ask Blue",
     "`red`",
     "`purple`",
     "`green`",
     "`blue`",
     "CodeQL pending",
     "CodeQL clean",
+    "npm run codeql:review -- fixed --reviewed",
   ]) {
     assert.ok(combined.includes(expected), `the workshop steps should mention ${expected}`);
   }
@@ -138,15 +162,17 @@ test("steps document participant approval and the Red, Green, and Blue flow", as
   assert.match(combined, /Blue[\s\S]*commit[\s\S]*push/i);
 });
 
-test("documentation states that Red detects but never creates the vulnerability", async () => {
+test("documentation never instructs agents to introduce defects or automate exploitation", async () => {
   const step = await readFile(path.join(root, stepFiles[0]), "utf8");
   const redCharter = await readFile(
     path.join(root, "workshop/squad/agents/red/charter.md"),
     "utf8",
   );
 
-  assert.match(step, /already present in the starting application/i);
+  assert.match(step, /None of them intentionally introduces a defect/i);
   assert.match(redCharter, /never\s+creates or introduces a vulnerability/i);
+  const steps = (await Promise.all(stepFiles.map((file) => readFile(path.join(root, file), "utf8")))).join("\n");
+  assert.doesNotMatch(steps, /Mentor|npm run checkpoint|npm run exploit|--yolo/);
 });
 
 test("Step 1 checks board setup without exposing the token", async () => {
@@ -158,24 +184,23 @@ test("Step 1 checks board setup without exposing the token", async () => {
   assert.doesNotMatch(step, /BOARD_REPORTER_TOKEN/);
 });
 
-test("Step 1 withholds the exploit and expected results until evidence is collected", async () => {
+test("Step 1 leaves recruitment and delivery decisions with the participant", async () => {
   const step = await readFile(path.join(root, stepFiles[0]), "utf8");
   assert.doesNotMatch(step, /%27|27,400|12 listings|4 unpublished|FLAG\{\.\.\.\}/);
-  assert.match(step, /This is\s+\*\*not a command\*\*/);
   assert.match(step, /normal Paris search/i);
-  assert.match(step, /Red—not you—runs `npm run exploit`/);
-  assert.match(step, /Mentor's formal check happens after you have reviewed the evidence/i);
-  assert.match(step, /copilot --yolo --agent squad/);
-  assert.match(step, /GPT-6 Luna/);
+  assert.match(step, /Ask Squad to recruit Blue/);
+  assert.match(step, /--adopt-recruited/);
+  assert.match(step, /copilot --agent squad/);
+  assert.match(step, /Explicitly authorize Blue/);
 });
 
 test("each Skills lesson routes evidence work through Squad", async () => {
   const steps = await Promise.all(stepFiles.slice(0, 4).map((file) => readFile(path.join(root, file), "utf8")));
   const expected = [
-    ["ask Red", "`red`"],
-    ["Ask Squad", "`purple`"],
-    ["Ask Green", "Continue to Step 4"],
-    ["Ask Blue", "`green`"],
+    ["Ask Squad", "`red`"],
+    ["Ask Red", "purple"],
+    ["Ask Green", "[Step 4]"],
+    ["Ask Blue", "green"],
   ];
 
   expected.forEach(([evidence, phase], index) => {
@@ -184,6 +209,19 @@ test("each Skills lesson routes evidence work through Squad", async () => {
   });
   assert.match(steps[0], /npm run workshop:app/);
   assert.match(steps[3], /phase[\s\S]*blue/);
+});
+
+test("Default Setup replaces the custom security workflow without treating absence as clean", async () => {
+  await assert.rejects(access(path.join(root, ".github/workflows/security.yml")), { code: "ENOENT" });
+  const review = await readFile(path.join(root, stepFiles[1]), "utf8");
+  assert.match(review, /Settings\/security_analysis/);
+  assert.match(review, /CodeQL analysis > Set up > Default/);
+  assert.match(review, /js\/sql-injection/);
+  assert.match(review, /Database query built from user-controlled sources/);
+  assert.match(review, /do not substitute a reference screenshot or a quiz/);
+  const final = await readFile(path.join(root, stepFiles[3]), "utf8");
+  assert.match(final, /fixed, not dismissed or missing/);
+  assert.match(final, /Do not publish final completion/);
 });
 
 test("legacy workshop document locations remain removed", async () => {
@@ -198,7 +236,7 @@ test("legacy workshop document locations remain removed", async () => {
   }
 });
 
-test("facilitator runbook is not included in the participant repository", async () => {
+test("legacy workshop facilitator location remains removed", async () => {
   await assert.rejects(access(path.join(root, "workshop/FACILITATOR.md")), {
     code: "ENOENT",
   });

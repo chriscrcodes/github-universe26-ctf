@@ -22,6 +22,14 @@ test("normalization collapses noise but is not a SQL defence", () => {
   );
 });
 
+test("the city filter binds user-controlled input", () => {
+  const city = "' OR 1=1 --";
+  assert.deepEqual(buildCityFilter(city), { clause: "city = ? COLLATE NOCASE", parameters: [city] });
+  const query = buildPublicListingQuery([buildCityFilter(city)]);
+  assert.ok(!query.sql.includes(city));
+  assert.deepEqual(query.parameters, [city]);
+});
+
 test("helper parsing rejects unusable values", () => {
   assert.equal(parsePositiveInteger("12"), 12);
   assert.equal(parsePositiveInteger("0"), null);
@@ -43,10 +51,6 @@ test("the price and name filters bind their values", () => {
   });
   const query = buildPublicListingQuery([buildCityFilter("Paris"), buildMaxPriceFilter(200)]);
   assert.match(query.sql, /listingStatus = 'PUBLIC'/);
-  assert.match(query.sql, /city = 'Paris' COLLATE NOCASE/);
-  // Before the approved fix the city value is inlined; afterwards it is bound.
-  assert.deepEqual(
-    query.parameters.filter((value) => value !== "Paris"),
-    [200]
-  );
+  assert.match(query.sql, /city = \? COLLATE NOCASE/);
+  assert.deepEqual(query.parameters, ["Paris", 200]);
 });

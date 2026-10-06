@@ -1,32 +1,33 @@
-# Work Routing
+---
+title: Workshop Work Routing
+description: "Participant-led delegation to Blue, Red and Green with explicit approval boundaries."
+---
 
 ## Routing Table
 
-| Work Type | Route To | Examples |
-|-----------|----------|----------|
-| Safe exploit reproduction and post-fix retest | Red | Read-only; use only the supplied local exploit |
-| CodeQL explanation and remediation comparison | Green | Explain source, sink, and flow; compare fixes; produce the exact patch; wait for participant approval; never edit |
-| Participant understanding check | Mentor | Ask the randomized questions one at a time, coach without revealing answers, then grade the set |
-| Approved remediation implementation | Blue | Accept only the participant-approved exact Green patch; apply it; verify; run regressions; commit and push `main` |
-| Intended behavior and regression boundaries | Blue | Define and verify the participant-selected behavior matrix |
-| Safety and privacy | rai-agent | Review policy and safety concerns |
-| Claim verification | fact-checker | Verify evidence and challenge contradictions |
-| Session memory | Scribe | Log and merge decisions in the background |
-| Work monitoring | Ralph | Monitor delegated or long-running work |
+| Work Type | Route To | Boundaries |
+|-----------|----------|------------|
+| Feature delivery and regression checks | Blue | Implement the requested scope and request authorization before pushing `main` |
+| Security alert and impact review | Red | Read-only review of code, CodeQL results and provided evidence |
+| Remediation comparison and proposal | Green | Explain source, sink and flow; propose the exact patch; never edit |
+| Approved remediation implementation | Blue | Apply the participant-approved Green patch and verify preserved behavior |
+| Safety and privacy | rai-agent | Review policy concerns without substituting for participant approval |
+| Claim verification | fact-checker | Verify evidence and label unconfirmed claims |
+| Session memory | Scribe | Preserve decisions and learning in the background |
+| Work monitoring | Ralph | Report delegated work status without advancing the workshop |
 | Conflicting conclusions | Blue, Red, Green | Surface the disagreement; the participant decides |
 
 ## Rules
 
-1. Red is read-only and never broadens the supplied local exploit.
-2. Green is read-only. Green explains CodeQL, compares candidate fixes,
-   produces an exact patch, and waits for explicit participant approval.
-3. Mentor gates the purple phase. Green may not propose a remediation before
-   Mentor's understanding check has passed. Mentor never reveals an expected
-   answer and never grades answers the participant did not choose.
-4. Blue applies only that exact approved Green patch. Blue runs `npm run
-   verify` and `npm run regressions`; only after both pass does Blue commit,
-   push `main`, and confirm the pushed commit.
-5. Red retests the supplied exploit after Blue's change.
-6. The participant decides when a phase is ready. After that decision, the
-   routed agent runs the workshop evidence and phase commands; the participant
-   does not need to type the internal npm commands.
+1. The participant chooses the next task and agent. Do not automatically run
+   the entire journey or replace participant decisions with an agent's approval.
+2. Red is read-only. Review the alert and evidence; do not introduce defects,
+   generate attack payloads, automate exploitation or target external systems.
+3. Green never edits code. Green compares remediation options and proposes an
+   exact patch when asked, without a quiz or another agent's permission.
+4. Blue applies only the participant-approved correction. Preserve public-listing
+   filtering, parameter binding and allowlisted sort keys.
+5. Blue requests authorization before committing or pushing `main`. Report
+   failed or pending checks accurately instead of claiming completion.
+6. Answer the participant's question first. Offer an optional hint when asked;
+   do not reveal the entire solution or assign an unsolicited next task.

@@ -25,12 +25,22 @@ function fail(message) {
   process.exitCode = 1;
 }
 
-function parseRoot(args) {
-  if (args.length === 0) return process.cwd();
-  if (args.length === 2 && args[0] === '--root' && args[1]) {
-    return path.resolve(args[1]);
+function parseOptions(args) {
+  const options = { root: process.cwd(), adoptRecruited: false };
+  const seen = new Set();
+  for (let index = 0; index < args.length; index += 1) {
+    const option = args[index];
+    if (seen.has(option)) throw new Error(`duplicate option: ${option}`);
+    seen.add(option);
+    if (option === '--root' && args[index + 1] && !args[index + 1].startsWith('--')) {
+      options.root = path.resolve(args[++index]);
+    } else if (option === '--adopt-recruited') {
+      options.adoptRecruited = true;
+    } else {
+      throw new Error('usage: node scripts/install-workshop-squad.mjs [--root <repository>] [--adopt-recruited]');
+    }
   }
-  throw new Error('usage: node scripts/install-workshop-squad.mjs [--root <repository>]');
+  return options;
 }
 
 function readJson(file) {
@@ -93,7 +103,7 @@ function validatePreset(preset) {
     }
   }
 
-  for (const required of ['blue', 'red', 'green', 'mentor', ...builtInSlugs]) {
+  for (const required of ['blue', 'red', 'green', ...builtInSlugs]) {
     if (!slugs.has(required)) throw new Error(`required agent is missing: ${required}`);
   }
 }
@@ -172,11 +182,26 @@ function writeManagedFile(root, relativePath, content) {
   writeFileSync(destination, content, 'utf8');
 }
 
-function install(root, preset) {
+function isCompatibleRecruitedTeam(squadDir, preset) {
+  const registryPath = path.join(squadDir, 'casting', 'registry.json');
+  if (!existsSync(registryPath)) return false;
+  const agents = readJson(registryPath)?.agents;
+  if (!agents || typeof agents !== 'object' || Array.isArray(agents)) return false;
+  const allowed = new Map(preset.agents.map((agent) => [agent.slug, agent.name]));
+  if (Object.keys(agents).some((slug) => !allowed.has(slug)
+    || agents[slug]?.persistent_name !== allowed.get(slug) || agents[slug]?.status !== 'active')) return false;
+  if (!['blue', 'red', 'green'].every((slug) => agents[slug])) return false;
+  const agentsDir = path.join(squadDir, 'agents');
+  if (!existsSync(agentsDir)) return false;
+  return readdirSync(agentsDir).every((slug) => allowed.has(slug) || obsoleteBuiltInDirectories.has(slug));
+}
+
+function install(root, preset, { adoptRecruited = false } = {}) {
   if (!existsSync(root)) throw new Error(`repository root does not exist: ${root}`);
 
   const squadDir = path.join(root, '.squad');
-  if (!isFreshOrInstalled(squadDir, preset)) {
+  if (!isFreshOrInstalled(squadDir, preset)
+    && !(adoptRecruited && isCompatibleRecruitedTeam(squadDir, preset))) {
     throw new Error(
       'an existing non-fresh Squad was found; refusing to overwrite participant team state',
     );
@@ -286,7 +311,15 @@ function install(root, preset) {
     }
   }
 
+  const refreshedFiles = new Set([
+    '.squad/team.md',
+    '.squad/routing.md',
+    '.squad/casting/registry.json',
+    '.squad/workshop-preset.json',
+    ...preset.agents.map((agent) => `.squad/agents/${agent.slug}/charter.md`),
+  ]);
   for (const [relativePath, content] of managed) {
+    if (existsSync(path.join(root, relativePath)) && !refreshedFiles.has(relativePath)) continue;
     writeManagedFile(root, relativePath, content);
   }
 
@@ -308,10 +341,10 @@ function install(root, preset) {
 }
 
 try {
-  const root = parseRoot(process.argv.slice(2));
+  const options = parseOptions(process.argv.slice(2));
   const preset = readJson(path.join(presetDir, 'preset.json'));
   validatePreset(preset);
-  install(root, preset);
+  install(options.root, preset, options);
 } catch (error) {
   fail(error instanceof Error ? error.message : String(error));
 }

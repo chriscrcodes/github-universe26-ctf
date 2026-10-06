@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { APP_URL, available, hotelsFrom, request } from "../test/http.mjs";
 
 if (!(await available(APP_URL))) {
@@ -7,6 +8,10 @@ if (!(await available(APP_URL))) {
 }
 
 const normal = await request(APP_URL, "/api/hotels?city=Paris");
+if (normal.response.status === 501 && normal.body?.code === "CITY_SEARCH_NOT_IMPLEMENTED") {
+  console.error("BLOCKED: city search has not been delivered yet. Ask Blue to implement it before verification.");
+  process.exit(2);
+}
 const lowercaseParis = await request(APP_URL, "/api/hotels?city=paris");
 const unknown = await request(APP_URL, "/api/hotels?city=NoSuchWorkshopCity");
 const empty = await request(APP_URL, "/api/hotels?city=");
@@ -22,6 +27,11 @@ const lowercaseParisHotels = hotelsFrom(lowercaseParis.body);
 const unknownHotels = hotelsFrom(unknown.body);
 const emptyHotels = hotelsFrom(empty.body);
 const exploitHotels = hotelsFrom(exploit.body);
+const hotelsSource = readFileSync(new URL("../app/src/hotels.js", import.meta.url), "utf8");
+if (exploitHotels.length > 0 && /const filters = \[buildCityFilter\(term\)\]/.test(hotelsSource)) {
+  console.error("BLOCKED: hotels.js uses parameter binding, but the running app still serves old code. Restart it with npm run workshop:app -- --restart.");
+  process.exit(3);
+}
 assert.equal(normalHotels.length, 2, "baseline Paris search should return two public listings");
 assert.ok(normalHotels.every((hotel) => hotel.listingStatus === "PUBLIC"));
 assert.deepEqual(lowercaseParisHotels, normalHotels, "city search should be case-insensitive");

@@ -38,6 +38,13 @@ function createApp() {
     res.json({ summary: partnerRateSummary(stringParam(req.query.city)) });
   });
 
+  app.use((error, _req, res, next) => {
+    if (error.code === "CITY_SEARCH_NOT_IMPLEMENTED") {
+      return res.status(501).json({ hotels: [], error: error.message, code: error.code });
+    }
+    return next(error);
+  });
+
   return app;
 }
 

@@ -2,10 +2,80 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
-const { resetDatabase, seedHotels } = require("../src/database");
-const { findHotelById, partnerRateSummary, searchHotelsByCity } = require("../src/hotels");
+const vm = require("node:vm");
+const { resetDatabase, seedHotels, withDatabase } = require("../src/database");
+const { findHotelById, partnerRateSummary, searchHotelsByCity: initialCitySearch } = require("../src/hotels");
+const { createApp } = require("../src/server");
 
 const payload = "' OR 1=1 -- ";
+
+function prototypeSearch({ fixed = false } = {}) {
+  let source = fs.readFileSync(path.join(__dirname, "../data/city-search-prototype.txt"), "utf8");
+  if (fixed) {
+    source = source.replace(
+      "[{ clause: `city = '${term}' COLLATE NOCASE`, parameters: [] }]",
+      "[buildCityFilter(term)]"
+    );
+  }
+  const search = vm.runInNewContext(`${source}\nsearchHotelsByCity`, {
+    ...require("../src/input-normalizer"),
+    ...require("../src/search-query"),
+    withDatabase,
+  }, { timeout: 1000 });
+  return (city, options) => Array.from(search(city, options));
+}
+
+const searchHotelsByCity = prototypeSearch({ fixed: true });
+
+test("city search is not delivered in the starting application", () => {
+  for (const city of ["Paris", payload, "", null]) {
+    assert.throws(() => initialCitySearch(city), { code: "CITY_SEARCH_NOT_IMPLEMENTED" });
+  }
+});
+
+test("the starting search API reports an unavailable feature, not an empty search", async () => {
+  const server = createApp().listen(0, "127.0.0.1");
+  try {
+    await new Promise((resolve) => server.once("listening", resolve));
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/api/hotels?city=Paris`);
+    assert.equal(response.status, 501);
+    assert.deepEqual(await response.json(), {
+      hotels: [], error: "Hotel search by city has not been delivered yet.", code: "CITY_SEARCH_NOT_IMPLEMENTED",
+    });
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("the inert delivery prototype preserves normal search and exposes unpublished inventory", () => {
+  resetDatabase();
+  const search = prototypeSearch();
+  const paris = search("Paris");
+  assert.equal(paris.length, 2);
+  assert.ok(paris.every((hotel) => hotel.listingStatus === "PUBLIC"));
+  assert.deepEqual(search("paris"), paris);
+  const exposed = search(payload);
+  assert.equal(exposed.length, 24);
+  const privateListings = exposed.filter((hotel) => hotel.listingStatus === "UNPUBLISHED");
+  assert.equal(privateListings.length, 4);
+  assert.equal(privateListings.reduce((total, hotel) => total + hotel.syntheticReservationCount, 0), 27400);
+  assert.ok(privateListings.some((hotel) => hotel.internalReference === "FLAG{unpublished-inventory-exposed}"));
+});
+
+test("parameter binding fixes the delivery prototype without breaking public search", () => {
+  resetDatabase();
+  const search = prototypeSearch({ fixed: true });
+  assert.equal(search("Paris").length, 2);
+  assert.deepEqual(search("paris"), search("Paris"));
+  for (const city of [payload, "NoSuchWorkshopCity", "", null]) {
+    assert.equal(search(city).length, 0);
+  }
+  assert.equal(search("Paris", { maxPrice: "230" }).length, 1);
+  assert.equal(search("Paris", { name: "Saint-Clair" }).length, 1);
+  assert.equal(search("Paris", { name: "%" }).length, 0);
+  assert.equal(search("Tokyo", { sort: "price" })[0].name, "Asakusa Paper Lantern Inn");
+  assert.equal(search("Tokyo", { sort: "'; DROP TABLE hotels; --" }).length, 5);
+});
 
 test("resetDatabase restores the deterministic twenty-four-hotel fixture", () => {
   const hotels = resetDatabase();
@@ -82,23 +152,6 @@ test("the single-listing and partner lookups stay inside the public boundary", (
   assert.deepEqual(partnerRateSummary("Paris"), { listings: 2, averageNetRate: 180 });
   assert.deepEqual(partnerRateSummary("paris"), { listings: 2, averageNetRate: 180 });
   assert.deepEqual(partnerRateSummary(payload), { listings: 0, averageNetRate: null });
-});
-
-test("the starting application leaks unpublished inventory until the fix is applied", () => {
-  resetDatabase();
-  const exploit = searchHotelsByCity(payload);
-  assert.ok([0, 24].includes(exploit.length));
-  if (exploit.length === 0) return;
-  const unpublished = exploit.filter((hotel) => hotel.listingStatus === "UNPUBLISHED");
-  assert.equal(unpublished.length, 4);
-  assert.equal(
-    unpublished.reduce((total, hotel) => total + hotel.syntheticReservationCount, 0),
-    27400
-  );
-  assert.ok(
-    unpublished.some((hotel) => hotel.internalReference === "FLAG{unpublished-inventory-exposed}"),
-    "the capture-the-flag token lives on an unpublished listing"
-  );
 });
 
 test("statement-terminating payloads are rejected before reaching SQL", () => {

@@ -4,7 +4,8 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { validatePhaseGate, validateSource } = require("../scripts/publish-phase");
+const { publishToBoard, validatePhaseGate, validateSource } = require("../scripts/publish-phase");
+const { createServer } = require("node:http");
 
 const script = path.resolve(__dirname, "../scripts/publish-phase.js");
 
@@ -61,7 +62,7 @@ test("phase publisher rejects skipping directly to a later phase", () => {
 });
 
 test("participant phase command advances local progress after evidence", () => {
-  const workshopState = state({ evidence: { red: { recordedAt: "now" } } });
+  const workshopState = state({ evidence: { red: { recordedAt: "now", kind: "initial-delivery", pushed: true } } });
   const { result, saved } = runPhase("red", workshopState);
   assert.equal(result.status, 0);
   assert.match(result.stderr, /Board publish skipped/);
@@ -70,7 +71,7 @@ test("participant phase command advances local progress after evidence", () => {
 });
 
 test("phase publisher rejects the removed actions source before sending", () => {
-  const workshopState = state({ evidence: { red: { recordedAt: "now" } } });
+  const workshopState = state({ evidence: { red: { recordedAt: "now", kind: "initial-delivery", pushed: true } } });
   const { result } = runPhase("red", workshopState, { BOARD_EVENT_SOURCE: "actions" });
   assert.equal(result.status, 1);
   assert.match(result.stderr, /expected "participant"/);
@@ -78,13 +79,21 @@ test("phase publisher rejects the removed actions source before sending", () => 
 });
 
 test("phase publisher keeps the round going when the board is not configured", () => {
-  const workshopState = state({ evidence: { red: { recordedAt: "now" } } });
+  const workshopState = state({ evidence: { red: { recordedAt: "now", kind: "initial-delivery", pushed: true } } });
   const { result, saved } = runPhase("red", workshopState, { BOARD_URL: "", BOARD_TOKEN: "" });
   assert.equal(result.status, 0);
   assert.match(result.stderr, /Offline mode/);
   assert.match(result.stderr, /Local progress is preserved/);
   assert.match(result.stdout, /Phase red recorded/);
   assert.deepEqual(saved.completedPhases, ["started", "red"]);
+});
+
+test("quiz receipts cannot replace a participant-reviewed CodeQL finding", () => {
+  const workshopState = state({ completedPhases: ["started", "red"],
+    evidence: { purple: { command: "npm run checkpoint", gradedBy: "mentor" } } });
+  assert.match(validatePhaseGate(workshopState, "purple"), /participant-reviewed CodeQL/);
+  workshopState.evidence.purple = { kind: "codeql-baseline", reviewedBy: "participant" };
+  assert.equal(validatePhaseGate(workshopState, "purple"), null);
 });
 
 test("green phase requires explicit participant approval", () => {
@@ -95,10 +104,50 @@ test("green phase requires explicit participant approval", () => {
   assert.match(validatePhaseGate(workshopState, "green"), /Missing participant approval/);
 });
 
+test("legacy exploit receipts do not establish initial delivery", () => {
+  assert.match(validatePhaseGate(state({ evidence: { red: { flag: "old-evidence" } } }), "red"), /Initial delivery requires/);
+});
+
+test("final completion requires fixed evidence matching delivery and the initial alert", () => {
+  const workshopState = state({ completedPhases: ["started", "red", "purple", "green", "blue"],
+    evidence: { purple: { repository: "participant/workshop", alertNumber: 7 },
+      blue: { commit: "b".repeat(40), pushed: true },
+      codeql: { kind: "codeql-fixed", reviewedBy: "participant", repository: "participant/workshop",
+        alertNumber: 7, alertState: "fixed", commit: "b".repeat(40), resultCount: 0 } } });
+  assert.equal(validatePhaseGate(workshopState, "codeql"), null);
+  for (const change of [{ alertState: "dismissed" }, { resultCount: 1 }, { commit: "a".repeat(40) }, { alertNumber: 8 }]) {
+    assert.match(validatePhaseGate({ ...workshopState, evidence: { ...workshopState.evidence,
+      codeql: { ...workshopState.evidence.codeql, ...change } } }, "codeql"), /same CodeQL finding fixed/);
+  }
+});
+
 test("blue phase requires evidence tied to a pushed commit", () => {
   const workshopState = state({
     completedPhases: ["started", "red", "purple", "green"],
     evidence: { blue: { recordedAt: "now", pushed: false } },
   });
   assert.match(validatePhaseGate(workshopState, "blue"), /pushed on main/);
+});
+
+test("participant final publisher emits the authenticated CodeQL receipt without owning the board", async () => {
+  const received = [];
+  const server = createServer(async (request, response) => {
+    let body = "";
+    for await (const chunk of request) body += chunk;
+    received.push({ url: request.url, token: request.headers["x-board-reporter-token"], payload: JSON.parse(body) });
+    response.writeHead(200, { "content-type": "application/json" });
+    response.end("{}");
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const config = { mode: "board", boardUrl: `http://127.0.0.1:${server.address().port}`, boardToken: "receipt-token" };
+    const workshopState = state({ evidence: { codeql: { repository: "participant/workshop", commit: "b".repeat(40) } } });
+    assert.equal((await publishToBoard(workshopState, "codeql", "participant", config)).delivered, true);
+    assert.deepEqual(received, [{ url: "/api/events", token: "receipt-token", payload: {
+      sessionId: workshopState.sessionId, teamId: workshopState.teamId, phase: "ci-clean", source: "codeql",
+      repository: "participant/workshop", commitSha: "b".repeat(40),
+    } }]);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });

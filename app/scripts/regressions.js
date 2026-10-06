@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const { spawnSync } = require("node:child_process");
 const { recordEvidence } = require("../src/workshop-progress");
+const { repositoryContext } = require("../src/codeql-evidence");
 
 const appUrl = (process.env.APP_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
 
@@ -33,23 +34,14 @@ async function main() {
     "the capture-the-flag token should no longer be reachable"
   );
 
-  const commit = git(["rev-parse", "HEAD"]);
-  const branch = git(["branch", "--show-current"]);
-  const upstream = git(["rev-parse", "@{upstream}"], true);
-  const remediationChanges = git(
-    ["status", "--porcelain", "--", "app/src/hotels.js", "app/src/search-query.js"],
-    true
-  );
-  const pushed = branch === "main" && upstream === commit && remediationChanges === "";
-  assert.ok(
-    pushed,
-    "the approved correction must be committed and pushed on main before Blue publishes final evidence"
-  );
+  const { commit, repository, ref } = repositoryContext();
 
   recordEvidence("blue", {
     command: "npm run regressions",
     cases: ["Paris (case-insensitive)", "unknown city", "empty city", "canonical payload", "publication boundary"],
-    branch,
+    branch: "main",
+    repository,
+    ref,
     commit,
     pushed: true,
   });

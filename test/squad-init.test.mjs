@@ -25,8 +25,8 @@ function makeParticipant(t) {
   return root;
 }
 
-function runInstaller(root) {
-  return spawnSync(process.execPath, [installer, '--root', root], {
+function runInstaller(root, options = []) {
+  return spawnSync(process.execPath, [installer, '--root', root, ...options], {
     cwd: repoRoot,
     encoding: 'utf8',
   });
@@ -58,7 +58,7 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   const result = runInstaller(participant);
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Installed workshop Squad 2 for Squad 0\.13\.1/);
+  assert.match(result.stdout, /Installed workshop Squad 3 for Squad 0\.13\.1/);
 
   const registry = JSON.parse(
     readFileSync(path.join(participant, '.squad', 'casting', 'registry.json'), 'utf8'),
@@ -67,7 +67,6 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
     'blue',
     'red',
     'green',
-    'mentor',
     'scribe',
     'ralph',
     'rai-agent',
@@ -99,17 +98,14 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   );
   assert.match(green, /Produce the exact minimal parameterized-query patch/);
   assert.match(green, /never edits code, even after approval/i);
-  assert.match(blue, /Accept only Green's exact patch after explicit participant approval/);
+  assert.match(blue, /accept only Green's exact patch after explicit participant approval/i);
   assert.match(blue, /run `npm run verify`/);
   assert.match(blue, /push `main`/);
   assert.match(red, /Never edit code/);
 
-  const mentor = readFileSync(
-    path.join(participant, '.squad', 'agents', 'mentor', 'charter.md'),
-    'utf8',
-  );
-  assert.match(mentor, /never reveal|Never reveal/i);
-  assert.match(mentor, /--answers=/);
+  const team = readFileSync(path.join(participant, '.squad', 'team.md'), 'utf8');
+  assert.doesNotMatch(team, /Mentor/);
+  assert.equal(existsSync(path.join(participant, '.squad', 'agents', 'mentor')), false);
 });
 
 test('is byte-for-byte idempotent for managed participant state', (t) => {
@@ -121,6 +117,28 @@ test('is byte-for-byte idempotent for managed participant state', (t) => {
   const second = runInstaller(participant);
   assert.equal(second.status, 0, second.stderr);
   assert.equal(treeDigest(path.join(participant, '.squad')), firstDigest);
+});
+
+test('reinstallation preserves learned history, decisions, policies and participant configuration', (t) => {
+  const participant = makeParticipant(t);
+  const first = runInstaller(participant);
+  assert.equal(first.status, 0, first.stderr);
+  const changes = new Map([
+    ['agents/blue/history.md', '# History\n\nParticipant-owned learning.\n'],
+    ['decisions.md', '# Decisions\n\nPreserve public listings.\n'],
+    ['config.json', '{"version":1,"defaultModel":"participant-selected"}\n'],
+    ['casting/history.json', '{"participant":"casting history"}\n'],
+    ['rai/audit-trail.md', '# Audit\n\nExisting review.\n'],
+    ['memory/index.json', '[{"id":"existing-memory"}]\n'],
+  ]);
+  for (const [relativePath, content] of changes) {
+    writeFileSync(path.join(participant, '.squad', relativePath), content);
+  }
+  const second = runInstaller(participant);
+  assert.equal(second.status, 0, second.stderr);
+  for (const [relativePath, content] of changes) {
+    assert.equal(readFileSync(path.join(participant, '.squad', relativePath), 'utf8'), content, relativePath);
+  }
 });
 
 test('overlays a fresh Squad while preserving unmanaged Squad-owned files', (t) => {
@@ -194,18 +212,49 @@ test('portable preset definitions enforce the workshop role boundary', () => {
     path.join(presetRoot, 'agents', 'blue', 'charter.md'),
     path.join(presetRoot, 'agents', 'green', 'charter.md'),
     path.join(presetRoot, 'agents', 'red', 'charter.md'),
-    path.join(presetRoot, 'agents', 'mentor', 'charter.md'),
   ].map((file) => readFileSync(file, 'utf8'));
 
   const combined = files.join('\n');
   assert.match(combined, /Green never edits code|Green never applies or edits the patch/);
   assert.match(combined, /exact patch/i);
   assert.match(combined, /participant.*approv/i);
-  assert.match(combined, /Blue applies only|Accept only Green's exact patch/i);
+  assert.match(combined, /Blue applies only|accept only Green's exact patch/i);
   assert.match(combined, /push(?:es)? `main`|push `main`/i);
   assert.match(combined, /Red is read-only|Red never edits code|Never edit code/i);
-  assert.match(combined, /Mentor gates the purple phase/);
-  assert.match(combined, /Mentor never edits code/);
+  assert.doesNotMatch(combined, /Mentor/);
+  assert.match(combined, /without a quiz|no quiz is required/);
+  assert.match(combined, /participant chooses the next task/i);
+  assert.match(combined, /never deliberately introduce a defect/i);
+  assert.match(combined, /do not.*automate exploitation|never.*automate exploitation|automate exploitation/i);
+});
+
+test('explicit adoption preserves recruited agent learning and requires the exact workshop roster', (t) => {
+  const participant = makeParticipant(t);
+  const squad = path.join(participant, '.squad');
+  mkdirSync(path.join(squad, 'casting'), { recursive: true });
+  const agents = {};
+  for (const slug of ['blue', 'red', 'green']) {
+    agents[slug] = { persistent_name: slug[0].toUpperCase() + slug.slice(1), status: 'active' };
+    mkdirSync(path.join(squad, 'agents', slug), { recursive: true });
+    writeFileSync(path.join(squad, 'agents', slug, 'history.md'), `Participant recruited ${slug}.\n`);
+  }
+  const registry = path.join(squad, 'casting', 'registry.json');
+  writeFileSync(registry, JSON.stringify({ agents }));
+  writeFileSync(path.join(squad, 'decisions.md'), 'Participant-owned decisions.\n');
+  const before = treeDigest(squad);
+  assert.notEqual(runInstaller(participant).status, 0);
+  assert.equal(treeDigest(squad), before);
+  writeFileSync(registry, JSON.stringify({ agents: { ...agents, mentor: { persistent_name: 'Mentor', status: 'active' } } }));
+  const incompatible = treeDigest(squad);
+  assert.notEqual(runInstaller(participant, ['--adopt-recruited']).status, 0);
+  assert.equal(treeDigest(squad), incompatible);
+  writeFileSync(registry, JSON.stringify({ agents }));
+  const adopted = runInstaller(participant, ['--adopt-recruited']);
+  assert.equal(adopted.status, 0, adopted.stderr);
+  for (const slug of ['blue', 'red', 'green']) {
+    assert.equal(readFileSync(path.join(squad, 'agents', slug, 'history.md'), 'utf8'), `Participant recruited ${slug}.\n`);
+  }
+  assert.equal(readFileSync(path.join(squad, 'decisions.md'), 'utf8'), 'Participant-owned decisions.\n');
 });
 
 test('participant template does not ship an active Squad team', () => {

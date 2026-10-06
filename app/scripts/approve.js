@@ -6,7 +6,8 @@ function validateApproval(state, strategy) {
   if (!allowedStrategies.has(strategy)) {
     return 'Expected the approved strategy "parameter-binding".';
   }
-  if (!state.completedPhases.includes("purple") || !state.evidence.purple) {
+  if (!state.completedPhases.includes("purple") || state.evidence.purple?.kind !== "codeql-baseline"
+    || state.evidence.purple.reviewedBy !== "participant") {
     return "Complete and publish the purple CodeQL phase before approving a remediation.";
   }
   return null;

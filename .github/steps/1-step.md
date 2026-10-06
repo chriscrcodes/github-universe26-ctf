@@ -1,84 +1,62 @@
-## Step 1: Capture the flag with Red
+---
+title: Discover Squad and Deliver Hotel Search
+description: "Recruit three specialists and deliver public city search on main."
+---
 
-**Hands-on target: minutes 10–17.**
+## Step 1: Recruit your team and deliver search
 
-**Objective:** Have Red run the canonical read-only exploit against your local app, review its evidence, and publish the `red` phase.
+Target: minutes 0-12. Objective: discover Squad, recruit your specialists,
+and deliver public hotel search for today's launch.
 
-### 📖 Theory: Evidence before conclusions
+### 📖 Theory: Separate responsibilities
 
-The SQL injection is already present in the starting application. Red detects and demonstrates it; Red never adds or edits code. The public hotel search must return only `PUBLIC` listings, and one unpublished listing holds this round's flag. Nothing in the code is labeled vulnerable: runtime evidence, not code reading, tells you which query is unsafe.
+Squad keeps a team's roles, decisions, and context in `.squad/`. Blue develops,
+Red reviews security, and Green advises on corrections. You decide who works
+next. None of them intentionally introduces a defect to create an exercise.
 
-### ⌨️ Activity: Capture the flag from runtime evidence
+### ⌨️ Activity: Recruit, then deliver
 
-**What to do — Part A: VS Code terminal** (Terminal → New Terminal, at the repository root; not Copilot Chat)
-
-1. Run the scoreboard pre-flight check:
+1. In your participant repository terminal, run `squad init --no-workflows`.
+   Keep the repository's existing Copilot agent rather than replacing it.
+1. Start `copilot --agent squad`. Ask Squad to recruit Blue (developer), Red
+   (read-only security reviewer), and Green (read-only remediation adviser).
+   Review and approve the proposed team before it is created.
+1. Back in the terminal, run
+   `npm run squad:install-workshop-team -- --adopt-recruited`, then `squad doctor`.
+   This applies the workshop role contracts while preserving team histories.
+1. If a board is configured, check it without revealing credentials:
 
    ```bash
-   test -n "${BOARD_URL:-}" && echo "BOARD_URL is set: $BOARD_URL" || echo "BOARD_URL is missing"
+   test -n "${BOARD_URL:-}" && echo "BOARD_URL is set" || echo "BOARD_URL is missing"
    test -n "${BOARD_TOKEN:-}" && echo "BOARD_TOKEN is set (value hidden)" || echo "BOARD_TOKEN is missing"
    curl --fail --silent --show-error "${BOARD_URL%/}/health"
    ```
 
-   ✅ Both lines say `is set` and `curl` prints no error. ❌ Anything else → stop and ask the facilitator. Continue without the scoreboard only if the facilitator confirms offline mode. Never print, paste into chat, or commit `BOARD_TOKEN`.
-1. Run `npm run workshop:start`.
-   ✅ Output ends with `READY: participant registered.` In confirmed offline mode, a `WARN: BOARD_URL or BOARD_TOKEN is missing` line is expected.
-1. Run `squad init --no-workflows`. When asked whether to add the Copilot agent, answer **No**.
-1. Run `npm run squad:install-workshop-team`, then `squad doctor`.
-   ✅ `squad doctor` reports zero errors. Warnings are acceptable.
-1. Run `copilot --yolo --agent squad`, then run `/model` and select **GPT-6 Luna**. All remaining instructions go to Squad in this Copilot CLI session.
+   Offline mode is supported. Never paste or commit the reporter token.
+1. Run `npm run workshop:start`, then `npm run workshop:app`.
+   Open <http://localhost:3000>, or forward port 3000 from Codespaces.
+1. Ask Blue to deliver city search. Choose your own wording and acceptance
+   criteria: `Paris` and `paris` return the same two public listings; unknown
+   and empty cities return none; unpublished listings never appear. Existing
+   name, price, sorting, listing-detail, and partner-summary behavior stays intact.
+1. Review the diff and tests. Explicitly authorize Blue to commit the agreed
+   feature and push `main` in your participant repository. Delivery means
+   running locally plus pushed to `main`, not deploying a public website.
+1. Restart the app from the delivered code using `npm run workshop:restart`.
+   Review `npm run delivery`, then publish `npm run phase -- red` yourself.
 
-**What to do — Part B: Copilot CLI session**
-
-1. Send:
-
-   ```text
-   Start the workshop application with npm run workshop:app, confirm that it
-   responds on port 3000, and keep it running for our investigation.
-   ```
-
-   ✅ Squad reports `Workshop application started in the background` (or `already running`) and a response on port 3000.
-1. Open **http://localhost:3000** (Codespaces: **Ports** tab → port 3000 → **Open in Browser**). ✅ The hotel search form loads.
-1. Write down a prediction. This is **not a command**: in one or two sentences, state which listings a normal Paris search may show, and which result would prove that boundary was crossed. Describe results, not SQL.
-1. Send:
-
-   ```text
-   Squad, dispatch Red. Red must first ask me to state my prediction for a
-   normal Paris search: which listings it may show, and what result would
-   indicate a boundary failure. Wait for my answer. Then run `npm run exploit`
-   against the local application using only the canonical read-only workshop
-   test. Do not reveal the exploit input, expected counts, flag, or conclusion
-   before I answer. Separate observed facts from conclusions. Do not invent
-   another payload, target an external system, or edit code.
-   ```
-
-1. Give Red your prediction when asked. Red—not you—runs `npm run exploit`.
-1. Compare Red's observed facts with your prediction. Then send:
-
-   ```text
-   Squad, have Red run `npm run phase -- red` only if `npm run exploit`
-   succeeds with all canonical assertions passing. If it fails, do not publish;
-   show me the failure. I reviewed the evidence and authorize publication.
-   ```
-
-**Expected evidence:**
-
-- `npm run exploit` output contains a `PASS:` line and a `CAPTURED:` line.
-- Red's report lists observed facts separately from conclusions.
-- `npm run phase -- red` prints `Phase red recorded.` → go to [Step 2](2-step.md).
-
-Mentor's formal check happens after you have reviewed the evidence, in Step 2 — not during your prediction or Red's run.
+The `red` identifier now means initial delivery, not an attack demonstration.
+Continue to [Step 2](2-step.md).
 
 <details>
-<summary>Having trouble? 🤷</summary><br/>
+<summary>Having trouble? 🤷</summary>
 
-- **App does not respond on port 3000:** ask Squad to read `.workshop-app.log`.
-- **`squad: command not found` or `squad init` fails:** confirm the terminal is at the repository root, then ask the facilitator.
-- **`npm run squad:install-workshop-team` fails:** rerun it after `squad init --no-workflows`. Do not add workflows manually.
-- **`squad doctor` reports an error:** save the output and ask the facilitator before continuing.
-- **Squad cannot dispatch Red or says no payload was supplied:** restart with `copilot --yolo --agent squad` and resend the dispatch prompt above.
-- **Output differs from your prediction:** record the actual output and ask Red to explain it before publishing.
-- **Scoreboard offline:** continue. Squad records every phase locally.
-- Never paste credentials or tokens into Copilot.
+- For role selection, ask Squad what each proposed specialist would own.
+- For search behavior, start with a normal Paris search and the PUBLIC boundary.
+- A 501 response means city search has not been implemented yet.
+- Adoption accepts the exact active Blue/Red/Green roster, with compatible
+  built-ins. Conflicting or custom teams are refused without modification.
+  Ask the facilitator; do not erase learned history to force installation.
+- You can ask an agent to explain a concept without requesting code or the next task.
 
 </details>

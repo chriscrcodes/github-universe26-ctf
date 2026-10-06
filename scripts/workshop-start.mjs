@@ -32,5 +32,5 @@ if (register.status !== 0) process.exit(register.status || 1);
 
 console.log("");
 console.log("READY: participant registered.");
-console.log("Next: squad init --no-workflows");
-console.log("Then: npm run squad:install-workshop-team && squad doctor");
+console.log("Use your recruited Blue, Red, and Green team. Choose the next task yourself.");
+console.log("Delivery: local public search plus an authorized push to main.");
