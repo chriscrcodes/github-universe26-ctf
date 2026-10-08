@@ -35,6 +35,12 @@ function validatePhaseGate(state, phase) {
   if (phase === "red" && (state.evidence.red.kind !== "initial-delivery" || !state.evidence.red.pushed)) {
     return "Initial delivery requires local acceptance checks and a commit pushed on main.";
   }
+  if (phase === "red" && (state.evidence.red.exposure?.fixture !== "synthetic-hotels-v1"
+    || state.evidence.red.exposure?.input !== "' OR 1=1 -- "
+    || state.evidence.red.exposure?.unpublishedCount !== 4
+    || state.evidence.red.exposure?.syntheticReservationCount !== 27400)) {
+    return "Initial delivery requires the supplied synthetic exposure receipt. Run npm run delivery again.";
+  }
   if (phase === "purple" && (state.evidence.purple.kind !== "codeql-baseline"
     || state.evidence.purple.reviewedBy !== "participant")) {
     return "Purple requires a participant-reviewed CodeQL finding, not a quiz receipt.";

@@ -50,7 +50,7 @@ function createApp() {
 
 function startServer(port = Number(process.env.PORT || 3000)) {
   const app = createApp();
-  return app.listen(port, () => {
+  return app.listen(port, "127.0.0.1", () => {
     console.log(`app listening on ${port}`);
   });
 }

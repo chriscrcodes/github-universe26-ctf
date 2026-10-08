@@ -7,7 +7,7 @@ description: "A GitHub Copilot and Squad hotel-search security workshop with a l
 
 <h2>Capture the flag: Three AI teams, one codebase, zero mercy</h2>
 
-<p><strong>Ship public hotel search with Blue, review its security with Red, and approve Green's correction.</strong></p>
+<p><strong>Build the synthetic hotel-search challenge with Blue, explain its exposure with Red, and approve Green's correction.</strong></p>
 
 <p>
   <a href="https://githubuniverse.com/"><img src="https://img.shields.io/badge/GitHub%20Universe-2026-181717?logo=github&amp;logoColor=white" alt="GitHub Universe 2026"></a>
@@ -23,43 +23,33 @@ description: "A GitHub Copilot and Squad hotel-search security workshop with a l
   who want to work with AI agents without handing over engineering judgment.
 - **What you'll learn**: Recruit specialist agents, read a CodeQL finding,
   approve a correction, and distinguish local checks from hosted scan evidence.
-- **What you'll build**: Public hotel search by city, running locally and
-  pushed to your repository's `main`, with its security reviewed.
-- **Prerequisites**:
-  - The private participant repository and Codespace your facilitator
-    provisioned for you. The Codespace includes Node.js 22, `git`, `gh`, and
-    `squad`.
-  - Authenticated GitHub Copilot CLI and `gh`, installed dependencies, and
-    permission to enable CodeQL in your repository.
-  - Basic terminal and source-code familiarity. No penetration-testing
-    experience is required.
-- **How long**: 30 minutes: **3 min discovery**, **9 min delivery**,
-  **8 min review**, **8 min correction**, and **2 min debrief**.
-
-Installation and authentication happen before the timer. GitHub scan queues
-are asynchronous and may extend the exercise. Never mark a pending scan clean.
+- **What you'll build**: An isolated hotel-search training prototype, then
+  a parameter-bound correction, running locally and pushed to your `main`.
+- **Prerequisites**: Your participant Codespace, with Node.js 22, dependencies,
+  GitHub Copilot CLI, `gh`, Squad and CodeQL prepared by the facilitator.
+  Basic terminal familiarity is enough.
+- **How long**: 30 minutes, starting with **3 min discovery** and
+  **5 min implementation**. GitHub analysis may finish after the workshop.
 
 In this exercise, you will:
 
 1. [Discover Squad, recruit your team, and deliver search](.github/steps/1-step.md).
-1. [Enable CodeQL Default Setup and review the finding](.github/steps/2-step.md).
+1. [Explain the exposure and review the CodeQL finding](.github/steps/2-step.md).
 1. [Ask Green for a correction and approve the scope](.github/steps/3-step.md).
 1. [Ask Blue to deliver the correction and confirm CodeQL fixed](.github/steps/4-step.md).
 
-You choose the task, review its result, and decide when to continue. There is
-no required quiz. Board commands retain legacy color identifiers but represent
-delivery milestones, not lessons or attack demonstrations.
+Stay in one Squad conversation. You choose the next task, review the result,
+and approve changes and pushes. The facilitator projects the scoreboard.
 
-The hotel search must return `PUBLIC` listings only. Unpublished records are
-synthetic internal data, not an invitation to generate attack payloads.
+The exercise uses fictitious hotel records and a supplied training prototype.
+Keep the app local or privately forwarded in Codespaces. Your goal is to
+understand the exposure, then restore public-only search with parameter binding.
 
 ## Meet Squad
 
-**Squad** is a custom GitHub Copilot CLI agent that routes your natural-language
-requests to specialist roles and manages the handoffs.
-You run the setup commands yourself. You recruit Blue, Red, and Green, choose
-their next task, and authorize edits and pushes. Squad keeps role boundaries
-and context visible; it does not automatically complete the workshop for you.
+**Squad** coordinates three specialists through GitHub Copilot CLI.
+You run the setup commands yourself and recruit **Blue**, **Red** and **Green**.
+Copilot CLI runs the conversation; the Copilot coding agent is not a team member.
 
 > [!NOTE]
 > Red, Green, and Blue are workshop roles defined in this repository.
@@ -74,43 +64,57 @@ and context visible; it does not automatically complete the workshop for you.
   remains responsible for approval and phase publication.</sub>
 </p>
 
-| Member | Does | Never |
-| --- | --- | --- |
-| **Squad** | Routes your requests and preserves team context | Chooses your next task |
-| **Blue** | Delivers the feature and implements approved corrections | Deliberately introduces a defect or pushes without authorization |
-| **Red** | Reviews code and CodeQL evidence and explains impact | Edits code or automates exploitation |
-| **Green** | Proposes an exact correction and its trade-offs | Edits the application |
+| Specialist | Responsibility |
+| --- | --- |
+| **Blue** | Implements the feature and approved correction |
+| **Red** | Reviews code and CodeQL findings without editing |
+| **Green** | Proposes a correction and explains trade-offs without editing |
 
 Learn more about the upstream project in the
 [Squad documentation](https://bradygaster.github.io/squad/).
+
+Each step provides the commands, prompts and expected results when you need
+them. Extra prompts under "Having trouble?" are optional.
+You do not need to send every prompt to finish the exercise.
 
 ### Workshop timing
 
 | Minutes | Segment | What happens |
 | --- | --- | --- |
 | 0-3 | Discover | Recruit Blue, Red, and Green with Squad |
-| 3-12 | Deliver | Blue implements public city search; you authorize push to `main` |
-| 12-20 | Review | Enable Default Setup; Red explains actual CodeQL evidence |
-| 20-28 | Correct | Green proposes; you approve; Blue implements and pushes |
+| 3-8 | Implement | Blue integrates the supplied synthetic prototype |
+| 8-10 | Observe and deliver | Compare normal search and the supplied input; authorize push |
+| 10-16 | Explain and review | Red explains the code while CodeQL runs; inspect the finding |
+| 16-19 | Choose | Green proposes the patch; you explain and approve it |
+| 19-25 | Correct | Blue applies the approved patch; verify locally |
+| 25-28 | Deliver correction | Review results, authorize push and record regressions |
 | 28-30 | Debrief | Check the finding is fixed, or report CodeQL pending |
+
+If analysis is delayed, follow [Step 2](.github/steps/2-step.md).
+A delivered correction can still be "CodeQL pending"; do not report a pending
+scan as clean. The scoreboard displays your milestones and does not independently
+analyze your code.
 
 ### How to start this exercise
 
 1. Open the Codespace for your participant repository.
-1. Go to [Step 1](.github/steps/1-step.md). It contains the full setup,
-   pre-flight checks, and launch commands.
-1. Run setup commands in the VS Code terminal, not in Copilot Chat.
-
-The facilitator prepares repository access and checks the scan prerequisites
-in the [facilitator repository](https://github.com/chriscrcodes/github-universe26-ctf-facilitator). If the delivered code has no SQL
-injection finding, report that result. Do not introduce a defect to manufacture
-the expected scenario or publish a fictitious remediation.
+1. Follow [Step 1](.github/steps/1-step.md) to initialize Squad, recruit your
+  three specialists and launch the app.
+1. Run shell commands in a VS Code terminal and send prompts in the Squad
+  conversation. Keep that conversation open for the remaining steps.
 
 <p align="left">
   <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>
 </p>
 
 ## Connect to the Workshop Board
+
+Your facilitator provides the connection settings before the exercise.
+Startup registers you automatically. Use the settings below only if you need
+to configure reporting manually.
+
+<details>
+<summary>Manual board connection</summary>
 
 The facilitator provides the board URL, session ID, and reporter token.
 Set those values in your participant terminal without posting or committing
@@ -131,3 +135,25 @@ to the shared workshop board. Every publisher must use the same `BOARD_SESSION_I
 For a board reset, ask your facilitator. All startup, deployment, and reset
 operations are in the
 [facilitator repository](https://github.com/chriscrcodes/github-universe26-ctf-facilitator).
+
+</details>
+
+<details>
+<summary>Development checks</summary>
+
+With Node.js 22, `npm test` runs the local suites without a running app or board.
+The suites cover query behavior, delivery evidence, approvals and Squad setup.
+
+To check an app that is already running:
+
+```bash
+APP_URL=http://127.0.0.1:3000 WORKSHOP_SEARCH_MODE=starter npm run test:integration
+```
+
+Choose `starter`, `challenge` or `corrected` to match the expected workshop
+stage. These checks fail if the app is unavailable or serves the wrong stage.
+The reset check is skipped unless you explicitly set `RESET_COMMAND`; use it
+only with an isolated rehearsal app, never an active participant session.
+Local tests do not confirm hosted CodeQL results.
+
+</details>

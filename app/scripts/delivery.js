@@ -2,6 +2,8 @@ const assert = require("node:assert/strict");
 const { repositoryContext } = require("../src/codeql-evidence");
 const { recordEvidence } = require("../src/workshop-progress");
 
+const challengeInput = "' OR 1=1 -- ";
+
 async function checkDelivery(appUrl, request = fetch) {
   for (const [city, expectedCount] of [["Paris", 2], ["paris", 2], ["NoSuchWorkshopCity", 0], ["", 0]]) {
     const response = await request(`${appUrl.replace(/\/$/, "")}/api/hotels?city=${encodeURIComponent(city)}`,
@@ -13,19 +15,33 @@ async function checkDelivery(appUrl, request = fetch) {
     assert.ok(hotels.every((hotel) => hotel.city === "Paris" && hotel.listingStatus === "PUBLIC"),
       "Only public listings may be returned.");
   }
+  const response = await request(`${appUrl.replace(/\/$/, "")}/api/hotels?city=${encodeURIComponent(challengeInput)}`,
+    { signal: AbortSignal.timeout(3000) });
+  assert.equal(response.status, 200, "Run the supplied synthetic challenge prototype before recording delivery.");
+  const { hotels } = await response.json();
+  assert.ok(Array.isArray(hotels), "Expected a hotel listing array.");
+  const unpublished = hotels.filter((hotel) => hotel.listingStatus === "UNPUBLISHED");
+  assert.equal(hotels.length, 24, "The challenge input must expose the supplied synthetic fixture.");
+  assert.equal(unpublished.length, 4, "Expected four synthetic unpublished listings.");
+  assert.equal(unpublished.reduce((total, hotel) => total + hotel.syntheticReservationCount, 0), 27400,
+    "Unexpected synthetic reservation fixture.");
+  assert.ok(unpublished.some((hotel) => hotel.internalReference === "FLAG{unpublished-inventory-exposed}"),
+    "Expected the synthetic challenge marker.");
+  return { fixture: "synthetic-hotels-v1", input: challengeInput, unpublishedCount: unpublished.length,
+    syntheticReservationCount: 27400 };
 }
 
 async function main() {
   const context = repositoryContext();
-  await checkDelivery(process.env.APP_URL || "http://127.0.0.1:3000");
+  const exposure = await checkDelivery(process.env.APP_URL || "http://127.0.0.1:3000");
   assert.deepEqual(repositoryContext(), context, "Remote main changed during delivery verification; retry.");
   recordEvidence("red", { ...context, kind: "initial-delivery", command: "npm run delivery",
-    pushed: true, cases: ["Paris", "paris", "unknown city", "empty city", "PUBLIC boundary"] });
-  console.log("PASS: public city search delivered locally and pushed to main. No phase automatically advanced.");
+    pushed: true, exposure, cases: ["Paris", "paris", "unknown city", "empty city", "synthetic exposure"] });
+  console.log("PASS: synthetic vulnerable challenge delivered and pushed to main. This is not a safe release. No phase automatically advanced.");
 }
 
 if (require.main === module) main().catch((error) => {
   console.error(`Delivery not recorded: ${error.message}`); process.exitCode = 1;
 });
 
-module.exports = { checkDelivery, main };
+module.exports = { challengeInput, checkDelivery, main };

@@ -25,8 +25,11 @@ description: "Participant-led delegation to Blue, Red and Green with explicit ap
    generate attack payloads, automate exploitation or target external systems.
 3. Green never edits code. Green compares remediation options and proposes an
    exact patch when asked, without a quiz or another agent's permission.
-4. Blue applies only the participant-approved correction. Preserve public-listing
-   filtering, parameter binding and allowlisted sort keys.
+4. Blue integrates only the supplied prototype for the explicitly authorized
+   initial synthetic challenge. Do not invent or expand vulnerabilities.
+   Blue applies only the participant-approved correction after a matching
+   CodeQL finding is reviewed. Restore parameter binding and public-listing
+   filtering while preserving existing bound filters and allowlisted sort keys.
 5. Blue requests authorization before committing or pushing `main`. Report
    failed or pending checks accurately instead of claiming completion.
 6. Answer the participant's question first. Offer an optional hint when asked;

@@ -21,6 +21,12 @@ function state(overrides = {}) {
   };
 }
 
+function deliveryEvidence() {
+  return { recordedAt: "now", kind: "initial-delivery", pushed: true,
+    exposure: { fixture: "synthetic-hotels-v1", input: "' OR 1=1 -- ",
+      unpublishedCount: 4, syntheticReservationCount: 27400 } };
+}
+
 function runPhase(phase, workshopState, extraEnv = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "workshop-phase-"));
   const stateFile = path.join(directory, ".team-state.json");
@@ -62,7 +68,7 @@ test("phase publisher rejects skipping directly to a later phase", () => {
 });
 
 test("participant phase command advances local progress after evidence", () => {
-  const workshopState = state({ evidence: { red: { recordedAt: "now", kind: "initial-delivery", pushed: true } } });
+  const workshopState = state({ evidence: { red: deliveryEvidence() } });
   const { result, saved } = runPhase("red", workshopState);
   assert.equal(result.status, 0);
   assert.match(result.stderr, /Board publish skipped/);
@@ -71,7 +77,7 @@ test("participant phase command advances local progress after evidence", () => {
 });
 
 test("phase publisher rejects the removed actions source before sending", () => {
-  const workshopState = state({ evidence: { red: { recordedAt: "now", kind: "initial-delivery", pushed: true } } });
+  const workshopState = state({ evidence: { red: deliveryEvidence() } });
   const { result } = runPhase("red", workshopState, { BOARD_EVENT_SOURCE: "actions" });
   assert.equal(result.status, 1);
   assert.match(result.stderr, /expected "participant"/);
@@ -79,7 +85,7 @@ test("phase publisher rejects the removed actions source before sending", () => 
 });
 
 test("phase publisher keeps the round going when the board is not configured", () => {
-  const workshopState = state({ evidence: { red: { recordedAt: "now", kind: "initial-delivery", pushed: true } } });
+  const workshopState = state({ evidence: { red: deliveryEvidence() } });
   const { result, saved } = runPhase("red", workshopState, { BOARD_URL: "", BOARD_TOKEN: "" });
   assert.equal(result.status, 0);
   assert.match(result.stderr, /Offline mode/);
@@ -106,6 +112,16 @@ test("green phase requires explicit participant approval", () => {
 
 test("legacy exploit receipts do not establish initial delivery", () => {
   assert.match(validatePhaseGate(state({ evidence: { red: { flag: "old-evidence" } } }), "red"), /Initial delivery requires/);
+});
+
+test("initial delivery cannot advance without the exact synthetic exposure receipt", () => {
+  const evidence = deliveryEvidence();
+  for (const exposure of [undefined, { ...evidence.exposure, fixture: "other" },
+    { ...evidence.exposure, input: "Paris" }, { ...evidence.exposure, unpublishedCount: 0 },
+    { ...evidence.exposure, syntheticReservationCount: 0 }]) {
+    assert.match(validatePhaseGate(state({ evidence: { red: { ...evidence, exposure } } }), "red"),
+      /synthetic exposure receipt/);
+  }
 });
 
 test("final completion requires fixed evidence matching delivery and the initial alert", () => {

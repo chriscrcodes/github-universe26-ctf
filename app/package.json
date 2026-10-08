@@ -5,9 +5,7 @@
   "scripts": {
     "start": "node src/server.js",
     "register": "node scripts/register.js",
-    "exploit": "node scripts/exploit.js",
     "verify": "node scripts/verify.js",
-    "checkpoint": "node scripts/checkpoint.js",
     "codeql:review": "node scripts/codeql-review.js",
     "delivery": "node scripts/delivery.js",
     "approve": "node scripts/approve.js",

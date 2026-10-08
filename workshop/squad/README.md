@@ -32,6 +32,16 @@ without editing or exploitation automation. Green proposes exact patches
 without editing. The participant chooses tasks, reviews evidence, and authorizes
 pushes; the built-ins support the team rather than teach mandatory lessons.
 
+After recruitment, `npm run workshop:start` performs the adoption above,
+`squad doctor`, participant registration, and app launch in that order.
+It stops on failure and never approves a push or publishes a phase.
+
+Blue's initial delivery is an explicitly authorized integration of the supplied
+synthetic challenge prototype, not a spontaneous model mistake. It is limited
+to fictitious training records and private app access. Red and Green remain
+read-only. The prototype is corrected only after the participant reviews
+the exact-commit CodeQL finding and approves Green's patch.
+
 The wrapper intentionally does not call `squad import`. In Squad 0.13.1,
 `import --force` archives the entire existing squad under a timestamped name,
 adds import timestamps to histories, and does not restore all initialized
