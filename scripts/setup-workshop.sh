@@ -36,8 +36,16 @@ GitHub handle: ${GITHUB_USER:-not detected}
 Scoreboard: ${BOARD_URL:-offline (the capture-the-flag run still works)}
 
 Next:
-1. Run npm run workshop:start.
-2. Run squad init --no-workflows, npm run squad:install-workshop-team, and squad doctor.
-3. Run copilot, select the local Squad agent with /agent, choose Allow all.
-4. Follow README.md and ask Squad for everything from there.
+1. In participant Terminal 1, initialize Squad:
+  squad init --no-workflows
+2. In .squad/config.json, set defaultModel to gpt-6-luna.
+3. In participant Terminal 1, start Squad:
+  copilot --agent squad --yolo
+4. Ask Squad to present the three workshop roles and four default support agents.
+  Approve the roster and let Squad create it before continuing.
+5. Open participant Terminal 2 and run the manual health check:
+  squad doctor
+6. After the check passes, start the app in participant Terminal 2:
+  npm run workshop:start
+7. Follow README.md and the same Squad conversation for the workshop.
 EOF

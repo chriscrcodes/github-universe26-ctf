@@ -73,7 +73,7 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
     'fact-checker',
   ]);
 
-  for (const slug of Object.keys(registry.agents)) {
+  for (const slug of ['blue', 'red', 'green']) {
     assert.ok(
       existsSync(path.join(participant, '.squad', 'agents', slug, 'charter.md')),
       `${slug} charter should exist`,
@@ -83,6 +83,10 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
       `${slug} history should exist`,
     );
   }
+  assert.deepEqual(
+    JSON.parse(readFileSync(path.join(participant, '.squad', 'config.json'), 'utf8')),
+    { version: 1, defaultModel: 'gpt-6-luna' },
+  );
 
   const green = readFileSync(
     path.join(participant, '.squad', 'agents', 'green', 'charter.md'),
@@ -126,7 +130,7 @@ test('reinstallation preserves learned history, decisions, policies and particip
   const changes = new Map([
     ['agents/blue/history.md', '# History\n\nParticipant-owned learning.\n'],
     ['decisions.md', '# Decisions\n\nPreserve public listings.\n'],
-    ['config.json', '{"version":1,"defaultModel":"participant-selected"}\n'],
+    ['config.json', '{"version":1,"defaultModel":"participant-selected","customSetting":"preserve"}\n'],
     ['casting/history.json', '{"participant":"casting history"}\n'],
     ['rai/audit-trail.md', '# Audit\n\nExisting review.\n'],
     ['memory/index.json', '[{"id":"existing-memory"}]\n'],
@@ -137,7 +141,16 @@ test('reinstallation preserves learned history, decisions, policies and particip
   const second = runInstaller(participant);
   assert.equal(second.status, 0, second.stderr);
   for (const [relativePath, content] of changes) {
-    assert.equal(readFileSync(path.join(participant, '.squad', relativePath), 'utf8'), content, relativePath);
+    const actual = readFileSync(path.join(participant, '.squad', relativePath), 'utf8');
+    if (relativePath === 'config.json') {
+      assert.deepEqual(JSON.parse(actual), {
+        version: 1,
+        defaultModel: 'gpt-6-luna',
+        customSetting: 'preserve',
+      });
+    } else {
+      assert.equal(actual, content, relativePath);
+    }
   }
 });
 
@@ -160,9 +173,9 @@ test('overlays a fresh Squad while preserving unmanaged Squad-owned files', (t) 
     readFileSync(path.join(squad, 'templates', 'keep.md'), 'utf8'),
     'Squad-owned template\n',
   );
-  assert.match(
+  assert.equal(
     readFileSync(path.join(squad, 'agents', 'scribe', 'charter.md'), 'utf8'),
-    /Session Logger and Memory Manager/,
+    'fresh init\n',
   );
   assert.equal(existsSync(path.join(squad, 'agents', 'Rai')), false);
 
@@ -175,7 +188,7 @@ test('overlays a fresh Squad while preserving unmanaged Squad-owned files', (t) 
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
-  assert.deepEqual(agentDirectories, Object.keys(registry.agents).sort());
+  assert.deepEqual(agentDirectories, ['blue', 'green', 'red', 'scribe']);
 });
 
 test('refuses to overwrite an existing custom squad', (t) => {
@@ -209,9 +222,9 @@ test('refuses to overwrite an existing custom squad', (t) => {
 test('portable preset definitions enforce the workshop role boundary', () => {
   const files = [
     path.join(presetRoot, 'routing.md'),
-    path.join(presetRoot, 'agents', 'blue', 'charter.md'),
-    path.join(presetRoot, 'agents', 'green', 'charter.md'),
-    path.join(presetRoot, 'agents', 'red', 'charter.md'),
+    path.join(presetRoot, 'contracts', 'blue.md'),
+    path.join(presetRoot, 'contracts', 'green.md'),
+    path.join(presetRoot, 'contracts', 'red.md'),
   ].map((file) => readFileSync(file, 'utf8'));
 
   const combined = files.join('\n');

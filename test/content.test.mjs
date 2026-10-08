@@ -18,13 +18,9 @@ const workshopDocumentation = [
   ...stepFiles,
   "workshop/squad/README.md",
   "workshop/squad/routing.md",
-  "workshop/squad/agents/blue/charter.md",
-  "workshop/squad/agents/fact-checker/charter.md",
-  "workshop/squad/agents/green/charter.md",
-  "workshop/squad/agents/rai-agent/charter.md",
-  "workshop/squad/agents/ralph/charter.md",
-  "workshop/squad/agents/red/charter.md",
-  "workshop/squad/agents/scribe/charter.md",
+  "workshop/squad/contracts/blue.md",
+  "workshop/squad/contracts/green.md",
+  "workshop/squad/contracts/red.md",
 ];
 
 test("participant repository only connects to the facilitator-owned board", async () => {
@@ -69,6 +65,9 @@ test("participant pages have metadata and workshop documents have valid blocks a
       await access(path.resolve(root, path.dirname(file), decodeURIComponent(target.split("#")[0])));
     }
   }
+  for (const slug of ["blue", "red", "green", "scribe", "ralph", "rai-agent", "fact-checker"]) {
+    await assert.rejects(access(path.join(root, "workshop/squad/agents", slug, "charter.md")), { code: "ENOENT" });
+  }
 });
 
 test("workshop steps link forward and use available commands at the appropriate stage", async () => {
@@ -82,6 +81,7 @@ test("workshop steps link forward and use available commands at the appropriate 
     ["verify", "regressions", "phase -- green", "phase -- blue", "codeql:review -- fixed --reviewed"],
   ];
   const readme = await readFile(readmePath, "utf8");
+  assert.match(readme, /\.github\/images\/squad\.jpeg/);
   assert.ok(readme.includes(".github/steps/1-step.md"));
   for (const [index, file] of stepFiles.entries()) {
     const content = await readFile(path.join(root, file), "utf8");
@@ -94,8 +94,35 @@ test("workshop steps link forward and use available commands at the appropriate 
     for (const [, command] of content.matchAll(/npm run ([\w:-]+)/g)) {
       assert.ok(Object.hasOwn(manifest.scripts, command), `${file}: undeclared command ${command}`);
     }
-    assert.doesNotMatch(content, /--yolo/);
+    if (index === 0) {
+      assert.match(content, /copilot --agent squad --yolo/);
+      assert.doesNotMatch(content, /' OR 1=1 --/);
+      assert.match(content, /sqli-demo\/0-search-not-implemented\.png/);
+      assert.match(content, /sqli-demo\/1-normal-search\.png/);
+      assert.doesNotMatch(content, /sqli-demo\/2-injected-search\.png/);
+      assert.ok(content.indexOf("gpt-6-luna") < content.indexOf("copilot --agent squad --yolo"));
+      assert.ok(content.indexOf("squad doctor") < content.indexOf("npm run workshop:start"));
+      const shellCommands = Array.from(content.matchAll(/```bash\s*\n([\s\S]*?)\n\s*```/g),
+        (match) => match[1].trim());
+      assert.deepEqual(shellCommands, [
+        "squad init --no-workflows",
+        "copilot --agent squad --yolo",
+        "squad doctor",
+        "npm run workshop:start",
+        "npm run workshop:restart",
+        "npm run delivery",
+        "npm run phase -- red",
+      ]);
+    } else assert.doesNotMatch(content, /--yolo/);
+    if (index === 1) {
+      assert.match(content, /' OR 1=1 --/);
+      assert.match(content, /sqli-demo\/2-injected-search\.png/);
+    }
+    if (index === 3) assert.match(content, /sqli-demo\/3-fixed-search\.png/);
   }
+  const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
+  assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("squad doctor"));
+  assert.ok(setup.indexOf("squad doctor") < setup.indexOf("npm run workshop:start"));
 });
 
 test("retired files and commands remain absent", async () => {

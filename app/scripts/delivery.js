@@ -37,7 +37,7 @@ async function main() {
   assert.deepEqual(repositoryContext(), context, "Remote main changed during delivery verification; retry.");
   recordEvidence("red", { ...context, kind: "initial-delivery", command: "npm run delivery",
     pushed: true, exposure, cases: ["Paris", "paris", "unknown city", "empty city", "synthetic exposure"] });
-  console.log("PASS: synthetic vulnerable challenge delivered and pushed to main. This is not a safe release. No phase automatically advanced.");
+  console.log("PASS: initial delivery checks recorded against the synthetic workshop data. No phase automatically advanced.");
 }
 
 if (require.main === module) main().catch((error) => {

@@ -45,7 +45,6 @@ export function startWorkshop(env = process.env, run = spawnSync) {
   const participantEnv = { ...env, ...(boardUser ? { BOARD_USER: boardUser } : {}) };
   const steps = [
     [process.execPath, [resolve(root, "scripts/install-workshop-squad.mjs"), "--adopt-recruited"]],
-    ["squad", ["doctor"]],
     ["npm", ["run", "register"]],
     [process.execPath, [resolve(root, "scripts/start-workshop-app.mjs")]],
   ];

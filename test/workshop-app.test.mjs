@@ -6,25 +6,25 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { resolveWorkshopBoardUser, startWorkshop } from "../scripts/workshop-start.mjs";
 
-test("workshop launch adopts the recruited team, checks it, registers and starts the app in order", () => {
+test("workshop launch adopts the recruited team, registers and starts the app in order", () => {
   const calls = [];
   const env = { BOARD_USER: "us12", BOARD_URL: "https://board.example", BOARD_TOKEN: "private-value" };
   assert.equal(startWorkshop(env, (command, args, options) => {
     calls.push({ command, args, options });
     return { status: 0, stdout: "test-version\n" };
   }), 0);
-  assert.equal(calls.length, 9);
+  assert.equal(calls.length, 8);
   assert.match(calls[5].args[0], /install-workshop-squad\.mjs$/);
   assert.equal(calls[5].args[1], "--adopt-recruited");
-  assert.deepEqual(calls[6].args, ["doctor"]);
-  assert.deepEqual(calls[7].args, ["run", "register"]);
-  assert.match(calls[8].args[0], /start-workshop-app\.mjs$/);
+  assert.deepEqual(calls[6].args, ["run", "register"]);
+  assert.match(calls[7].args[0], /start-workshop-app\.mjs$/);
+  assert.equal(calls.some((call) => call.command === "squad" && call.args[0] === "doctor"), false);
   assert.ok(calls.slice(5).every((call) => call.options.env.BOARD_USER === "u12"));
   assert.equal(env.BOARD_USER, "us12");
 });
 
 test("workshop launch stops at each failure without running subsequent actions", () => {
-  for (let failedStep = 0; failedStep < 9; failedStep += 1) {
+  for (let failedStep = 0; failedStep < 8; failedStep += 1) {
     let callCount = 0;
     assert.notEqual(startWorkshop({}, () => {
       const failed = callCount++ === failedStep;

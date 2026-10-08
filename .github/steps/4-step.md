@@ -45,6 +45,10 @@ a scan of an unrelated commit or repository.
    | Supplied demonstration input | No listings, not just hidden unpublished rows |
    | Existing filters, details and partner summary | Previously agreed behavior preserved |
 
+   ![Corrected search returns no listings for the supplied demonstration input.](../images/sqli-demo/3-fixed-search.png)
+
+   *✅ Confirm the corrected result after restarting the app.*
+
    Ask Blue to separate code review from observed results:
 
    ```text

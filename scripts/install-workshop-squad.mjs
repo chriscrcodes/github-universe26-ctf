@@ -97,8 +97,8 @@ function validatePreset(preset) {
       throw new Error(`invalid or duplicate agent slug: ${agent.slug ?? '<missing>'}`);
     }
     slugs.add(agent.slug);
-    const charter = path.join(presetDir, 'agents', agent.slug, 'charter.md');
-    if (!existsSync(charter)) {
+    const contract = path.join(presetDir, 'contracts', `${agent.slug}.md`);
+    if (!builtInSlugs.has(agent.slug) && !existsSync(contract)) {
       throw new Error(`missing charter for ${agent.slug}`);
     }
   }
@@ -223,8 +223,14 @@ function install(root, preset, { adoptRecruited = false } = {}) {
     allowlist_universes: [],
     universe_capacity: {},
   };
+  const configPath = path.join(squadDir, 'config.json');
+  const existingConfig = existsSync(configPath) ? readJson(configPath) : {};
+  if (!existingConfig || typeof existingConfig !== 'object' || Array.isArray(existingConfig)) {
+    throw new Error('participant Squad config must be a JSON object');
+  }
+  const workshopConfig = { ...existingConfig, version: 1, defaultModel: 'gpt-6-luna' };
   const managed = new Map([
-    ['.squad/config.json', stringifyJson({ version: 1, defaultModel: 'gpt-5.6-luna' })],
+    ['.squad/config.json', stringifyJson(workshopConfig)],
     ['.squad/team.md', buildTeam(projectName, preset.agents)],
     ['.squad/routing.md', routing.endsWith('\n') ? routing : `${routing}\n`],
     ['.squad/decisions.md', '# Team Decisions\n\nNo shared decisions recorded.\n'],
@@ -287,8 +293,9 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   ]);
 
   for (const agent of preset.agents) {
+    if (builtInSlugs.has(agent.slug)) continue;
     const charter = readFileSync(
-      path.join(presetDir, 'agents', agent.slug, 'charter.md'),
+      path.join(presetDir, 'contracts', `${agent.slug}.md`),
       'utf8',
     );
     managed.set(
@@ -312,6 +319,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   }
 
   const refreshedFiles = new Set([
+    '.squad/config.json',
     '.squad/team.md',
     '.squad/routing.md',
     '.squad/casting/registry.json',

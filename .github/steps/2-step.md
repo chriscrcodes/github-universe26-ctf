@@ -35,8 +35,22 @@ value becomes part of the statement text rather than a separate bound value.
 
 ### ⌨️ Activity: Explain while the scan runs
 
-1. In the same Squad conversation, start with the actual source while the
-   analysis runs:
+1. Return to the browser and use the city-search field in the web interface.
+   Enter the workshop's supplied demonstration input:
+
+   ```text
+   ' OR 1=1 --
+   ```
+
+   Record how many listings appear and inspect their `listingStatus`. Use only
+   this supplied input against the local synthetic dataset. Do not create other
+   payloads or target external systems.
+
+   ![Supplied demonstration input returns twelve stays, including unpublished records outlined in red.](../images/sqli-demo/2-injected-search.png)
+
+   *🔎 Compare the observed records with the public-listing boundary.*
+1. In the same Squad conversation, ask Red to connect your observation to the
+   delivered source while the analysis runs:
 
    ```text
    Red, trace the city input to the SQL execution in the delivered code.

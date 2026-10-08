@@ -7,7 +7,7 @@ description: "A GitHub Copilot and Squad hotel-search security workshop with a l
 
 <h2>Capture the flag: Three AI teams, one codebase, zero mercy</h2>
 
-<p><strong>Build the synthetic hotel-search challenge with Blue, explain its exposure with Red, and approve Green's correction.</strong></p>
+<p><strong>Build city search with Blue, record ordinary results, then review the evidence with Red.</strong></p>
 
 <p>
   <a href="https://githubuniverse.com/"><img src="https://img.shields.io/badge/GitHub%20Universe-2026-181717?logo=github&amp;logoColor=white" alt="GitHub Universe 2026"></a>
@@ -17,7 +17,7 @@ description: "A GitHub Copilot and Squad hotel-search security workshop with a l
 
 </div>
 
-## Welcome
+## 👋 Welcome
 
 - **Who is this for**: Developers, security practitioners, and technical leads
   who want to work with AI agents without handing over engineering judgment.
@@ -43,9 +43,14 @@ and approve changes and pushes. The facilitator projects the scoreboard.
 
 The exercise uses fictitious hotel records and a supplied training prototype.
 Keep the app local or privately forwarded in Codespaces. Your goal is to
-understand the exposure, then restore public-only search with parameter binding.
+record normal search behavior first, then investigate the challenge and restore
+public-only search with parameter binding.
 
-## Meet Squad
+![Normal Paris search showing two hotel stays in the workshop web interface.](.github/images/sqli-demo/1-normal-search.png)
+
+*📊 The baseline: two public stays for Paris.*
+
+## 🤝 Meet Squad
 
 **Squad** coordinates three specialists through GitHub Copilot CLI.
 You run the setup commands yourself and recruit **Blue**, **Red** and **Green**.
@@ -77,13 +82,13 @@ Each step provides the commands, prompts and expected results when you need
 them. Extra prompts under "Having trouble?" are optional.
 You do not need to send every prompt to finish the exercise.
 
-### Workshop timing
+### ⏱️ Workshop timing
 
 | Minutes | Segment | What happens |
 | --- | --- | --- |
 | 0-3 | Discover | Recruit Blue, Red, and Green with Squad |
 | 3-8 | Implement | Blue integrates the supplied synthetic prototype |
-| 8-10 | Observe and deliver | Compare normal search and the supplied input; authorize push |
+| 8-10 | Verify and deliver | Record normal city result counts and authorize push |
 | 10-16 | Explain and review | Red explains the code while CodeQL runs; inspect the finding |
 | 16-19 | Choose | Green proposes the patch; you explain and approve it |
 | 19-25 | Correct | Blue applies the approved patch; verify locally |
@@ -95,7 +100,7 @@ A delivered correction can still be "CodeQL pending"; do not report a pending
 scan as clean. The scoreboard displays your milestones and does not independently
 analyze your code.
 
-### How to start this exercise
+### 🚀 How to start this exercise
 
 1. Open the Codespace for your participant repository.
 1. Follow [Step 1](.github/steps/1-step.md) to initialize Squad, recruit your
@@ -106,6 +111,10 @@ analyze your code.
 <p align="left">
   <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>
 </p>
+
+![Humorous science-fiction illustration of Squad characters facing a creature in a corridor.](.github/images/squad.jpeg)
+
+*A humorous interlude, not a literal workshop roster. Explore [Brady Gaster's Squad project on GitHub](https://github.com/bradygaster/squad). 🤖*
 
 ## Connect to the Workshop Board
 
