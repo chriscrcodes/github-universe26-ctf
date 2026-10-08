@@ -32,58 +32,55 @@ listings each search returns. The challenge-specific investigation comes later.
 
 ### ⌨️ Activity: Recruit, then deliver
 
+Once started, keep Copilot running in Terminal 2 for the workshop conversation. Run all
+`npm` commands in Terminal 1.
+
 1. In Terminal 1, opened at the participant repository root, initialize Squad.
-   This creates the team configuration before the coordinator starts.
+   If prompted `Add @copilot as an autonomous team member? [Y/n]`, answer `No`.
 
    ```bash
    squad init --no-workflows
    ```
 
-   Before starting Copilot, open `.squad/config.json` and set its
-   `defaultModel` to `gpt-6-luna`. Keep any other settings in the file.
-
-   ```json
-    {
-       "version": 1,
-       "defaultModel": "gpt-6-luna"
-    }
-   ```
-
-1. Start Squad in Terminal 1. Keep this terminal open for the conversation.
-   The presenter should wait until Squad has presented and created the approved
-   team before asking you to start the workshop app.
-
-   ```bash
-   copilot --agent squad --yolo
-   ```
-
-   Ask Squad to present the three workshop specialists and its four default
-   built-in support agents. Approve the roster before Squad creates it. Do not
-   add `@copilot` or any other workshop specialist.
-
-   ```text
-   Squad, present the workshop team before creating anything. Include exactly
-   these three workshop specialists: Blue, a developer; Red, a read-only
-   security reviewer; and Green, a read-only remediation adviser. Also include
-   the four default built-in support agents, Scribe, Ralph, Rai, and Fact
-   Checker. Do not add @copilot or any other workshop specialist. Explain each
-   role, show me the complete roster, and wait for my approval before creating
-   the team. Do not start implementation yet.
-   ```
-
-   Approve the presented roster in your own words. Squad creates the team only
-   after your approval. Keep the built-in support agents; they are expected.
-1. Open Terminal 2 in the participant repository. Run the health check yourself
-   and resolve any reported issue before continuing.
+1. Still in Terminal 1, run the health check yourself and resolve any reported
+   issue before continuing.
 
    ```bash
    squad doctor
    ```
 
-1. The presenter should wait until Squad has presented and created the approved
-   team and your `squad doctor` check passes. Then run the startup command in
-   Terminal 2, not in the terminal occupied by Copilot CLI. It adopts the role
-   contracts, registers you, and starts the app.
+1. Open Terminal 2 in the participant repository and start the Squad
+   conversation. Keep this terminal open throughout the workshop.
+
+   ```bash
+   copilot --agent squad --yolo
+   ```
+
+   In Copilot, select the workshop model:
+
+   ```text
+   /model gpt-6-luna
+   ```
+
+   Ask Squad to propose and create the team, then approve its roster:
+
+   ```text
+   Squad, create my team:
+   Blue, a developer; Red, a read-only security reviewer; and Green, a read-only
+   remediation adviser. Also include the default built-in support agents. Do not
+   add @copilot or any other workshop specialist. Explain each role, show me the
+   complete roster, and wait for my approval before creating the team. Do not
+   start implementation yet.
+   ```
+
+   At the `Roster approval` prompt, select `❯ Yes, hire this team`. If asked
+   which language the app uses, answer `node app`.
+
+   Squad creates the team only after your approval. Keep the default built-in
+   support agents; they are expected.
+1. After the roster is created and `squad doctor` passes, run the app startup
+   command in Terminal 1. It adopts the role contracts, registers you, and
+   starts the app.
 
    ```bash
    npm run workshop:start
@@ -113,7 +110,7 @@ listings each search returns. The challenge-specific investigation comes later.
    `Paris` and `paris` must return the same two public listings; unknown and
    empty cities return none. Preserve name, price, sorting, listing-detail and
    partner-summary behavior.
-1. Restart the app in Terminal 2 so it serves Blue's change.
+1. Restart the app in Terminal 1 so it serves Blue's change.
 
    ```bash
    npm run workshop:restart

@@ -97,17 +97,25 @@ test("workshop steps link forward and use available commands at the appropriate 
     if (index === 0) {
       assert.match(content, /copilot --agent squad --yolo/);
       assert.doesNotMatch(content, /' OR 1=1 --/);
+      assert.match(content, /Add @copilot as an autonomous team member\? \[Y\/n\].*answer `No`/s);
+      assert.doesNotMatch(content, /\.squad\/config\.json/);
       assert.match(content, /sqli-demo\/0-search-not-implemented\.png/);
       assert.match(content, /sqli-demo\/1-normal-search\.png/);
       assert.doesNotMatch(content, /sqli-demo\/2-injected-search\.png/);
-      assert.ok(content.indexOf("gpt-6-luna") < content.indexOf("copilot --agent squad --yolo"));
+      assert.ok(content.indexOf("squad init --no-workflows") < content.indexOf("squad doctor"));
       assert.ok(content.indexOf("squad doctor") < content.indexOf("npm run workshop:start"));
+      assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model gpt-6-luna"));
+      assert.ok(content.indexOf("/model gpt-6-luna") < content.indexOf("Squad, create my team:"));
+      assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
+      assert.match(content, /all\s+`npm` commands in Terminal 1/i);
+      assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
+      assert.match(content, /which language the app uses, answer `node app`/i);
       const shellCommands = Array.from(content.matchAll(/```bash\s*\n([\s\S]*?)\n\s*```/g),
         (match) => match[1].trim());
       assert.deepEqual(shellCommands, [
         "squad init --no-workflows",
-        "copilot --agent squad --yolo",
         "squad doctor",
+        "copilot --agent squad --yolo",
         "npm run workshop:start",
         "npm run workshop:restart",
         "npm run delivery",
@@ -121,8 +129,14 @@ test("workshop steps link forward and use available commands at the appropriate 
     if (index === 3) assert.match(content, /sqli-demo\/3-fixed-search\.png/);
   }
   const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
-  assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("squad doctor"));
-  assert.ok(setup.indexOf("squad doctor") < setup.indexOf("npm run workshop:start"));
+  assert.ok(setup.indexOf("squad doctor") < setup.indexOf("copilot --agent squad --yolo"));
+  assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("/model gpt-6-luna"));
+  assert.ok(setup.indexOf("/model gpt-6-luna") < setup.indexOf("npm run workshop:start"));
+  assert.match(setup, /answer No/);
+  assert.match(setup, /❯ Yes, hire this team/);
+  assert.match(setup, /answer "node app"/);
+  assert.match(setup, /all npm\s+commands in participant Terminal 1/);
+  assert.doesNotMatch(setup, /\.squad\/config\.json/);
 });
 
 test("retired files and commands remain absent", async () => {

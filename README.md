@@ -38,8 +38,10 @@ In this exercise, you will:
 1. [Ask Green for a correction and approve the scope](.github/steps/3-step.md).
 1. [Ask Blue to deliver the correction and confirm CodeQL fixed](.github/steps/4-step.md).
 
-Stay in one Squad conversation. You choose the next task, review the result,
-and approve changes and pushes. The facilitator projects the scoreboard.
+Stay in one Squad conversation in Terminal 2. You choose the next task, review
+the result, and approve changes and pushes. The facilitator projects the
+scoreboard. Run all `npm` commands in Terminal 1; use `/model gpt-6-luna` in
+Copilot before recruiting the team.
 
 The exercise uses fictitious hotel records and a supplied training prototype.
 Keep the app local or privately forwarded in Codespaces. Your goal is to

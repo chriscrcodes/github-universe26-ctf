@@ -27,11 +27,15 @@ without editing or exploitation automation. Green proposes exact patches
 without editing. The participant chooses tasks, reviews evidence, and authorizes
 pushes; the built-ins support the team rather than teach mandatory lessons.
 
-After Squad creates the approved team, participants run `squad doctor`
-themselves. Then `npm run workshop:start` adopts the workshop contracts,
-registers the participant, and launches the app. Startup does not run
-`squad doctor`; it stops on failure and never approves a push or publishes a
-phase.
+Participants run `squad doctor` in Terminal 1 after `squad init`. They then open
+Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
+Squad to create the proposed team. At `Roster approval`, select
+`❯ Yes, hire this team`; if asked which language the app uses, answer
+`node app`. After approving the roster, they run
+`npm run workshop:start` in Terminal 1 to adopt the workshop contracts, register
+the participant, and launch the app. Startup does not run `squad doctor`; it
+stops on failure and never approves a push or publishes a phase. All later
+`npm` commands also run in Terminal 1.
 
 Blue's initial delivery is an explicitly authorized integration of the supplied
 synthetic challenge prototype, not a spontaneous model mistake. It is limited
@@ -52,7 +56,7 @@ Expected npm script:
 ```
 
 Set `.squad/config.json` to use only `gpt-6-luna` before starting Copilot. The
-installer enforces that model again when it adopts the approved roster. It
-accepts `--root <participant-repository>` for automation and tests, optionally
-combined with `--adopt-recruited`. It does not read environment files, copy
-histories from the source repository, or include credentials.
+The installer accepts `--root <participant-repository>` for automation and
+tests, optionally combined with `--adopt-recruited`. It does not read
+environment files, copy histories from the source repository, or include
+credentials.

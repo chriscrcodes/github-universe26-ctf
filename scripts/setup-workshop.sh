@@ -38,14 +38,20 @@ Scoreboard: ${BOARD_URL:-offline (the capture-the-flag run still works)}
 Next:
 1. In participant Terminal 1, initialize Squad:
   squad init --no-workflows
-2. In .squad/config.json, set defaultModel to gpt-6-luna.
-3. In participant Terminal 1, start Squad:
-  copilot --agent squad --yolo
-4. Ask Squad to present the three workshop roles and four default support agents.
-  Approve the roster and let Squad create it before continuing.
-5. Open participant Terminal 2 and run the manual health check:
+  If asked whether to add @copilot as an autonomous team member, answer No.
+2. In participant Terminal 1, run the health check:
   squad doctor
-6. After the check passes, start the app in participant Terminal 2:
+3. Open participant Terminal 2 and start Squad:
+  copilot --agent squad --yolo
+4. In Copilot, select the model:
+  /model gpt-6-luna
+5. Ask Squad to create the three workshop roles and include its default
+  built-in support agents. Do not add @copilot or other workshop specialists.
+  At Roster approval, select "❯ Yes, hire this team". If asked which language
+  the app uses, answer "node app". Do not start implementation yet.
+6. After the approved roster exists and the health check passes, run all npm
+  commands in participant Terminal 1. Start the app with:
   npm run workshop:start
-7. Follow README.md and the same Squad conversation for the workshop.
+7. Keep using Terminal 1 for npm commands and the same Terminal 2 conversation.
+  Follow README.md for the workshop.
 EOF
