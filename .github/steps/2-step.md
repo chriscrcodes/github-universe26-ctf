@@ -1,89 +1,161 @@
-## Step 2: Trace the CodeQL flow and pass Mentor's check
+---
+title: Review CodeQL Evidence
+description: "Ask Red to explain the code while the preconfigured CodeQL analysis runs, then inspect the exact-commit finding."
+---
 
-**Hands-on target: minutes 17–24.**
+## Step 2: Explain the exposure and review CodeQL
 
-**Objective:** Connect the CodeQL flow (source → flow → sink) to Red's runtime evidence, pass Mentor's understanding check, and publish the `purple` phase.
+Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
+the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
+unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
+activities, and other emoji are visual markers; follow the accompanying text.
 
-**Requires:** `red` phase published (Step 1).
+Requires initial delivery (`red`). The advanced CodeQL workflow scans pushes
+and pull requests targeting `feature/city-search` and `main`. The vulnerable
+baseline is reviewed on `feature/city-search`; the corrected result is reviewed
+on `main`.
 
-### 📖 Theory: Source, flow, and sink
+### 📖 Theory: A scan is evidence, not a verdict on every behavior
 
-- **Source:** where untrusted data enters.
-- **Flow:** the files and functions that carry or transform it.
-- **Sink:** the security-sensitive operation that consumes it.
+CodeQL follows untrusted data from its source through program flow to a
+sensitive sink. A SQL injection finding concerns request data becoming SQL
+syntax. It may threaten the boundary between public and unpublished listings.
+Code reading and static evidence explain possible impact; they do not prove
+that a particular runtime result was observed.
 
-Input normalization that strips a few characters is hygiene, not a SQL defense.
+| Term | Meaning in this workshop |
+| --- | --- |
+| Source | The `city` query parameter received by the search endpoint |
+| Flow | Normalization, city-filter construction and assembly of the listing query |
+| Sink | The database statement prepared and executed with that query |
+| Boundary | Only records with `listingStatus = 'PUBLIC'` should appear in public search |
+| Evidence | Your observed response and a CodeQL finding on the exact delivered commit |
 
-### ⌨️ Activity: Connect the CodeQL flow to Red's evidence
+"Untrusted" means the application does not control the text a caller supplies,
+even when the caller uses the normal search form. The publication filter is a
+business visibility rule, not database login authentication. Breaking that rule
+can expose records the app was supposed to keep out of public search.
 
-Stay in the same conversation and answer Mentor. Squad chains the steps below
-without asking for permission.
+Normalization may trim whitespace or reject particular fragments. It does not
+make a value safe to insert into SQL syntax. In the supplied prototype, the city
+value becomes part of the statement text rather than a separate bound value.
 
-1. Squad runs `npm run codeql:review -- --phase=purple` and Mentor gives you the
-   actual CodeQL report link, analysis ID and baseline commit SHA. The report
-   lives at `https://github.com/<handle>/github-universe26-ctf/security/code-scanning`;
-   Squad resolves the repository from your `origin`, not a guessed username.
-   **CodeQL pending** means wait, not pass. A reference finding cannot replace
-   the analysis of your baseline commit.
-1. **Your decision — read the report or accept an override.** Open the SQL
-   injection alert on `main` and tell Mentor you read it. Only then does Squad
-   record the reading with `npm run codeql:review -- --phase=purple --confirm --analysis=ID --commit=SHA`,
-   using the displayed values. If Code Scanning is inaccessible (for example,
-   GitHub returns `403`), Mentor offers an override; accept it with a short
-   reason and Squad records:
+### ⌨️ Activity: Explain while the scan runs
 
-   ```sh
-   npm run codeql:review -- --phase=purple --override --reason="GitHub returned 403 for Code Scanning; participant accepts an unverified review."
+1. Return to the browser and use the city-search field in the web interface.
+   Enter the workshop's supplied demonstration input:
+
+   ```text
+   ' OR 1=1 --
    ```
 
-   The override is marked **unverified**, not clean (it is not **CodeQL clean**).
-   Do not use it when a readable report contains a finding that needs review.
-1. Green explains the finding in every case, including after an override:
-   the request `city` source, every file on the CodeQL flow, and the SQL
-   execution sink, each with a file path you can open. Green does not propose
-   a patch yet. Compare it with Red's runtime output: both describe the same defect.
-1. **Your decision — Mentor's Purple checkpoint.** Mentor presents one
-   deterministic multiple-choice question at a time. Reply with only the option
-   ID (`a`, `b`, or `c`). After a wrong choice, Mentor gives the correct option
-   and explanation, then moves on without retrying it.
-   ✅ Mentor's checkpoint prints `PASS: purple checkpoint confirmed across …`;
-   any coached questions are recorded in the receipt.
-1. **Your decision — phase readiness.** Mentor asks whether Purple is ready.
-   Answer yes and Squad runs `npm run phase -- purple`.
+   Record how many listings appear and inspect their `listingStatus`. Use only
+   this supplied input against the local synthetic dataset. Do not create other
+   payloads or target external systems.
+
+   ![Supplied demonstration input returns twenty-four stays, including unpublished records outlined in red.](../images/sqli-demo/2-injected-search.png)
+
+   *🔎 Compare the observed records with the public-listing boundary.*
+1. Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do
+   not start a new conversation. Ask Red to connect your observation to the
+   delivered source while the analysis runs:
+
+   ```text
+   Red, trace the city input to the SQL execution in the delivered code.
+   Explain how the supplied demonstration bypassed the PUBLIC filter.
+   Separate observed exposure from potential impact. Do not edit or exploit.
+   Answer only; do not offer fixes, a follow-up menu or a findings commit.
+   ```
+
+1. Open Security, Code scanning. Wait for an analysis of your delivered
+   `feature/city-search` commit. The repository uses the advanced workflow in
+   `.github/workflows/codeql.yml`; disable CodeQL Default Setup if it is enabled
+   to avoid a second analysis with a different branch scope.
+1. Ask Red to explain the actual alert, its source, flow, sink, and public-data
+   boundary. Have Red distinguish observed facts from potential impact. Red
+   does not generate payloads, run an exploit, or change code.
+
+   ```text
+   Red, explain the actual js/sql-injection finding from my delivered commit.
+   Use the alert's reported file, line and data-flow path, not a guessed line.
+   Connect each location to the code and the synthetic response I observed.
+   Separate runtime evidence, static-analysis evidence and anything unverified.
+   If the alert or matching analysis is unavailable, say so; do not edit.
+   ```
+
+   In the alert, look for the rule, location and any available data-flow view.
+   Follow the request value toward query execution rather than reading only
+   the title. The review command checks that the analysis matches your delivery.
+   A finding on an older version is not evidence for this delivery.
+1. Confirm that you opened and saw the matching CodeQL alert for this exact
+   commit. This is a trust-based attestation. No quiz or additional proof is
+   required.
+
+   Run `npm run codeql:review -- baseline` to inspect the repository, commit,
+   and report URL. After viewing the alert, confirm your review:
+
+   ```bash
+   npm run codeql:review -- baseline --reviewed
+   npm run phase -- purple
+   ```
+
+   The first command without `--reviewed` is a preview: it records no agreement.
+   Adding `--reviewed` records your confirmation that you viewed the alert.
+   Publishing `purple` advances the local milestone and attempts a board update;
+   none of these commands replaces your explanation of the issue.
+
+### Checkpoint: An explanation tied to evidence
+
+Before continuing, you should be able to point to the input source, the unsafe
+construction, the database execution and the unpublished records in your
+observation. You also need the matching open finding for your initial delivery.
+Source review while a scan runs is useful preparation, not a completed CodeQL gate.
+
+The expected rule is `js/sql-injection`, commonly titled
+"Database query built from user-controlled sources". Use the real reported
+file and line, not an assumed location. Continue to [Step 3](3-step.md).
+
+> [!IMPORTANT]
+> If the scan is queued, failed, inaccessible, or has no matching finding,
+> do not substitute a reference screenshot or your attestation for repository evidence.
+> Stop scored progression if the exact-commit finding is not available. Keep
+> explaining the source with Red and debrief, but do not modify
+> `feature/city-search`, approve remediation or publish `purple`. Continue after
+> the matching finding arrives. Validate this recovery path in rehearsal.
+> Report queued analysis as pending, failed analysis as failed, and a completed
+> scan with no finding as a baseline problem. Do not manufacture evidence.
 
 <details>
-<summary>If Mentor stalls</summary><br/>
+<summary>Having trouble? 🤷</summary>
 
-Send `Mentor, continue.` To trigger a specific action, ask Squad:
+- Ask Red to explain source, flow, and sink using the report's own file links.
+- Compare query syntax with separately bound values. Normalization alone is
+  not parameter binding.
+- The facilitator checks that `.github/workflows/codeql.yml` is present on
+   both target branches, Default Setup is disabled if enabled, and the
+   repository has the required language, licensing, runner and permission support.
+- If the review reports HTTP 403 or `Resource not accessible by integration`,
+  GitHub denied the API request. This does not establish whether an analysis
+  exists. Check `gh auth status`; ask the facilitator to confirm the signed-in
+  account or integration has Code Scanning read access and that Code Scanning
+  is available for the repository under its plan and organization policy.
+  Retry the review before recording evidence or publishing `purple`.
+- The review command uses your existing `gh` login. Never paste a token into chat.
+
+For a shorter explanation without asking Red to supply your answer:
 
 ```text
-Ask Green to help me understand this CodeQL alert. Do not propose a fix yet.
+Red, explain source, flow and sink using three locations from the current code.
+Then ask me one question about the publication boundary and wait for my answer.
+Do not answer for me or mark the review complete.
 ```
+
+If GitHub and the local report disagree:
 
 ```text
-Ask Squad to continue with Mentor's Purple checkpoint.
+Red, compare the repository, branch, commit and analysis reported by the review
+command with the alert I opened. Identify mismatches and what remains pending.
+Do not change the code, scan configuration or alert state.
 ```
-
-</details>
-
-**Expected evidence:**
-
-- Either a human-reviewed open SQL injection alert on the baseline SHA, or an explicit Purple override marked unverified.
-- `PASS: purple checkpoint confirmed across …` from Mentor's checkpoint.
-- `npm run phase -- purple` prints `Phase purple recorded.` → go to [Step 3](3-step.md).
-
-<details>
-<summary>Having trouble? 🤷</summary><br/>
-
-- **Where does the source start?** The request's `city` value.
-- **No baseline analysis:** ask Squad to trigger the existing Security verification
-   workflow on `main` before any correction. Its initial runtime verification may
-   fail intentionally; the CodeQL analysis itself must complete successfully.
-- **CodeQL access denied:** if the report cannot be read, use the explicit Purple override above. It is not a clean result.
-- **Where is the sink?** Find where the SQL statement is prepared and executed, then find the helper that composed the string it received.
-- **Why are the other filters safe?** Compare how each one passes its value into SQL.
-- **`Missing purple evidence. Complete npm run checkpoint first.`** Mentor has not recorded a passing grade yet. Send `Mentor, continue.`
-- **Need help with a question?** Mentor checks each answer and gives the correct option after a miss; no repeat loop is required.
-- **Green did not explain the finding after an override:** send `Mentor, continue.` The explanation is part of Purple even without a readable report.
 
 </details>

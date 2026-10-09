@@ -1,82 +1,43 @@
-const { parseArgs } = require("node:util");
-const { readWorkshopState, recordCodeqlReview } = require("../src/workshop-progress");
-const { collectCodeqlEvidence, repositoryContext, verifyDeliveryWorkflow } = require("../src/codeql-evidence");
+const { collectCodeqlEvidence, repositoryContext } = require("../src/codeql-evidence");
+const { readWorkshopState, recordEvidence } = require("../src/workshop-progress");
 
-async function main(argv = process.argv.slice(2), {
-  getContext = repositoryContext, collect = collectCodeqlEvidence, verifyWorkflow = verifyDeliveryWorkflow,
-} = {}) {
-  const { values } = parseArgs({ args: argv, options: {
-    phase: { type: "string" }, confirm: { type: "boolean", default: false },
-    analysis: { type: "string" }, commit: { type: "string" },
-    override: { type: "boolean", default: false }, reason: { type: "string" },
-  } });
-  const phase = values.phase;
-  const state = readWorkshopState();
-  const previous = { purple: "red", blue: "green" }[phase];
-  if (!previous || state.completedPhases.at(-1) !== previous) {
-    throw new Error("Review Purple after Red, or Blue after Green, before publishing the reviewed phase.");
+async function main(argv = process.argv.slice(2), dependencies = {}) {
+  const [stage, confirmation] = argv;
+  if (!["baseline", "fixed"].includes(stage) || argv.length > 2
+    || (confirmation && confirmation !== "--reviewed")) {
+    throw new Error("Usage: npm run codeql:review -- baseline|fixed [--reviewed]");
   }
-  const context = getContext();
-  if (values.override) {
-    if (values.confirm) throw new Error("A CodeQL override cannot also confirm a report review.");
-    const overrideReason = values.reason?.trim();
-    if (!overrideReason || overrideReason.length < 12 || overrideReason.length > 500) {
-      throw new Error("A participant override requires --reason with 12 to 500 characters.");
-    }
-    try {
-      await collect(context, phase, state.codeqlReviews.purple);
-    } catch (error) {
-      if (!isUnavailableCodeqlError(error)) throw error;
-      const overriddenAt = new Date().toISOString();
-      const override = {
-        ...context,
-        phase,
-        status: "overridden",
-        overrideReason,
-        overriddenBy: "participant",
-        overriddenAt,
-        reviewedBy: "participant",
-        reviewedAt: overriddenAt,
-      };
-      recordCodeqlReview(phase, override);
-      console.log(`CodeQL ${phase}: OVERRIDDEN (unverified) for ${context.repository}@${context.commit}.`);
-      console.log(`Participant reason: ${overrideReason}`);
-      console.log("This is not a clean CodeQL result. Continue only with the participant's explicit acceptance of the unverified report.");
-      return override;
-    }
-    throw new Error("The CodeQL report is readable; review it instead of overriding it.");
+  const getContext = dependencies.repositoryContext || repositoryContext;
+  const readState = dependencies.readState || readWorkshopState;
+  const collect = dependencies.collect || collectCodeqlEvidence;
+  const save = dependencies.recordEvidence || recordEvidence;
+  const context = getContext(stage);
+  const state = readState();
+  if (stage === "baseline" && (!state.completedPhases?.includes("red")
+    || state.evidence.red?.kind !== "initial-delivery" || !state.evidence.red.pushed
+    || state.evidence.red.repository !== context.repository || state.evidence.red.commit !== context.commit)) {
+    throw new Error("Initial CodeQL review must match the recorded and published delivery on feature/city-search.");
   }
-  if (phase === "blue") await verifyWorkflow(context);
-  const evidence = await collect(context, phase, state.codeqlReviews.purple);
-  if (JSON.stringify(getContext()) !== JSON.stringify(context)) throw new Error("Remote main changed during CodeQL review.");
-  if (values.confirm) {
-    if (values.analysis !== String(evidence.analysisId) || values.commit !== evidence.commit) {
-      throw new Error("Confirmation must name the exact analysis and commit the participant reviewed.");
-    }
-    evidence.reviewedBy = "participant";
-    evidence.reviewedAt = new Date().toISOString();
+  const review = await collect(context, stage, state.evidence.purple);
+  if (JSON.stringify(getContext(stage)) !== JSON.stringify(context)) throw new Error(`Remote ${stage === "baseline" ? "feature/city-search" : "main"} changed during review; retry.`);
+  if (stage === "fixed" && (!state.evidence.blue?.pushed || state.evidence.blue.commit !== context.commit)) {
+    throw new Error("Final CodeQL evidence must match the corrected commit pushed on main.");
   }
-  recordCodeqlReview(phase, evidence);
-  console.log(`CodeQL ${phase}: ${evidence.url}`);
-  console.log(`main commit ${evidence.commit}; analysis ${evidence.analysisId}; alert ${evidence.alertState}.`);
-  if (values.confirm) console.log("Participant review recorded. Return to Mentor for the checkpoint and phase agreement.");
-  else {
-    console.log("Mentor: ask the participant to open this report and describe what they see. Do not infer review from this command.");
-    console.log(`Only after their confirmation, Squad runs: npm run codeql:review -- --phase=${phase} --confirm --analysis=${evidence.analysisId} --commit=${evidence.commit}`);
+  console.log(`CodeQL ${stage}: ${review.url}`);
+  console.log(`Commit: ${context.commit}. Alert: ${review.alertState}. Results: ${review.resultCount}.`);
+  if (confirmation !== "--reviewed") {
+    console.log("Read the report, then rerun with --reviewed to confirm your own review. No progress recorded.");
+    return review;
   }
-}
-
-function isUnavailableCodeqlError(error) {
-  const detail = `${error?.message || ""} ${error?.stderr || ""}`;
-  return /\b(?:403|404|429|5\d{2})\b|forbidden|permission|unavailable|pending|timed? ?out|ECONN/i
-    .test(detail);
+  const evidence = { ...review, command: `npm run codeql:review -- ${stage} --reviewed`,
+    reviewedBy: "participant", reviewedAt: new Date().toISOString() };
+  save(stage === "baseline" ? "purple" : "codeql", evidence);
+  console.log("Participant review recorded. No workshop phase was automatically advanced.");
+  return evidence;
 }
 
 if (require.main === module) {
-  main().catch((error) => {
-    console.error(`CodeQL review not recorded: ${error.message}`);
-    process.exitCode = 1;
-  });
+  main().catch((error) => { console.error(`CodeQL review not recorded: ${error.message}`); process.exitCode = 1; });
 }
 
-module.exports = { isUnavailableCodeqlError, main };
+module.exports = { main };

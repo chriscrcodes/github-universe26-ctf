@@ -88,9 +88,9 @@ async function main() {
   await publishEvent(payload, boardConfig);
   console.log(`Registered ${teamState.alias} (${teamState.teamId}) for session ${teamState.sessionId}.`);
   if (boardConfig.mode !== "board") {
-    console.log("The scoreboard is unavailable; progress is saved locally. CodeQL review still requires GitHub access.");
+    console.log("The scoreboard is unavailable; the whole game still runs locally.");
   }
-  console.log("Mentor guides each phase. Squad publishes after your evidence review, checkpoint and explicit agreement.");
+  console.log("You publish each later board phase yourself after its evidence command passes.");
 }
 
 if (require.main === module) {

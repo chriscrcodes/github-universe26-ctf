@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const { spawnSync } = require("node:child_process");
 const { recordEvidence } = require("../src/workshop-progress");
+const { repositoryContext } = require("../src/codeql-evidence");
 
 const appUrl = (process.env.APP_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
 
@@ -33,37 +34,19 @@ async function main() {
     "the capture-the-flag token should no longer be reachable"
   );
 
-  const commit = git(["rev-parse", "HEAD"]);
-  const branch = git(["branch", "--show-current"]);
-  const upstream = git(["ls-remote", "origin", "refs/heads/main"]).split(/\s+/)[0];
-  const remediationChanges = git(
-    ["status", "--porcelain", "--", ":(top)app/src"],
-    true
-  );
-  const pushed = branch === "main" && upstream === commit && remediationChanges === "";
-  assert.ok(
-    pushed,
-    "the approved correction must be committed and pushed on main before Blue publishes final evidence"
-  );
+  const { commit, repository, ref } = repositoryContext("fixed");
 
   recordEvidence("blue", {
     command: "npm run regressions",
     cases: ["Paris (case-insensitive)", "unknown city", "empty city", "canonical payload", "publication boundary"],
-    checks: {
-      parisCount: paris.length,
-      parisPublic: paris.every((hotel) => hotel.city === "Paris" && hotel.listingStatus === "PUBLIC"),
-      lowercaseMatches: JSON.stringify(lowercaseParis) === JSON.stringify(paris),
-      unknownCount: unknown.length,
-      emptyCount: empty.length,
-      payloadCount: payload.length,
-      flagCount: payload.filter((hotel) => String(hotel.internalReference || "").startsWith("FLAG{")).length,
-    },
-    branch,
+    branch: "main",
+    repository,
+    ref,
     commit,
     pushed: true,
   });
   console.log("PASS: participant-selected regression matrix preserved the public-listing boundary.");
-  console.log("Evidence recorded. Return to Mentor for the final CodeQL reading, Blue checkpoint and participant agreement.");
+  console.log("Evidence recorded. Run npm run phase -- blue yourself.");
 }
 
 function git(args, optional = false) {

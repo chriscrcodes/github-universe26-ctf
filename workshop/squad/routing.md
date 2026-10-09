@@ -1,59 +1,41 @@
-# Work Routing
+---
+title: Workshop Work Routing
+description: "Participant-led delegation to Blue, Red and Green with explicit approval boundaries."
+---
 
 ## Routing Table
 
-| Work Type | Route To | Examples |
-|-----------|----------|----------|
-| Explain the SQL injection and guide initial browser reproduction | Red | Name `buildCityFilter`, explain the supplied canonical payload, ask the participant to test it in the local UI |
-| CodeQL explanation and approved remediation | Green | Explain the report; after Purple propose the exact patch; wait for approval, then implement and verify |
-| Participant journey and understanding check | Mentor | Guide one action at a time; ask the deterministic three-question set without revealing answers |
-| Application startup and approved delivery | Blue | Start the app; after Green, verify, commit and push `main`, then run regressions |
-| Intended behavior and regression boundaries | Blue | Define and verify the participant-selected behavior matrix |
-| Safety and privacy | rai-agent | Review policy and safety concerns |
-| Claim verification | fact-checker | Verify evidence and challenge contradictions |
-| Session memory | Scribe | Log and merge decisions in the background |
-| Work monitoring | Ralph | Monitor delegated or long-running work |
+| Work Type | Route To | Boundaries |
+|-----------|----------|------------|
+| Initial synthetic feature delivery | Green | Integrate the supplied prototype and request authorization before pushing only `feature/city-search` |
+| Security alert and impact review | Red | Read-only review of code, CodeQL results and provided evidence |
+| Remediation comparison and proposal | Green | Explain source, sink and flow without a quiz; propose the exact patch; do not edit the correction |
+| Approved remediation and final delivery | Blue | Apply the approved Green patch on `fix/city-search`, verify it, open a PR to `main` and merge only after participant authorization |
+| Safety and privacy | rai-agent | Review policy concerns without substituting for participant approval |
+| Claim verification | fact-checker | Verify evidence and label unconfirmed claims |
+| Session memory | Scribe | Preserve decisions and learning in the background |
+| Work monitoring | Ralph | Report delegated work status without advancing the workshop |
 | Conflicting conclusions | Blue, Red, Green | Surface the disagreement; the participant decides |
 
 ## Rules
 
-1. Red is read-only and never broadens the supplied local exploit.
-2. Green explains CodeQL before Purple, even after an unverified override, but
-   proposes a fix only after Purple publication. Green waits for explicit
-   participant approval and the recorded `npm run approve -- parameter-binding`
-   before applying the exact patch, restarting the app with
-   `npm run workshop:app -- --restart` and running `npm run verify`.
-3. Mentor guides the participant throughout the workshop. Red publishes
-   automatically when the server verifies the participant's canonical browser
-   test; there is no Red quiz. For Purple, Green and Blue, Mentor asks the
-   deterministic three-question quiz in Squad's conversation and Squad runs the
-   checkpoint command (`--list` once, then `--check` per answer, which prints
-   the next question); the participant never opens a second terminal or runs
-   workshop commands after initialization.
-   Green may not propose a remediation before Purple is published.
-   After a wrong quiz answer, Mentor gives the correct option and explanation
-   and proceeds without repeating the question. Mentor never grades an answer
-   the participant did not choose.
-4. Blue starts the app on request. After Green publication and delivery
-   authorization, Blue runs `npm run verify`, commits and pushes `main`, then
-   runs `npm run regressions`. Respect protected-main PR and merge requirements.
-5. Red retests the supplied exploit after Green's change, before Green publication.
-6. The routed agent collects evidence. The canonical Red browser test triggers
-   its phase event automatically. For later phases, Mentor runs the quiz and
-   the participant decides when the phase is ready; only then does Squad run
-   the phase command. The participant does not type internal npm commands.
-7. Mentor is the continuous guide in one Squad conversation. Return to Mentor
-   after each specialist and never anticipate the next participant decision.
-   Blue startup is followed by actual application observation, not an exploit.
-   Steps that are not participant decisions are chained without asking: Red
-   after the observation, each CodeQL review launch, Green's CodeQL
-   explanation, and Green's remediation proposal after Purple.
-8. Before Purple and Blue, Squad runs `npm run codeql:review -- --phase=<phase>`
-   without asking for permission first.
-   Mentor gives the actual report URL and asks the participant to read it.
-   Only after that human confirmation, Squad repeats the command with
-   `--confirm --analysis=ID --commit=SHA`. If the report is inaccessible, a
-   participant may explicitly use `--override --reason=...`; mark it unverified,
-   never clean. Stale reports must be reviewed again. Blue requires the initial
-   alert fixed, not dismissed, on the delivered SHA unless the participant
-   accepts an explicit unverified override.
+1. The participant chooses the next task and agent. Do not automatically run
+   the entire journey or replace participant decisions with an agent's approval.
+2. Red is read-only. Review the alert and evidence; do not introduce defects,
+   generate attack payloads, automate exploitation or target external systems.
+   After answering, stop without offering a follow-up menu, remediation options
+   or a committed findings summary.
+3. Green integrates only the supplied prototype for the explicitly authorized
+   initial synthetic challenge, requests push authorization and pushes only
+   `feature/city-search`. Green later proposes the exact correction but does
+   not edit or push it.
+4. Blue applies only the participant-approved correction after a matching
+   CodeQL finding is reviewed. Create `fix/city-search` from the delivered
+   `feature/city-search` baseline. Restore parameter binding and public-listing
+   filtering while preserving existing bound filters and allowlisted sort keys.
+   Blue requests authorization before pushing the correction branch and opening
+   a PR to `main`, then again before merging it. Never push directly to `main`.
+5. Both agents report failed or pending checks accurately instead of claiming
+   completion.
+6. Answer the participant's question first. Offer an optional hint when asked;
+   do not reveal the entire solution or assign an unsolicited next task.

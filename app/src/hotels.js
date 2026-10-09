@@ -1,4 +1,4 @@
-const { withDatabase } = require("./database");
+const { roomOptionsForHotel, withDatabase } = require("./database");
 const { normalizeSearchTerm, parsePositiveInteger } = require("./input-normalizer");
 const {
   buildCityFilter,
@@ -10,23 +10,18 @@ const {
 } = require("./search-query");
 
 function searchHotelsByCity(city, options = {}) {
-  const term = normalizeSearchTerm(city);
-  if (!term) return [];
-
-  const filters = [buildCityFilter(term)];
-  const maxPrice = parsePositiveInteger(options.maxPrice);
-  if (maxPrice !== null) filters.push(buildMaxPriceFilter(maxPrice));
-  const name = normalizeSearchTerm(options.name);
-  if (name) filters.push(buildNameFilter(name));
-
-  const query = buildPublicListingQuery(filters, options.sort);
-  return withDatabase((db) => db.prepare(query.sql).all(...query.parameters));
+  const error = new Error("Hotel search by city has not been delivered yet.");
+  error.code = "CITY_SEARCH_NOT_IMPLEMENTED";
+  throw error;
 }
 
 function findHotelById(id) {
   const listingId = parsePositiveInteger(id);
   if (listingId === null) return null;
-  return withDatabase((db) => selectPublicListingById(db, listingId));
+  return withDatabase((db) => {
+    const hotel = selectPublicListingById(db, listingId);
+    return hotel ? { ...hotel, roomOptions: roomOptionsForHotel(hotel) } : null;
+  });
 }
 
 function partnerRateSummary(city) {

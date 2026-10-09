@@ -1,13 +1,12 @@
 const express = require("express");
 const path = require("node:path");
 const { findHotelById, partnerRateSummary, searchHotelsByCity } = require("./hotels");
-const { CANONICAL_PAYLOAD, publishCanonicalRedPhase } = require("./red-observation");
 
 function stringParam(value) {
   return typeof value === "string" ? value : "";
 }
 
-function createApp({ search = searchHotelsByCity, observeRedPayload = publishCanonicalRedPhase } = {}) {
+function createApp() {
   const app = express();
   const publicDirectory = path.resolve(__dirname, "..", "public");
 
@@ -17,23 +16,13 @@ function createApp({ search = searchHotelsByCity, observeRedPayload = publishCan
     res.json({ ok: true, service: "hotel-search" });
   });
 
-  app.get("/api/hotels", async (req, res) => {
-    const city = stringParam(req.query.city);
-    const hotels = search(city, {
+  app.get("/api/hotels", (req, res) => {
+    const hotels = searchHotelsByCity(stringParam(req.query.city), {
       maxPrice: stringParam(req.query.maxPrice),
       name: stringParam(req.query.name),
       sort: stringParam(req.query.sort),
     });
-    let workshop;
-    if (city.trim() === CANONICAL_PAYLOAD) {
-      try {
-        workshop = await observeRedPayload(city, hotels, search("Paris"));
-      } catch (error) {
-        console.error(`Red UI observation was not recorded: ${error.message}`);
-        workshop = { status: "not-recorded" };
-      }
-    }
-    res.json({ hotels, ...(workshop ? { workshop } : {}) });
+    res.json({ hotels });
   });
 
   app.get("/api/hotels/:id", (req, res) => {
@@ -49,12 +38,19 @@ function createApp({ search = searchHotelsByCity, observeRedPayload = publishCan
     res.json({ summary: partnerRateSummary(stringParam(req.query.city)) });
   });
 
+  app.use((error, _req, res, next) => {
+    if (error.code === "CITY_SEARCH_NOT_IMPLEMENTED") {
+      return res.status(501).json({ hotels: [], error: error.message, code: error.code });
+    }
+    return next(error);
+  });
+
   return app;
 }
 
 function startServer(port = Number(process.env.PORT || 3000)) {
   const app = createApp();
-  return app.listen(port, () => {
+  return app.listen(port, "127.0.0.1", () => {
     console.log(`app listening on ${port}`);
   });
 }

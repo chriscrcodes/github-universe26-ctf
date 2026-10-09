@@ -1,62 +1,80 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtemp, mkdir, cp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
+import { resolveWorkshopBoardUser, startWorkshop } from "../scripts/workshop-start.mjs";
 
-const root = path.resolve(import.meta.dirname, "..");
-const script = path.join(root, "scripts/start-workshop-app.mjs");
-
-function run(env, ...args) {
-  return spawnSync(process.execPath, [script, ...args], { cwd: root, env, encoding: "utf8", timeout: 30000 });
-}
-
-function isAlive(pid) {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-test("workshop app restart reloads the server without touching workshop state", async (t) => {
-  const runtimeDir = mkdtempSync(path.join(tmpdir(), "workshop-app-"));
-  const port = String(40000 + Math.floor(Math.random() * 10000));
-  const env = { ...process.env, PORT: port, APP_URL: `http://127.0.0.1:${port}`, WORKSHOP_APP_RUNTIME_DIR: runtimeDir };
-  const pidFile = path.join(runtimeDir, ".workshop-app.pid");
-  let pid;
-  t.after(() => {
-    if (pid) {
-      try { process.kill(-pid, "SIGKILL"); } catch { /* already stopped */ }
-    }
-    rmSync(runtimeDir, { recursive: true, force: true });
-  });
-
-  const started = run(env);
-  assert.equal(started.status, 0, started.stderr);
-  const firstPid = Number(readFileSync(pidFile, "utf8"));
-  pid = firstPid;
-
-  const again = run(env);
-  assert.equal(again.status, 0, again.stderr);
-  assert.match(again.stdout, /already running[\s\S]*npm run workshop:app -- --restart/);
-
-  const restarted = run(env, "--restart");
-  assert.equal(restarted.status, 0, restarted.stderr);
-  assert.match(restarted.stdout, /Workshop progress is preserved/);
-  assert.match(restarted.stdout, /restarted \(PID \d+\) and healthy/);
-  pid = Number(readFileSync(pidFile, "utf8"));
-  assert.notEqual(pid, firstPid);
-  assert.equal(isAlive(firstPid), false);
-
-  const response = await fetch(`http://127.0.0.1:${port}/health`);
-  assert.equal(response.status, 200);
+test("workshop launch adopts the recruited team, registers and starts the app in order", () => {
+  const calls = [];
+  const env = { BOARD_USER: "us12", BOARD_URL: "https://board.example", BOARD_TOKEN: "private-value" };
+  assert.equal(startWorkshop(env, (command, args, options) => {
+    calls.push({ command, args, options });
+    return { status: 0, stdout: "test-version\n" };
+  }), 0);
+  assert.equal(calls.length, 8);
+  assert.match(calls[5].args[0], /install-workshop-squad\.mjs$/);
+  assert.equal(calls[5].args[1], "--adopt-recruited");
+  assert.deepEqual(calls[6].args, ["run", "register"]);
+  assert.match(calls[7].args[0], /start-workshop-app\.mjs$/);
+  assert.equal(calls.some((call) => call.command === "squad" && call.args[0] === "doctor"), false);
+  assert.ok(calls.slice(5).every((call) => call.options.env.BOARD_USER === "u12"));
+  assert.equal(env.BOARD_USER, "us12");
 });
 
-test("workshop app launcher rejects unknown options", () => {
-  const result = run(process.env, "--reset");
-  assert.equal(result.status, 2);
-  assert.match(result.stderr, /Unknown option: --reset/);
+test("workshop launch stops at each failure without running subsequent actions", () => {
+  for (let failedStep = 0; failedStep < 8; failedStep += 1) {
+    let callCount = 0;
+    assert.notEqual(startWorkshop({}, () => {
+      const failed = callCount++ === failedStep;
+      return { status: failed ? 1 : 0, stdout: "test-version\n" };
+    }), 0);
+    assert.equal(callCount, failedStep + 1);
+  }
+});
+
+test("workshop identity preserves configured handles and the existing Codespace mapping", () => {
+  for (const [env, expected] of [
+    [{ BOARD_USER: " octocat " }, "octocat"],
+    [{ BOARD_USER: "us12" }, "u12"],
+    [{ GITHUB_REPOSITORY: "event/us7m42-workshop" }, "u42"],
+    [{ BOARD_USER: "event/us7m42" }, "u42"],
+    [{ BOARD_USER: "custom", GITHUB_REPOSITORY: "event/us7m42" }, "custom"],
+    [{}, ""],
+  ]) assert.equal(resolveWorkshopBoardUser(env), expected);
+});
+
+test("app-only restart preserves participant state and refuses an unrelated process", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "workshop-app-"));
+  const script = path.join(directory, "scripts", "start-workshop-app.mjs");
+  const pidPath = path.join(directory, ".workshop-app.pid");
+  const statePath = path.join(directory, "app", ".team-state.json");
+  const ownedPids = [];
+  try {
+    await mkdir(path.dirname(script), { recursive: true });
+    await mkdir(path.join(directory, "app", "src"), { recursive: true });
+    await cp(new URL("../scripts/start-workshop-app.mjs", import.meta.url), script);
+    await writeFile(path.join(directory, "app", "src", "server.js"), "setInterval(() => {}, 1000);\n");
+    await writeFile(statePath, '{"participant":"preserved"}\n');
+    const run = (args = []) => execFileSync(process.execPath, [script, ...args], { encoding: "utf8" });
+    assert.match(run(), /started in the background/);
+    const initialPid = Number((await readFile(pidPath, "utf8")).trim());
+    ownedPids.push(initialPid);
+    assert.match(run(), /already running/);
+    assert.match(run(["--restart"]), /started in the background/);
+    const restartedPid = Number((await readFile(pidPath, "utf8")).trim());
+    ownedPids.push(restartedPid);
+    assert.notEqual(restartedPid, initialPid);
+    assert.equal(await readFile(statePath, "utf8"), '{"participant":"preserved"}\n');
+    await writeFile(pidPath, `${process.pid}\n`);
+    assert.throws(() => run(["--restart"]), /Refusing to stop an unrecognized process/);
+    assert.equal(await readFile(pidPath, "utf8"), `${process.pid}\n`);
+    assert.equal(await readFile(statePath, "utf8"), '{"participant":"preserved"}\n');
+  } finally {
+    for (const pid of ownedPids) {
+      try { process.kill(pid, "SIGTERM"); } catch (error) { if (error.code !== "ESRCH") throw error; }
+    }
+    await rm(directory, { recursive: true, force: true });
+  }
 });

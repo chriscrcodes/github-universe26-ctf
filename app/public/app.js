@@ -7,6 +7,14 @@ const resultsSection = document.querySelector(".results-section");
 const quickSearchButtons = Array.from(document.querySelectorAll("[data-city]"));
 const numberFormatter = new Intl.NumberFormat("en-US");
 
+function formatPrice(amount, currency) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 function setBusy(isBusy) {
   resultsSection.setAttribute("aria-busy", String(isBusy));
 }
@@ -41,27 +49,34 @@ function createHotelCard(hotel) {
   const name = document.createElement("h3");
   name.textContent = hotel.name;
 
-  const meta = document.createElement("div");
-  meta.className = "hotel-card__meta";
+  const roomList = document.createElement("ul");
+  roomList.className = "hotel-card__rooms";
+  const roomOptions = hotel.roomOptions?.length ? hotel.roomOptions : [hotel];
+  roomOptions.forEach((room) => {
+    const item = document.createElement("li");
+    item.className = "hotel-card__room";
 
-  const typeWrap = document.createElement("div");
-  const typeLabel = document.createElement("span");
-  typeLabel.className = "hotel-card__label";
-  typeLabel.textContent = "Room type";
-  const typeValue = document.createElement("strong");
-  typeValue.textContent = "Standard stay";
-  typeWrap.append(typeLabel, typeValue);
+    const details = document.createElement("div");
+    details.className = "hotel-card__room-details";
+    const type = document.createElement("strong");
+    type.textContent = room.roomType;
+    const bedDetails = document.createElement("span");
+    bedDetails.textContent = `${room.bedConfiguration} · Up to ${room.maxGuests} guests`;
+    details.append(type, bedDetails);
 
-  const priceWrap = document.createElement("div");
-  const priceLabel = document.createElement("span");
-  priceLabel.className = "hotel-card__label";
-  priceLabel.textContent = "Per night";
-  const priceValue = document.createElement("div");
-  priceValue.className = "hotel-card__price";
-  priceValue.textContent = `$${hotel.pricePerNight}`;
-  priceWrap.append(priceLabel, priceValue);
+    const price = document.createElement("strong");
+    price.className = "hotel-card__room-price";
+    price.textContent = formatPrice(room.pricePerNight, hotel.currency);
+    item.append(details, price);
+    roomList.append(item);
+  });
 
-  meta.append(typeWrap, priceWrap);
+  const options = document.createElement("p");
+  options.className = "hotel-card__options";
+  options.textContent = [
+    hotel.breakfastIncluded ? "Breakfast included" : "Breakfast not included",
+    hotel.freeCancellation ? "Free cancellation" : "Non-refundable",
+  ].join(" · ");
 
   card.append(icon, location, name);
   if (isUnpublished) {
@@ -72,7 +87,7 @@ function createHotelCard(hotel) {
     const businessMeta = document.createElement("dl");
     businessMeta.className = "hotel-card__business-meta";
     [
-      ["Partner net rate", `$${hotel.partnerNetRate}`],
+      ["Partner net rate", formatPrice(hotel.partnerNetRate, hotel.currency)],
       ["Forecast occupancy", `${hotel.forecastOccupancyPct}%`],
       ["Synthetic reservations", numberFormatter.format(hotel.syntheticReservationCount)],
       ["Internal reference", hotel.internalReference || "—"],
@@ -84,10 +99,10 @@ function createHotelCard(hotel) {
       businessMeta.append(term, detail);
     });
 
-    card.append(status, meta, businessMeta);
+    card.append(status, roomList, options, businessMeta);
     return card;
   }
-  card.append(meta);
+  card.append(roomList, options);
   return card;
 }
 
@@ -105,7 +120,7 @@ function renderHotels(city, hotels) {
   }
 
   resultsTitle.textContent = `${hotels.length} stay${hotels.length === 1 ? "" : "s"} in ${normalizedCity}`;
-  resultsSummary.textContent = "Prices shown are per night from the local workshop fixture.";
+  resultsSummary.textContent = "Example stay: 10-11 Oct 2026 · 2 adults. Synthetic prices and options only; not live or bookable.";
   resultsGrid.replaceChildren(...hotels.map(createHotelCard));
 }
 
@@ -122,20 +137,17 @@ async function searchHotels(city) {
 
   try {
     const response = await fetch(`/api/hotels?city=${encodeURIComponent(normalizedCity)}`);
+    const payload = await response.json();
+    if (response.status === 501 && payload.code === "CITY_SEARCH_NOT_IMPLEMENTED") {
+      renderMessage("Search is not available yet", payload.error);
+      return;
+    }
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
 
-    const payload = await response.json();
     const hotels = Array.isArray(payload.hotels) ? payload.hotels : [];
     renderHotels(normalizedCity, hotels);
-    if (payload.workshop?.status === "board") {
-      resultsSummary.textContent = "Canonical payload confirmed. Red phase recorded on the scoreboard.";
-    } else if (payload.workshop?.status === "local") {
-      resultsSummary.textContent = "Canonical payload confirmed. Red phase recorded locally; the scoreboard did not record it.";
-    } else if (payload.workshop?.status === "not-recorded" || payload.workshop?.status === "not-ready") {
-      resultsSummary.textContent = "Canonical payload confirmed, but Red was not recorded. Return to Squad for help.";
-    }
   } catch (_error) {
     renderMessage(
       "Unable to load hotels",

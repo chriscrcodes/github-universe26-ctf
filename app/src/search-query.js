@@ -1,6 +1,7 @@
 const { escapeLikePattern } = require("./input-normalizer");
 
-const LISTING_COLUMNS = `id, city, name, pricePerNight, listingStatus, partnerNetRate,
+const LISTING_COLUMNS = `id, city, name, pricePerNight, currency, roomType, maxGuests,
+      bedConfiguration, breakfastIncluded, freeCancellation, listingStatus, partnerNetRate,
       forecastOccupancyPct, syntheticReservationCount, internalReference`;
 
 const PUBLISHED_ONLY = "listingStatus = 'PUBLIC'";
@@ -21,8 +22,7 @@ function buildStatusFilter() {
 }
 
 function buildCityFilter(city) {
-  // Inlined while the reporting prototype needed a stable cache key per city.
-  return { clause: `city = '${city}' COLLATE NOCASE`, parameters: [] };
+  return { clause: "city = ? COLLATE NOCASE", parameters: [city] };
 }
 
 function buildMaxPriceFilter(maxPrice) {
