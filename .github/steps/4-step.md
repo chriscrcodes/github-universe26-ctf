@@ -5,6 +5,11 @@ description: "Blue implements the approved patch and the participant confirms th
 
 ## Step 4: Deliver the correction and confirm fixed
 
+Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
+the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
+unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
+activities, and other emoji are visual markers; follow the accompanying text.
+
 Requires recorded participant approval.
 
 ### 📖 Theory: Local tests and hosted scans answer different questions
@@ -24,8 +29,9 @@ a scan of an unrelated commit or repository.
 
 1. Ask Blue to create `fix/city-search` from the delivered
    `feature/city-search` baseline and apply only Green's approved patch and its
-   agreed tests. This keeps the vulnerable baseline branch unchanged. Use the
-   same Squad conversation:
+   agreed tests. This keeps the vulnerable baseline branch unchanged. Continue
+   in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do not start
+   a new conversation. Ask Blue there:
 
    ```text
    Blue, create fix/city-search from feature/city-search and apply only Green's
@@ -84,7 +90,7 @@ a scan of an unrelated commit or repository.
    ```
 
 1. After the PR merges, update your local `main` and run the delivery regression
-   in Terminal 1. Run each command separately:
+   in 🖥️ Terminal 1. Run each command separately:
 
    ```bash
    git switch main

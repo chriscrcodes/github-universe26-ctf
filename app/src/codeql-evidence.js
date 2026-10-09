@@ -30,9 +30,19 @@ function repositoryContext(stage = "baseline", run = execute) {
 }
 
 function githubApi(repository, resource, ref = REFS.baseline, run = execute) {
-  const pages = JSON.parse(run("gh", ["api", "--paginate", "--slurp", "--method", "GET",
-    `repos/${repository}/code-scanning/${resource}`, "-f", `ref=${ref}`,
-    "-f", "tool_name=CodeQL", "-f", "per_page=100"]));
+  let response;
+  try {
+    response = run("gh", ["api", "--paginate", "--slurp", "--method", "GET",
+      `repos/${repository}/code-scanning/${resource}`, "-f", `ref=${ref}`,
+      "-f", "tool_name=CodeQL", "-f", "per_page=100"]);
+  } catch (error) {
+    const details = `${error.message || ""} ${error.stderr?.toString() || ""}`;
+    if (/\b403\b|Resource not accessible by integration/i.test(details)) {
+      throw new Error("GitHub denied access to Code Scanning, so the analysis status could not be checked and no evidence was recorded. Check `gh auth status` and confirm the authenticated user or integration has repository access and Code Scanning read permission (for a fine-grained token or GitHub App, Code scanning alerts: read). Also confirm Code Scanning is available and enabled for this repository and allowed by organization policy.");
+    }
+    throw error;
+  }
+  const pages = JSON.parse(response);
   if (!Array.isArray(pages) || pages.some((page) => !Array.isArray(page))) {
     throw new Error("Unexpected CodeQL API response; no evidence recorded.");
   }

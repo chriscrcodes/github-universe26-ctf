@@ -243,6 +243,7 @@ test('portable preset definitions enforce the workshop role boundary', () => {
   assert.match(combined, /participant chooses the next task/i);
   assert.match(combined, /never deliberately introduce a defect/i);
   assert.match(combined, /do not.*automate exploitation|never.*automate exploitation|automate exploitation/i);
+  assert.match(combined, /Never offer a\s+follow-up action menu, remediation options or a committed findings summary/i);
 });
 
 test('explicit adoption preserves recruited agent learning and requires the exact workshop roster', (t) => {

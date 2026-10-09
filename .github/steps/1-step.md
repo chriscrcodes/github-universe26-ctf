@@ -5,6 +5,11 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
 ## Step 1: Recruit your team and deliver search
 
+Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
+the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
+unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
+activities, and other emoji are visual markers; follow the accompanying text.
+
 ### 📖 Theory: Separate responsibilities
 
 Squad keeps a team's roles, decisions, and context in `.squad/`. Green integrates
@@ -25,18 +30,9 @@ real application behavior; reading the prototype alone does not deliver the
 feature. Start by checking ordinary city searches and recording how many
 listings each search returns. The challenge-specific investigation comes later.
 
-Room categories are informed by published hotel pages. A third-party [Paris
-booking listing for Hotel Atmospheres](https://atmospheres.hotelparigi.net/en/)
-lists Classic Double/Twin and Superior Double examples; [Hotel Berlin, Berlin](https://www.hotel-berlin.de/en/sleep-relax/rooms)
-lists Individual, Standard, Superior and Family rooms; [Hotel Lis Baixa](https://www.lishotels.pt/en/baixa/rooms/)
-lists Standard, Balcony, Superior and Family options; [Keio Plaza Hotel Tokyo](https://www.keio-plaza.co.jp/en/stay/?id=rooms)
-lists Standard room types; and [Omni San Francisco](https://www.omnihotels.com/hotels/san-francisco/accommodations)
-lists Deluxe, Premier and Signature rooms. Published starting prices included
-€72.25 for a Berlin Individual room and €65 for a Lisbon room; a Paris booking
-page showed €171-€210 for two guests on 10-11 October 2026. These are research
-snapshots, not current quotes. The public listings use real hotel names.
-Prices, dates, room options and internal challenge records are synthetic; the
-app does not show live availability or accept bookings.
+Public listings use real hotel names; prices, dates, room options and internal
+challenge records are synthetic. The app does not show live availability or
+accept bookings.
 
 ![Paris search before city search is implemented, showing the app's not-available-yet message.](../images/sqli-demo/0-search-not-implemented.png)
 
@@ -76,18 +72,16 @@ app does not show live availability or accept bookings.
 
    ```text
    Squad, create my team:
-   Project context: This is a Node app for a local workshop. Public listings use
-   real hotel names; prices, dates, room options and internal challenge records
-   are synthetic. The first feature is city search.
-   Blue, a developer who applies approved corrections and delivers them through
-   a reviewed pull request to main;
-   Red, a read-only security reviewer; and Green, the initial feature developer
-   who publishes only to feature/city-search and later advises on remediation.
-   Also include the default built-in support agents. Do not
-   add @copilot or any other workshop specialist. This is the complete specialist
-   roster. Use these role-based names as supplied; do not cast additional names.
-   Explain each role, show me the complete roster, and wait for my approval
-   before creating the team. Do not start implementation yet.
+   Project: Local Node workshop; city search first. Hotel names are real; listing
+   details and challenge records are synthetic.
+   Blue applies approved corrections via reviewed PR to main; Red is read-only
+   security reviewer; Green publishes city search only to feature/city-search,
+   then advises on remediation. Include the four default built-ins; no @copilot
+   or other specialists. Preserve these names and roles.
+   Use the complete-roster fast path. Show all seven members with roles/scopes
+   and wait for my approval; don't ask again or recast. Then create standard
+   Squad state and stop. Don't inspect/edit workshop sources or the app, or
+   implement.
    ```
 
    At the `Roster approval` prompt, select `❯ Yes, hire this team`.
@@ -109,9 +103,9 @@ app does not show live availability or accept bookings.
    conversation per step.
 
    ```text
-   Squad, read the adopted workshop routing and Blue, Red and Green charters
-   under .squad before our first task. Summarize the role boundaries and the
-   approvals you must wait for. Do not implement or advance a phase yet.
+   Squad, load the adopted workshop routing and Blue, Red and Green charters
+   under .squad. Confirm they are active and wait for my task. Do not repeat the
+   roster summary, implement, or advance a phase.
    ```
 1. Ask Green to integrate the supplied prototype, without inventing a defect:
 
@@ -166,7 +160,7 @@ app does not show live availability or accept bookings.
    details for the next CodeQL review, then stop.
    ```
 
-1. Review the delivery checks in Terminal 2. Run each command separately. The
+1. Review the delivery checks in 🤖 Terminal 2. Run each command separately. The
    push starts analysis according to the preflighted CodeQL configuration; it
    does not prove that analysis has completed.
 

@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { collectCodeqlEvidence, repositoryContext } = require("../src/codeql-evidence");
+const { collectCodeqlEvidence, githubApi, repositoryContext } = require("../src/codeql-evidence");
 const { main } = require("../scripts/codeql-review");
 
 const baselineContext = { repository: "participant/workshop", ref: "refs/heads/feature/city-search", commit: "a".repeat(40) };
@@ -37,6 +37,25 @@ test("baseline rejects a stale, failed or unmatched analysis", async () => {
     { instanceCommit: "b".repeat(40) }, { alertsMissing: true }, { results: 0 }]) {
     await assert.rejects(collectCodeqlEvidence(baselineContext, "baseline", null, fixtures(options)));
   }
+});
+
+test("Code Scanning access denial is actionable and never records evidence", async () => {
+  const denied = Object.assign(new Error("gh api failed"), {
+    stderr: Buffer.from("HTTP 403: Resource not accessible by integration"),
+  });
+  const deniedApi = (repository, resource, ref) => githubApi(repository, resource, ref, () => { throw denied; });
+  assert.throws(() => githubApi(baselineContext.repository, "analyses", baselineContext.ref,
+    () => { throw denied; }), /no evidence was recorded[\s\S]*Code Scanning read permission[\s\S]*Code scanning alerts: read/);
+
+  const recorded = [];
+  await assert.rejects(main(["baseline", "--reviewed"], {
+    repositoryContext: () => baselineContext,
+    readState: () => ({ completedPhases: ["red"], evidence: { red: { kind: "initial-delivery",
+      pushed: true, repository: baselineContext.repository, commit: baselineContext.commit } } }),
+    collect: (context, stage, initial) => collectCodeqlEvidence(context, stage, initial, deniedApi),
+    recordEvidence: (...args) => recorded.push(args),
+  }), /Code Scanning read permission/);
+  assert.deepEqual(recorded, []);
 });
 
 test("fixed review requires the same finding resolved on the corrected commit", async () => {

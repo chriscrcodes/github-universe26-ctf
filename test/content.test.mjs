@@ -63,6 +63,9 @@ test("participant pages have metadata and workshop documents have valid blocks a
       await access(path.resolve(root, path.dirname(file), decodeURIComponent(target.split("#")[0])));
     }
   }
+  const squadReadme = await readFile(path.join(root, "workshop/squad/README.md"), "utf8");
+  assert.match(squadReadme, /🖥️ Terminal 1/);
+  assert.match(squadReadme, /🤖 Terminal 2/);
   for (const slug of ["blue", "red", "green", "scribe", "ralph", "rai-agent", "fact-checker"]) {
     await assert.rejects(access(path.join(root, "workshop/squad/agents", slug, "charter.md")), { code: "ENOENT" });
   }
@@ -83,6 +86,16 @@ test("workshop steps link forward and use available commands at the appropriate 
   assert.ok(readme.includes(".github/steps/1-step.md"));
   for (const [index, file] of stepFiles.entries()) {
     const content = await readFile(path.join(root, file), "utf8");
+    if (index > 0) {
+      assert.match(content, /Continue\s+in 🤖 Terminal 2, using the Squad conversation opened in Step 1/);
+      assert.match(content, /Do\s+not\s+start\s+a new conversation/);
+    }
+    if (/^[1-4]-step\.md$/.test(path.basename(file))) {
+      assert.match(content, /🖥️ Terminal 1 is for participant shell commands/);
+      assert.match(content, /🤖 Terminal 2 is\s+the Copilot CLI\/Squad conversation for prompts/);
+      assert.match(content, /unless a command block names another terminal/);
+      assert.match(content, /📖 introduces theory, ⌨️ introduces\s+activities, and other emoji are visual markers/);
+    }
     if (index < stepFiles.length - 1) {
       assert.ok(content.includes(`](${path.basename(stepFiles[index + 1])})`), `${file}: next step`);
     }
@@ -106,9 +119,16 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.ok(content.indexOf("/model gpt-6-luna") < content.indexOf("Squad, create my team:"));
       assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
-      assert.match(content, /Project context: This is a Node app/i);
-      assert.match(content, /complete specialist\s+roster/i);
-      assert.match(content, /do not cast additional names/i);
+      assert.match(content, /Project: Local Node workshop/i);
+      assert.match(content, /Blue applies approved corrections via reviewed PR to main/i);
+      assert.match(content, /Red is read-only\s+security reviewer; Green publishes city search only to feature\/city-search/i);
+      assert.match(content, /Include the four default built-ins; no @copilot\s+or other specialists/i);
+      assert.match(content, /complete-roster fast path\. Show all seven members with roles\/scopes/i);
+      assert.match(content, /wait for my approval; don't ask again or recast/i);
+      assert.match(content, /Then create standard\s+Squad state and stop/i);
+      assert.match(content, /Review the delivery checks in 🤖 Terminal 2/);
+      assert.match(content, /Confirm they are active and wait for my task/i);
+      assert.match(content, /Do not repeat the\s+roster summary, implement, or advance a phase/i);
       assert.doesNotMatch(content, /which language the app uses, answer `node app`/i);
       const initSkill = await readFile(path.join(root, ".github/skills/coordinator-init-mode/SKILL.md"), "utf8");
       assert.match(initSkill, /Complete-roster fast path/);
@@ -132,8 +152,16 @@ test("workshop steps link forward and use available commands at the appropriate 
     if (index === 1) {
       assert.match(content, /' OR 1=1 --/);
       assert.match(content, /sqli-demo\/2-injected-search\.png/);
+      assert.match(content, /Do not edit or exploit\.\s+Answer only; do not offer fixes, a follow-up menu or a findings commit/i);
+      assert.match(content, /Confirm that you opened and saw the matching CodeQL alert for this exact\s+commit/i);
+      assert.match(content, /trust-based attestation[\s\S]*No quiz or additional proof is\s+required/i);
+      assert.match(content, /`--reviewed` records your confirmation that you viewed\s+the alert/i);
+      assert.doesNotMatch(content, /knowledge check|three-question quiz|Which statement describes the input flow/i);
     }
-    if (index === 3) assert.match(content, /sqli-demo\/3-fixed-search\.png/);
+    if (index === 3) {
+      assert.match(content, /sqli-demo\/3-fixed-search\.png/);
+      assert.match(content, /delivery regression\s+in 🖥️ Terminal 1/);
+    }
   }
   const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
   assert.ok(setup.indexOf("squad doctor") < setup.indexOf("copilot --agent squad --yolo"));

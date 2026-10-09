@@ -23,6 +23,8 @@ description: "Participant-led delegation to Blue, Red and Green with explicit ap
    the entire journey or replace participant decisions with an agent's approval.
 2. Red is read-only. Review the alert and evidence; do not introduce defects,
    generate attack payloads, automate exploitation or target external systems.
+   After answering, stop without offering a follow-up menu, remediation options
+   or a committed findings summary.
 3. Green integrates only the supplied prototype for the explicitly authorized
    initial synthetic challenge, requests push authorization and pushes only
    `feature/city-search`. Green later proposes the exact correction but does
