@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-expected_squad_version="0.13.1"
+expected_squad_version="1.0.0"
 expected_copilot_version="1.0.88"
 
 printf 'Preparing the Universe workshop environment...\n'
@@ -36,8 +36,21 @@ GitHub handle: ${GITHUB_USER:-not detected}
 Scoreboard: ${BOARD_URL:-offline (the capture-the-flag run still works)}
 
 Next:
-1. Run npm run workshop:start.
-2. Run squad init --no-workflows, npm run squad:install-workshop-team, and squad doctor.
-3. Run copilot --yolo --agent squad, then enter /model gpt-6-luna.
-4. Follow README.md and ask Squad for everything from there.
+1. In participant Terminal 1, initialize Squad:
+  squad init --no-workflows
+  If asked whether to add @copilot as an autonomous team member, answer No.
+2. In participant Terminal 1, run the health check:
+  squad doctor
+3. Open participant Terminal 2 and start Squad:
+  copilot --agent squad --yolo
+4. In Copilot, select the model:
+  /model gpt-6-luna
+5. Use the complete team prompt in .github/steps/1-step.md. It supplies the
+  project context and exact roster. At Roster approval, select
+  "❯ Yes, hire this team". Do not start implementation yet.
+6. After the approved roster exists and the health check passes, run all npm
+  commands in participant Terminal 1. Start the app with:
+  npm run workshop:start
+7. Keep using Terminal 1 for npm commands and the same Terminal 2 conversation.
+  Follow README.md for the workshop.
 EOF

@@ -1,119 +1,100 @@
+---
+title: "Capture the flag: Three AI teams, one codebase, zero mercy"
+description: "A GitHub Copilot and Squad hotel-search security workshop with a local or shared scoreboard."
+---
+
 <div align="center">
 
-<h1>Capture the flag: Three AI teams, one codebase, zero mercy</h1>
+<h2>Capture the flag: Three AI teams, one codebase, zero mercy</h2>
 
-<p><strong>Lead an AI purple team with GitHub Copilot, capture the hidden flag, and close the hole you just walked through.</strong></p>
+<p><strong>Green delivers city search, Red reviews the exposure, and you approve Blue's correction through a PR to main.</strong></p>
 
 <p>
   <a href="https://githubuniverse.com/"><img src="https://img.shields.io/badge/GitHub%20Universe-2026-181717?logo=github&amp;logoColor=white" alt="GitHub Universe 2026"></a>
-  <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/capture%20the%20flag-45%20minutes-8250df" alt="45-minute capture the flag"></a>
+  <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/workshop-hands--on-1f883d" alt="Hands-on workshop"></a>
   <a href="https://github.com/features/codespaces"><img src="https://img.shields.io/badge/GitHub-Codespaces-24292f?logo=github&amp;logoColor=white" alt="GitHub Codespaces"></a>
 </p>
 
 </div>
 
-## Welcome
+## 👋 Welcome
 
 - **Who is this for**: Developers, security practitioners, and technical leads
   who want to work with AI agents without handing over engineering judgment.
-- **What you'll learn**: Prove a SQL injection with runtime evidence, trace it
-  as a CodeQL flow (source → flow → sink), approve a parameter-binding fix, and
-  verify it with local regressions and a final CodeQL report.
-- **What you'll build**: A one-line parameter-binding fix to a hidden SQL
-  injection, verified by a regression matrix that protects the public-listing
-  boundary and pushed to your repository's `main`.
-- **Prerequisites**:
-  - The private participant repository and Codespace your facilitator
-    provisioned for you. The Codespace includes Node.js 22, `git`, `gh`, and
-    `squad`.
-  - Access to GitHub Copilot CLI.
-  - Actions and Code scanning enabled, with permission to read alerts and workflow
-    runs through the authenticated `gh` CLI. Private repositories require the
-    appropriate GitHub Code Security entitlement.
-  - Basic terminal and source-code familiarity. No penetration-testing
-    experience is required.
-- **How long**: 45 minutes: **10 min intro**, **30 min hands-on**, and
-  **5 min debrief**.
+- **What you'll learn**: Recruit specialist agents, read a CodeQL finding,
+  approve a correction, and distinguish local checks from hosted scan evidence.
+- **What you'll build**: Green's isolated hotel-search prototype on
+  `feature/city-search`, then Blue's parameter-bound correction on `main`.
+- **Prerequisites**: Your participant Codespace, with Node.js 22, dependencies,
+  GitHub Copilot CLI, `gh`, Squad and CodeQL prepared by the facilitator.
+  Basic terminal familiarity is enough.
 
 In this exercise, you will:
 
-1. 🔴 [Capture the flag with Red](.github/steps/1-step.md) and publish the `red` phase.
-1. 🟣 [Trace the CodeQL flow and pass Mentor's check](.github/steps/2-step.md), then publish `purple`.
-1. 🟢 [Approve and verify Green's correction](.github/steps/3-step.md), then publish `green`.
-1. 🔵 [Deliver with Blue and read the final CodeQL report](.github/steps/4-step.md), then publish `blue`.
+1. [Discover Squad, recruit your team, and deliver search](.github/steps/1-step.md).
+1. [Explain the exposure and review the CodeQL finding](.github/steps/2-step.md).
+1. [Ask Green for a correction and approve the scope](.github/steps/3-step.md).
+1. [Ask Blue to deliver the correction and confirm CodeQL fixed](.github/steps/4-step.md).
 
-Each phase follows the participant journey: Red publishes after the server
-verifies your canonical browser test. Purple, Green and Blue retain their
-evidence and three-question checkpoints. Purple and Blue require your actual
-CodeQL reading, tied to the exact repository and main commit, unless you choose
-an explicit override marked unverified.
+The exercise uses real hotel names in public listings, with synthetic prices,
+dates, room options and internal challenge records, plus a supplied training
+prototype. Keep the app local or privately forwarded in Codespaces. Your goal
+is to record normal search behavior first, then investigate the challenge and
+restore public-only search with parameter binding.
 
-### The flag
+![Normal Paris search showing two public hotel listings with real property names and synthetic room options.](.github/images/sqli-demo/1-normal-search.png)
 
-The hotel search must return `PUBLIC` listings only. Unpublished listings carry
-an internal reference, and one of them is your `FLAG{...}`.
+*📊 The baseline: two public stays for Paris.*
 
-## Meet Squad
+## 🤝 Meet Squad
 
-**Squad** is a custom GitHub Copilot CLI agent that routes your natural-language
-requests to specialist roles and manages the handoffs. **Mentor** leads the
-whole journey in one conversation, returning after every specialist report.
-You run the setup commands yourself, then send a single prompt:
-**"Squad, start the app and ask Mentor to guide me through the workshop."**
-From there you only answer Mentor: describe what you observe, test Red's
-supplied payload in the interface, choose quiz answers (`a`, `b`, or `c`), and
-make the human decisions — CodeQL reading or override, exact-diff approval,
-delivery authorization, and each phase-ready call. The server advances Red when
-the expected evidence is confirmed. No application login, scripted prompts or
-manual agent switching is required.
+**Squad** coordinates three specialists through GitHub Copilot CLI.
+You run the setup commands yourself and recruit **Blue**, **Red** and **Green**.
+Copilot CLI runs the conversation; the Copilot coding agent is not a team member.
 
 > [!NOTE]
-> Red, Green, Blue, and Mentor are workshop roles defined in this repository.
+> Red, Green, and Blue are workshop roles defined in this repository.
 > This is not an official Squad product demonstration.
 
 <p align="center">
-  <img src=".github/images/squad-role-map.svg" alt="Squad role diagram: workshop specialists Red, Green, Blue, and exercise-specific Mentor; built-in support agents Scribe, Ralph, RAI Reviewer, and Fact Checker; participant decisions remain in control" width="900">
+  <img src=".github/images/purple-team-terminal.svg" alt="Copilot CLI terminal showing Squad routing the investigation to Red, Green, and Blue while participant approval remains required" width="900">
 </p>
 
 <p align="center">
-  <sub>Red, Green, Blue, and Mentor are specialists defined for this workshop.
-  Mentor was created specifically for the exercise; Scribe, Ralph, RAI Reviewer,
-  and Fact Checker are Squad built-ins. The participant keeps decision authority.</sub>
+  <sub>Squad routes one investigation to Red, Green, and Blue. The participant
+  remains responsible for approval and phase publication.</sub>
 </p>
 
-| Member | Does | Never |
-| --- | --- | --- |
-| 🧭 **Squad** | Routes requests and manages handoffs | Makes your decisions |
-| 🔴 **Red** | Explains the SQL injection and guides the canonical browser test | Edits code or introduces a vulnerability |
-| 🟣 **Mentor** | Guides observations, CodeQL reading and checkpoints for Purple, Green and Blue | Answers before you try or skips a human decision |
-| 🟢 **Green** | Explains CodeQL, proposes the exact diff, then implements, restarts the app and verifies it after approval | Edits before approval, commits or pushes |
-| 🔵 **Blue** | Starts the app; after Green, verifies, commits and pushes `main`, then runs regressions | Changes anything outside the approved scope |
+| Specialist | Responsibility |
+| --- | --- |
+| **Blue** | Implements the approved correction and opens a PR to `main`; merges only after participant approval |
+| **Red** | Reviews code and CodeQL findings without editing |
+| **Green** | Delivers the initial feature to `feature/city-search`, then advises on the correction |
 
 Learn more about the upstream project in the
 [Squad documentation](https://bradygaster.github.io/squad/).
 
-### Workshop timing
+Each step provides the commands, prompts and expected results when you need
+them. Extra prompts under "Having trouble?" are optional.
+You do not need to send every prompt to finish the exercise.
 
-| Minutes | Segment | What happens |
-| --- | --- | --- |
-| 0–10 | Intro | Squad, roles, and what the exercise proves |
-| 10–17 | Step 1 | Setup (with CodeQL pre-flight), Red explains the flaw, you test the payload |
-| 17–24 | Step 2 | You read the CodeQL report (or override), Green traces the flow, Mentor checks you |
-| 24–30 | Step 3 | You approve the diff; Green implements, restarts and verifies; Red retests |
-| 30–40 | Step 4 | You authorize delivery; Blue pushes; you read the final CodeQL report (or override) |
-| 40–45 | Debrief | Runtime evidence vs CodeQL, human vs automation boundary |
+If analysis is pending, follow [Step 2](.github/steps/2-step.md) and report the
+result accurately. A delivered correction can still be "CodeQL pending"; do not
+report a pending scan as clean. The scoreboard displays your milestones and does
+not independently analyze your code.
 
-### How to start this exercise
+### 🚀 How to start this exercise
 
 1. Open the Codespace for your participant repository.
-1. Go to [Step 1](.github/steps/1-step.md). It contains the full setup,
-   pre-flight checks, and launch commands.
-1. Run initialization commands in the VS Code terminal, then continue the workshop in Copilot CLI with the local Squad agent. VS Code Chat does not provide the terminal access the workshop requires.
+1. Follow [Step 1](.github/steps/1-step.md) to initialize Squad, recruit your
+  three specialists and launch the app.
+1. Run shell commands in a VS Code terminal and send prompts in the Squad
+  conversation. Keep that conversation open for the remaining steps.
 
 <p align="left">
   <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>
 </p>
 
-<p align="left">
-  <img src=".github/images/arcade-scoreboard-participant.png" alt="Workshop scoreboard" width="900">
-</p>
+![Humorous science-fiction illustration of Squad characters facing a creature in a corridor.](.github/images/squad.jpeg)
+
+*A humorous interlude, not a literal workshop roster. Explore [Brady Gaster's Squad project on GitHub](https://github.com/bradygaster/squad). 🤖*

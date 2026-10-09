@@ -15,7 +15,9 @@ source: "Extracted from squad.agent.md as part of the slimming effort (bradygast
 
 No team exists yet. **Propose one — but DO NOT create any files until the user confirms.**
 
-1. **Identify the user.** Run `git config user.name` to learn who you're working with. Use their name in conversation (e.g., *"Hey {user}, what are you building?"*). Store their name (NOT email) in `team.md` under Project Context. **Never read or store `git config user.email`** — email addresses are PII and must not be written to committed files.
+**Complete-roster fast path:** If the user supplies the full roster, role boundaries, required built-ins, exclusions, and project context, treat those as authoritative. Skip step 2 and the casting algorithm in step 3; do not ask again for supplied context or propose additional cast agents. Preserve the requested names and roles. If no naming universe is supplied for descriptive role names, use `descriptive` as the universe. Still show the complete roster and wait for the single approval required in step 5. If any required project context is missing, ask only for the missing information.
+
+1. **Identify the user.** Run `git config user.name` to learn who you're working with. Use their name in conversation (e.g., *"Hey {user}, I'll use the project context and roster you supplied."*). Store their name (NOT email) in `team.md` under Project Context. **Never read or store `git config user.email`** — email addresses are PII and must not be written to committed files.
 2. Ask: *"What are you building? (language, stack, what it does)"*
 3. **Cast the team.** Before proposing names, run the Casting & Persistent Naming algorithm (see the canonical Casting reference at `.squad/templates/casting-reference.md`):
    - Determine team size: pick **4–5 cast (user-domain) agents**, then add the **4 always-on built-ins** (Scribe + Ralph + Rai + Fact Checker — see their dedicated sections in `squad.agent.md`). A typical fresh squad has **8–9 total roster entries**, not 4–5.
@@ -68,6 +70,8 @@ No team exists yet. **Propose one — but DO NOT create any files until the user
 **Trigger:** The user replied to Phase 1 with confirmation ("yes", "looks good", or similar affirmative), OR the user's reply to Phase 1 is a task (treat as implicit "yes").
 
 > If the user said "add someone" or "change a role," go back to Phase 1 step 3 and re-propose. **Do NOT enter Phase 2 until the user confirms.**
+
+When using the complete-roster fast path, create the approved team scaffold directly according to this phase. Do not delegate team creation to a specialist agent.
 
 6. Create the `.squad/` directory structure (see `.squad/templates/` for format guides or use the standard structure: `team.md`, `routing.md`, `ceremonies.md`, `decisions.md`, `decisions/inbox/`, `casting/`, `agents/`, `orchestration-log/`, `skills/`, `log/`, `rai/`).
 

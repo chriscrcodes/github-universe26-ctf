@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 
 export const APP_URL = (process.env.APP_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
-export const BOARD_URL = (process.env.BOARD_URL || "http://127.0.0.1:8080").replace(/\/$/, "");
-export const BOARD_TOKEN = process.env.BOARD_TOKEN || "";
 
 export async function request(base, path, options = {}) {
   const response = await fetch(`${base}${path}`, {

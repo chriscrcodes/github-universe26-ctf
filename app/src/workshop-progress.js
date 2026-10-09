@@ -14,9 +14,7 @@ function readWorkshopState() {
   return {
     ...state,
     approvals: state.approvals && typeof state.approvals === "object" ? state.approvals : {},
-    checkpoints: state.checkpoints && typeof state.checkpoints === "object" ? state.checkpoints : {},
     evidence: state.evidence && typeof state.evidence === "object" ? state.evidence : {},
-    codeqlReviews: state.codeqlReviews && typeof state.codeqlReviews === "object" ? state.codeqlReviews : {},
     completedPhases: Array.isArray(state.completedPhases) ? state.completedPhases : ["started"],
   };
 }
@@ -32,12 +30,6 @@ function recordEvidence(phase, details = {}) {
     recordedAt: new Date().toISOString(),
     ...details,
   };
-  writeWorkshopState(state);
-}
-
-function recordCheckpoint(phase, receipt) {
-  const state = readWorkshopState();
-  state.checkpoints[phase] = receipt;
   writeWorkshopState(state);
 }
 
@@ -58,17 +50,9 @@ function recordCompletedPhase(phase) {
   writeWorkshopState(state);
 }
 
-function recordCodeqlReview(phase, review) {
-  const state = readWorkshopState();
-  state.codeqlReviews[phase] = review;
-  writeWorkshopState(state);
-}
-
 module.exports = {
   readWorkshopState,
-  recordCodeqlReview,
   recordApproval,
-  recordCheckpoint,
   recordCompletedPhase,
   recordEvidence,
   stateFilePath,

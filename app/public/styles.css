@@ -229,12 +229,46 @@ input {
   color: #81251d;
 }
 
-.hotel-card__meta {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: end;
+.hotel-card__rooms {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
+}
+
+.hotel-card__room {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.hotel-card__room-details strong,
+.hotel-card__room-details span {
+  display: block;
+}
+
+.hotel-card__room-details strong {
+  overflow-wrap: anywhere;
+}
+
+.hotel-card__room-details span,
+.hotel-card__room-price,
+.hotel-card__options {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.hotel-card__room-price {
+  color: var(--brand-blue);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.hotel-card__options {
+  margin: 0;
 }
 
 .hotel-card__business-meta {
@@ -267,6 +301,7 @@ input {
   font-size: 1.55rem;
   font-weight: 800;
   color: var(--brand-blue);
+  white-space: nowrap;
 }
 
 .results-message {

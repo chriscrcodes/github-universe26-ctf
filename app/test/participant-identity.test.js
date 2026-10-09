@@ -12,6 +12,30 @@ const noHandle = () => "";
 test("the team id follows the participant GitHub handle", () => {
   assert.equal(resolveTeamId({ BOARD_USER: "Octo-Cat" }, { lookupHandle: noHandle }), "octo-cat");
   assert.equal(
+    resolveTeamId(
+      { GITHUB_REPOSITORY: "ghuni-tru-1378-s-01/us1378m75-github-universe26-ctf" },
+      { lookupHandle: noHandle }
+    ),
+    "us75"
+  );
+  assert.equal(
+    resolveTeamId(
+      { GITHUB_USER: "ghuni-tru-1378-s-01/us1378m75-github-universe26-ctf" },
+      { lookupHandle: noHandle }
+    ),
+    "us75"
+  );
+  assert.equal(
+    resolveTeamId(
+      {
+        BOARD_USER: "Octo-Cat",
+        GITHUB_REPOSITORY: "ghuni-tru-1378-s-01/us1378m75-github-universe26-ctf",
+      },
+      { lookupHandle: noHandle }
+    ),
+    "octo-cat"
+  );
+  assert.equal(
     resolveTeamId({ GITHUB_USER: "codespace-user" }, { lookupHandle: noHandle }),
     "codespace-user"
   );

@@ -1,19 +1,57 @@
-# Workshop Squad preset
+---
+title: Workshop Squad Preset
+description: "Participant-led role contracts and non-destructive installation for Squad 1.0.0."
+---
 
-This directory is the portable, deterministic Squad 0.13.1 preset used by
+## Workshop Squad preset
+
+This directory is the portable, deterministic Squad 1.0.0 preset used by
 `scripts/install-workshop-squad.mjs`.
 
 The installer uses only Node.js built-ins. It creates or overlays `.squad/`
 when that directory is absent, freshly initialized, or already marked as this
 preset. Existing custom teams are rejected rather than overwritten. Re-running
-the installer produces the same managed files and preserves unmanaged
-Squad-owned files such as templates.
+the installer refreshes role contracts and preserves learned histories,
+decisions, configuration, and unmanaged Squad-owned files such as templates.
 
-The wrapper intentionally does not call `squad import`. In Squad 0.13.1,
-`import --force` archives the entire existing squad under a timestamped name,
-adds import timestamps to histories, and does not restore all initialized
-support files. Those behaviors are neither deterministic nor an idempotent
-overlay.
+Participants create the roster with Squad after reviewing its proposal. It
+contains Blue, Red, and Green for workshop roles, plus Squad's four default
+built-in support agents: Scribe, Ralph, Rai, and Fact Checker. The participant
+casts and approves the team; `workshop/squad/contracts/` contains role rules,
+not a pre-created roster. After approval, `npm run workshop:start` adopts the
+contracts for Blue, Red, and Green while preserving histories and shared
+decisions. Other members or agent directories cause a refusal without mutation.
+
+Green integrates the supplied synthetic prototype and publishes only to
+`feature/city-search`; after the security review, Green advises on the correction
+without editing it. Red reviews security without editing or exploitation
+automation. Blue applies the approved correction and delivers it to `main`
+through a PR, merging only after participant review and authorization. The
+participant chooses tasks and reviews evidence; the built-ins support the team
+rather than teach mandatory lessons.
+
+Participants run `squad doctor` in 🖥️ Terminal 1 after `squad init`. They then open
+🤖 Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
+Squad to create the proposed team using the complete roster and project context
+in Step 1. At `Roster approval`, select `❯ Yes, hire this team`. After approving
+the roster, they run
+`npm run workshop:start` in 🖥️ Terminal 1 to adopt the workshop contracts, register
+the participant, and launch the app. Startup does not run `squad doctor`; it
+stops on failure and never approves a push or publishes a phase. All later
+`npm` commands also run in 🖥️ Terminal 1.
+
+Green's initial delivery is an explicitly authorized integration of the supplied
+synthetic challenge prototype, not a spontaneous model mistake. It is limited
+to the supplied dataset, which uses real public hotel names and synthetic
+listing details and internal challenge records, plus private app access. Red
+remains read-only. The prototype is corrected only after the participant
+reviews the exact-commit CodeQL finding and approves Green's patch; Blue
+publishes the fix to `main` through a reviewed PR.
+
+The wrapper intentionally installs the workshop's managed contracts directly
+instead of using `squad import`. This keeps adoption deterministic and
+preserves participant histories, shared decisions, configuration, and
+unmanaged files when the installer is rerun.
 
 Expected npm script:
 
@@ -21,44 +59,8 @@ Expected npm script:
 "squad:install-workshop-team": "node scripts/install-workshop-squad.mjs"
 ```
 
-The script accepts `--root <participant-repository>` for automation and tests.
-It does not read environment files, copy histories from the source repository,
-or include credentials.
-
-## Mentor-led journey
-
-The participant stays in one Squad conversation after initialization. Mentor
-guides Blue startup and app observation, Red's explanation and participant-run
-browser test, the first CodeQL reading (Purple), Green's approved implementation
-and Red retest (Green), then Blue delivery and the final CodeQL reading (Blue).
-The server publishes Red automatically after validating the canonical browser
-payload. Purple, Green and Blue retain their participant checkpoints and phase
-agreements. Never infer human reading from API success.
-
-Squad runs `npm run codeql:review -- --phase=purple` or `--phase=blue`, supplies
-the actual report URL, then waits for the participant to read it. Only after
-confirmation does Squad repeat the command with `--confirm --analysis=ID --commit=SHA`.
-`npm run phase -- <phase>` rechecks GitHub before publishing Purple or Blue.
-No credentials or quiz answers are stored in these CodeQL receipts.
-
-The baseline should be scanned before remediation. If Code Scanning is
-inaccessible, the participant may explicitly run
-`npm run codeql:review -- --phase=<phase> --override --reason="..."` for Purple
-or Blue. The override is bound to the current `main` SHA and recorded as
-unverified, never clean. It does not replace the local regression evidence and
-can leave the scoreboard CI status pending. The app itself has no login.
-
-The board can receive `ci-clean` after Green without advancing the phase.
-Blue events include `repository` and `commitSha`; only a matching CI receipt
-completes the team. Legacy Blue events remain accepted but cannot become clean
-without delivery metadata. The two existing CI repository/SHA columns also hold
-the expected Blue delivery when its CI receipt is still pending.
-Board notifications are optional and never invalidate a successful security check.
-Set the repository variable `BOARD_TEAM_ID` to the registered identity when it
-differs from the repository owner's login, and `BOARD_SESSION_ID` for shared
-sessions spanning UTC days. Keep tokens only in the existing secret configuration.
-
-Edit this preset's source charters and routing, not generated `.squad/` copies.
-Validate changes with `node --test test/content.test.mjs test/squad-init.test.mjs`
-and `npm test` under Node.js 22. A live GitHub rehearsal is still necessary to
-verify Code scanning permissions and real ingestion timing.
+Set `.squad/config.json` to use only `gpt-6-luna` before starting Copilot. The
+The installer accepts `--root <participant-repository>` for automation and
+tests, optionally combined with `--adopt-recruited`. It does not read
+environment files, copy histories from the source repository, or include
+credentials.

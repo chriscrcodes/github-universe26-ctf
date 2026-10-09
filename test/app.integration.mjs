@@ -1,11 +1,13 @@
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import { APP_URL, available, hotelsFrom, request } from "./http.mjs";
 
 let running = false;
+const searchMode = process.env.WORKSHOP_SEARCH_MODE || "starter";
 before(async () => {
+  assert.ok(["starter", "challenge", "corrected"].includes(searchMode), "WORKSHOP_SEARCH_MODE must be starter, challenge or corrected");
   running = await available(APP_URL);
+  assert.ok(running, `Start the application at ${APP_URL} before running integration tests`);
 });
 
 const serviceTest = (name, fn) => test(name, async (t) => {
@@ -13,18 +15,18 @@ const serviceTest = (name, fn) => test(name, async (t) => {
   return fn(t);
 });
 
-test("hotel search suggestions include San Francisco", async () => {
-  const html = await readFile(new URL("../app/public/index.html", import.meta.url), "utf8");
-  assert.match(html, /data-city="San Francisco">San Francisco<\/button>/);
-});
-
 serviceTest("health endpoint is available", async () => {
   const { response } = await request(APP_URL, "/health");
   assert.equal(response.status, 200);
 });
 
-serviceTest("city search returns the two public Paris listings with business metadata", async () => {
+serviceTest("city search follows the requested workshop stage", async () => {
   const paris = await request(APP_URL, "/api/hotels?city=Paris");
+  if (searchMode === "starter") {
+    assert.equal(paris.response.status, 501);
+    assert.equal(paris.body.code, "CITY_SEARCH_NOT_IMPLEMENTED");
+    return;
+  }
   assert.equal(paris.response.status, 200);
   const hotels = hotelsFrom(paris.body);
   assert.equal(hotels.length, 2);
@@ -44,20 +46,29 @@ serviceTest("city search returns the two public Paris listings with business met
 
 serviceTest("unknown city returns an empty result", async () => {
   const result = await request(APP_URL, "/api/hotels?city=NoSuchWorkshopCity");
+  if (searchMode === "starter") {
+    assert.equal(result.response.status, 501);
+    assert.equal(result.body.code, "CITY_SEARCH_NOT_IMPLEMENTED");
+    return;
+  }
   assert.equal(result.response.status, 200);
   assert.deepEqual(hotelsFrom(result.body), []);
 });
 
-serviceTest("read-only tautology either bypasses or preserves the publication boundary by mode", async () => {
-  const health = await request(APP_URL, "/health");
+serviceTest("supplied demonstration follows the explicitly selected stage", async () => {
   const normal = await request(APP_URL, "/api/hotels?city=Paris");
   const payload = encodeURIComponent("' OR 1=1 -- ");
   const exploit = await request(APP_URL, `/api/hotels?city=${payload}`);
+  if (searchMode === "starter") {
+    assert.equal(exploit.response.status, 501);
+    assert.equal(exploit.body.code, "CITY_SEARCH_NOT_IMPLEMENTED");
+    return;
+  }
   assert.equal(normal.response.status, 200);
   assert.equal(exploit.response.status, 200);
   const normalHotels = hotelsFrom(normal.body);
   const exploitHotels = hotelsFrom(exploit.body);
-  if (health.body?.vulnerable) {
+  if (searchMode === "challenge") {
     assert.equal(normalHotels.length, 2);
     assert.equal(exploitHotels.length, 24, "tautology should return all listings");
     const unpublished = exploitHotels.filter((hotel) => hotel.listingStatus === "UNPUBLISHED");

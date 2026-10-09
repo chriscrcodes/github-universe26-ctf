@@ -6,7 +6,8 @@ function validateApproval(state, strategy) {
   if (!allowedStrategies.has(strategy)) {
     return 'Expected the approved strategy "parameter-binding".';
   }
-  if (!state.completedPhases.includes("purple") || !state.evidence.purple) {
+  if (!state.completedPhases.includes("purple") || state.evidence.purple?.kind !== "codeql-baseline"
+    || state.evidence.purple.reviewedBy !== "participant") {
     return "Complete and publish the purple CodeQL phase before approving a remediation.";
   }
   return null;
@@ -23,8 +24,8 @@ function main() {
     approvedBy: "participant",
     statement: "Keep SQL syntax separate from the untrusted city value.",
   });
-  console.log("APPROVED: parameter binding may be applied by Green.");
-  console.log("Green applies only the exact approved patch, verifies it, then returns to Mentor.");
+  console.log("APPROVED: parameter binding may be applied by Blue.");
+  console.log("Ask Green to hand the exact approved patch to Blue.");
 }
 
 if (require.main === module) {

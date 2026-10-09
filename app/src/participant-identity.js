@@ -4,7 +4,13 @@ const teamIdPattern = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 const sessionIdPattern = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
 function normalizeCandidate(value) {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
+  if (typeof value !== "string") return "";
+  const candidate = value.trim().toLowerCase();
+  const repositoryName = candidate.split("/").at(-1);
+  const participantId = candidate.includes("/")
+    ? repositoryName.match(/^us\d+m(\d+)(?:-|$)/)
+    : null;
+  return participantId ? `us${participantId[1]}` : candidate;
 }
 
 function githubHandleFromCli() {
@@ -13,7 +19,13 @@ function githubHandleFromCli() {
 }
 
 function resolveTeamId(env = process.env, { lookupHandle = githubHandleFromCli } = {}) {
-  const candidates = [env.BOARD_USER, env.BOARD_TEAM_ID, env.GITHUB_USER, env.GITHUB_ACTOR];
+  const candidates = [
+    env.BOARD_USER,
+    env.BOARD_TEAM_ID,
+    env.GITHUB_REPOSITORY,
+    env.GITHUB_USER,
+    env.GITHUB_ACTOR,
+  ];
   let handle = candidates.map(normalizeCandidate).find(Boolean) || "";
   if (!handle) {
     handle = normalizeCandidate(lookupHandle());
