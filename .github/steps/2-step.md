@@ -5,6 +5,11 @@ description: "Ask Red to explain the code while the preconfigured CodeQL analysi
 
 ## Step 2: Explain the exposure and review CodeQL
 
+Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
+the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
+unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
+activities, and other emoji are visual markers; follow the accompanying text.
+
 Requires initial delivery (`red`). The advanced CodeQL workflow scans pushes
 and pull requests targeting `feature/city-search` and `main`. The vulnerable
 baseline is reviewed on `feature/city-search`; the corrected result is reviewed
@@ -51,13 +56,15 @@ value becomes part of the statement text rather than a separate bound value.
    ![Supplied demonstration input returns twenty-four stays, including unpublished records outlined in red.](../images/sqli-demo/2-injected-search.png)
 
    *🔎 Compare the observed records with the public-listing boundary.*
-1. In the same Squad conversation, ask Red to connect your observation to the
+1. Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do
+   not start a new conversation. Ask Red to connect your observation to the
    delivered source while the analysis runs:
 
    ```text
    Red, trace the city input to the SQL execution in the delivered code.
    Explain how the supplied demonstration bypassed the PUBLIC filter.
    Separate observed exposure from potential impact. Do not edit or exploit.
+   Answer only; do not offer fixes, a follow-up menu or a findings commit.
    ```
 
 1. Open Security, Code scanning. Wait for an analysis of your delivered
@@ -80,20 +87,12 @@ value becomes part of the statement text rather than a separate bound value.
    Follow the request value toward query execution rather than reading only
    the title. The review command checks that the analysis matches your delivery.
    A finding on an older version is not evidence for this delivery.
-1. Explain in your own words the untrusted input, unsafe query construction,
-   and bypassed public-listing rule. An agent answer or `--reviewed` flag alone
-   does not demonstrate your understanding.
-   You can start with this structure, filling it from the actual evidence:
+1. Confirm that you opened and saw the matching CodeQL alert for this exact
+   commit. This is a trust-based attestation. No quiz or additional proof is
+   required.
 
-   ```text
-   The caller controls ____. That value reaches ____ through ____.
-   The query is unsafe because ____. The visibility rule was ____.
-   I observed ____ in the app; CodeQL reports ____ in this delivery.
-   I have not verified ____.
-   ```
-
-1. Run `npm run codeql:review -- baseline` to inspect the repository, commit,
-   and report URL. Read the alert yourself, then confirm:
+   Run `npm run codeql:review -- baseline` to inspect the repository, commit,
+   and report URL. After viewing the alert, confirm your review:
 
    ```bash
    npm run codeql:review -- baseline --reviewed
@@ -101,7 +100,7 @@ value becomes part of the statement text rather than a separate bound value.
    ```
 
    The first command without `--reviewed` is a preview: it records no agreement.
-   Adding `--reviewed` records your confirmation after you inspect the report.
+   Adding `--reviewed` records your confirmation that you viewed the alert.
    Publishing `purple` advances the local milestone and attempts a board update;
    none of these commands replaces your explanation of the issue.
 
@@ -118,7 +117,7 @@ file and line, not an assumed location. Continue to [Step 3](3-step.md).
 
 > [!IMPORTANT]
 > If the scan is queued, failed, inaccessible, or has no matching finding,
-> do not substitute a reference screenshot or a quiz for repository evidence.
+> do not substitute a reference screenshot or your attestation for repository evidence.
 > Stop scored progression if the exact-commit finding is not available. Keep
 > explaining the source with Red and debrief, but do not modify
 > `feature/city-search`, approve remediation or publish `purple`. Continue after
@@ -135,6 +134,12 @@ file and line, not an assumed location. Continue to [Step 3](3-step.md).
 - The facilitator checks that `.github/workflows/codeql.yml` is present on
    both target branches, Default Setup is disabled if enabled, and the
    repository has the required language, licensing, runner and permission support.
+- If the review reports HTTP 403 or `Resource not accessible by integration`,
+  GitHub denied the API request. This does not establish whether an analysis
+  exists. Check `gh auth status`; ask the facilitator to confirm the signed-in
+  account or integration has Code Scanning read access and that Code Scanning
+  is available for the repository under its plan and organization policy.
+  Retry the review before recording evidence or publishing `purple`.
 - The review command uses your existing `gh` login. Never paste a token into chat.
 
 For a shorter explanation without asking Red to supply your answer:

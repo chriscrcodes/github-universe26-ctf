@@ -18,7 +18,8 @@ to invent evidence. No quiz score is required.
 
 ### Summarize your evidence
 
-Ask for a factual recap in the same conversation:
+Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do not
+start a new conversation. Ask for a factual recap:
 
 ```text
 Squad, summarize only evidence we actually obtained: team roles, observed

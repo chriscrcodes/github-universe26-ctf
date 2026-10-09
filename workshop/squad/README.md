@@ -30,15 +30,15 @@ through a PR, merging only after participant review and authorization. The
 participant chooses tasks and reviews evidence; the built-ins support the team
 rather than teach mandatory lessons.
 
-Participants run `squad doctor` in Terminal 1 after `squad init`. They then open
-Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
+Participants run `squad doctor` in 🖥️ Terminal 1 after `squad init`. They then open
+🤖 Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
 Squad to create the proposed team using the complete roster and project context
 in Step 1. At `Roster approval`, select `❯ Yes, hire this team`. After approving
 the roster, they run
-`npm run workshop:start` in Terminal 1 to adopt the workshop contracts, register
+`npm run workshop:start` in 🖥️ Terminal 1 to adopt the workshop contracts, register
 the participant, and launch the app. Startup does not run `squad doctor`; it
 stops on failure and never approves a push or publishes a phase. All later
-`npm` commands also run in Terminal 1.
+`npm` commands also run in 🖥️ Terminal 1.
 
 Green's initial delivery is an explicitly authorized integration of the supplied
 synthetic challenge prototype, not a spontaneous model mistake. It is limited

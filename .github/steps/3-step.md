@@ -5,6 +5,11 @@ description: "Ask Green for a minimal correction and choose the approved scope."
 
 ## Step 3: Choose the correction
 
+Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
+the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
+unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
+activities, and other emoji are visual markers; follow the accompanying text.
+
 Requires your reviewed CodeQL finding (`purple`).
 
 ### 📖 Theory: Keep query syntax separate from values
@@ -36,7 +41,8 @@ not because fewer changed lines alone prove safety.
 1. Ask Green for an exact minimal diff against the actual alert location and
    current code. Green should explain the correction and test implications,
    not edit the application.
-   Use the same Squad conversation:
+   Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do
+   not start a new conversation. Ask Green there:
 
    ```text
    Green, propose the smallest parameter-binding patch for this CodeQL finding.
