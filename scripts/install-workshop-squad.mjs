@@ -79,8 +79,8 @@ function isFreshOrInstalled(squadDir, preset) {
 }
 
 function validatePreset(preset) {
-  if (preset.schemaVersion !== 1 || preset.squadVersion !== '0.13.1') {
-    throw new Error('preset must target Squad 0.13.1 with schemaVersion 1');
+  if (preset.schemaVersion !== 1 || preset.squadVersion !== '1.0.0') {
+    throw new Error('preset must target Squad 1.0.0 with schemaVersion 1');
   }
   if (!preset.id || !Number.isInteger(preset.version) || !Array.isArray(preset.agents)) {
     throw new Error('preset metadata is incomplete');

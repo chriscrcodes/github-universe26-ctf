@@ -38,11 +38,6 @@ In this exercise, you will:
 1. [Ask Green for a correction and approve the scope](.github/steps/3-step.md).
 1. [Ask Blue to deliver the correction and confirm CodeQL fixed](.github/steps/4-step.md).
 
-Stay in one Squad conversation in Terminal 2. You choose the next task, review
-the result, and approve changes and pushes. The facilitator projects the
-scoreboard. Run all `npm` commands in Terminal 1; use `/model gpt-6-luna` in
-Copilot before recruiting the team.
-
 The exercise uses fictitious hotel records and a supplied training prototype.
 Keep the app local or privately forwarded in Codespaces. Your goal is to
 record normal search behavior first, then investigate the challenge and restore
@@ -117,54 +112,3 @@ analyze your code.
 ![Humorous science-fiction illustration of Squad characters facing a creature in a corridor.](.github/images/squad.jpeg)
 
 *A humorous interlude, not a literal workshop roster. Explore [Brady Gaster's Squad project on GitHub](https://github.com/bradygaster/squad). 🤖*
-
-## Connect to the Workshop Board
-
-Your facilitator provides the connection settings before the exercise.
-Startup registers you automatically. Use the settings below only if you need
-to configure reporting manually.
-
-<details>
-<summary>Manual board connection</summary>
-
-The facilitator provides the board URL, session ID, and reporter token.
-Set those values in your participant terminal without posting or committing
-the token. This repository reports progress; it does not run or administer the board.
-
-```bash
-export BOARD_URL=http://127.0.0.1:8080
-export BOARD_SESSION_ID=local-workshop
-export ALLOW_LOCAL_BOARD=1
-export BOARD_USER=your-github-login
-# Set BOARD_TOKEN privately to the reporter token from your facilitator.
-npm run register
-```
-
-`ALLOW_LOCAL_BOARD=1` enables localhost reporting. Keep it unset when connecting
-to the shared workshop board. Every publisher must use the same `BOARD_SESSION_ID`.
-
-For a board reset, ask your facilitator. All startup, deployment, and reset
-operations are in the
-[facilitator repository](https://github.com/chriscrcodes/github-universe26-ctf-facilitator).
-
-</details>
-
-<details>
-<summary>Development checks</summary>
-
-With Node.js 22, `npm test` runs the local suites without a running app or board.
-The suites cover query behavior, delivery evidence, approvals and Squad setup.
-
-To check an app that is already running:
-
-```bash
-APP_URL=http://127.0.0.1:3000 WORKSHOP_SEARCH_MODE=starter npm run test:integration
-```
-
-Choose `starter`, `challenge` or `corrected` to match the expected workshop
-stage. These checks fail if the app is unavailable or serves the wrong stage.
-The reset check is skipped unless you explicitly set `RESET_COMMAND`; use it
-only with an isolated rehearsal app, never an active participant session.
-Local tests do not confirm hosted CodeQL results.
-
-</details>

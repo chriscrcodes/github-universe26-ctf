@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "id": "github-universe26-purple-team",
-  "version": 3,
-  "squadVersion": "0.13.1",
+  "version": 4,
+  "squadVersion": "1.0.0",
   "createdAt": "2026-09-22T00:00:00.000Z",
   "agents": [
     {

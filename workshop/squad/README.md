@@ -1,11 +1,11 @@
 ---
 title: Workshop Squad Preset
-description: "Participant-led role contracts and non-destructive installation for Squad 0.13.1."
+description: "Participant-led role contracts and non-destructive installation for Squad 1.0.0."
 ---
 
 ## Workshop Squad preset
 
-This directory is the portable, deterministic Squad 0.13.1 preset used by
+This directory is the portable, deterministic Squad 1.0.0 preset used by
 `scripts/install-workshop-squad.mjs`.
 
 The installer uses only Node.js built-ins. It creates or overlays `.squad/`
@@ -43,11 +43,10 @@ to fictitious training records and private app access. Red and Green remain
 read-only. The prototype is corrected only after the participant reviews
 the exact-commit CodeQL finding and approves Green's patch.
 
-The wrapper intentionally does not call `squad import`. In Squad 0.13.1,
-`import --force` archives the entire existing squad under a timestamped name,
-adds import timestamps to histories, and does not restore all initialized
-support files. Those behaviors are neither deterministic nor an idempotent
-overlay.
+The wrapper intentionally installs the workshop's managed contracts directly
+instead of using `squad import`. This keeps adoption deterministic and
+preserves participant histories, shared decisions, configuration, and
+unmanaged files when the installer is rerun.
 
 Expected npm script:
 

@@ -32,9 +32,6 @@ listings each search returns. The challenge-specific investigation comes later.
 
 ### ⌨️ Activity: Recruit, then deliver
 
-Once started, keep Copilot running in Terminal 2 for the workshop conversation. Run all
-`npm` commands in Terminal 1.
-
 1. In Terminal 1, opened at the participant repository root, initialize Squad.
    If prompted `Add @copilot as an autonomous team member? [Y/n]`, answer `No`.
 
@@ -49,8 +46,9 @@ Once started, keep Copilot running in Terminal 2 for the workshop conversation. 
    squad doctor
    ```
 
-1. Open Terminal 2 in the participant repository and start the Squad
-   conversation. Keep this terminal open throughout the workshop.
+1. **Open a new Terminal 2** in the participant repository and start the Squad
+   conversation. Keep this same terminal open and use it for Squad prompts
+   throughout the workshop.
 
    ```bash
    copilot --agent squad --yolo

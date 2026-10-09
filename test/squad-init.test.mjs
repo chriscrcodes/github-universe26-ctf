@@ -58,7 +58,7 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   const result = runInstaller(participant);
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Installed workshop Squad 3 for Squad 0\.13\.1/);
+  assert.match(result.stdout, /Installed workshop Squad 4 for Squad 1\.0\.0/);
 
   const registry = JSON.parse(
     readFileSync(path.join(participant, '.squad', 'casting', 'registry.json'), 'utf8'),

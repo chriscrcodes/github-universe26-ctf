@@ -23,16 +23,14 @@ const workshopDocumentation = [
   "workshop/squad/contracts/red.md",
 ];
 
-test("participant repository only connects to the facilitator-owned board", async () => {
+test("README omits manual workshop board connection instructions", async () => {
   const readme = await readFile(readmePath, "utf8");
   const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   assert.deepEqual(manifest.workspaces, ["app"]);
   assert.equal(manifest.scripts["board:local"], undefined);
   assert.equal(manifest.scripts["load:board"], undefined);
-  assert.match(readme, /ALLOW_LOCAL_BOARD=1/);
-  assert.match(readme, /BOARD_SESSION_ID=local-workshop/);
-  assert.match(readme, /127\.0\.0\.1:8080/);
-  assert.match(readme, /https:\/\/github\.com\/chriscrcodes\/github-universe26-ctf-facilitator/);
+  assert.doesNotMatch(readme, /Connect to the Workshop Board|Manual board connection/);
+  assert.doesNotMatch(readme, /ALLOW_LOCAL_BOARD|BOARD_SESSION_ID|BOARD_TOKEN|127\.0\.0\.1:8080/);
   assert.doesNotMatch(readme, /BOARD_OPERATOR_KEY|npm run board:local|FACILITATOR\.md/);
   assert.doesNotMatch(readme, /--request (?:DELETE|POST)|\/api\/teams\/|\/api\/reset/);
 });
@@ -107,7 +105,6 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model gpt-6-luna"));
       assert.ok(content.indexOf("/model gpt-6-luna") < content.indexOf("Squad, create my team:"));
       assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
-      assert.match(content, /all\s+`npm` commands in Terminal 1/i);
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
       assert.match(content, /which language the app uses, answer `node app`/i);
       const shellCommands = Array.from(content.matchAll(/```bash\s*\n([\s\S]*?)\n\s*```/g),

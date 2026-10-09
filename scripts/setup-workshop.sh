@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-expected_squad_version="0.13.1"
+expected_squad_version="1.0.0"
 expected_copilot_version="1.0.88"
 
 printf 'Preparing the Universe workshop environment...\n'
