@@ -11,15 +11,15 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
   const readState = dependencies.readState || readWorkshopState;
   const collect = dependencies.collect || collectCodeqlEvidence;
   const save = dependencies.recordEvidence || recordEvidence;
-  const context = getContext();
+  const context = getContext(stage);
   const state = readState();
   if (stage === "baseline" && (!state.completedPhases?.includes("red")
     || state.evidence.red?.kind !== "initial-delivery" || !state.evidence.red.pushed
     || state.evidence.red.repository !== context.repository || state.evidence.red.commit !== context.commit)) {
-    throw new Error("Initial CodeQL review must match the recorded and published delivery on main.");
+    throw new Error("Initial CodeQL review must match the recorded and published delivery on feature/city-search.");
   }
   const review = await collect(context, stage, state.evidence.purple);
-  if (JSON.stringify(getContext()) !== JSON.stringify(context)) throw new Error("Remote main changed during review; retry.");
+  if (JSON.stringify(getContext(stage)) !== JSON.stringify(context)) throw new Error(`Remote ${stage === "baseline" ? "feature/city-search" : "main"} changed during review; retry.`);
   if (stage === "fixed" && (!state.evidence.blue?.pushed || state.evidence.blue.commit !== context.commit)) {
     throw new Error("Final CodeQL evidence must match the corrected commit pushed on main.");
   }

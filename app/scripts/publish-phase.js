@@ -32,8 +32,9 @@ function validatePhaseGate(state, phase) {
     };
     return `Missing ${phase} evidence. Complete ${commands[phase]} first.`;
   }
-  if (phase === "red" && (state.evidence.red.kind !== "initial-delivery" || !state.evidence.red.pushed)) {
-    return "Initial delivery requires local acceptance checks and a commit pushed on main.";
+  if (phase === "red" && (state.evidence.red.kind !== "initial-delivery" || !state.evidence.red.pushed
+    || state.evidence.red.ref !== "refs/heads/feature/city-search")) {
+    return "Initial delivery requires local acceptance checks and a commit pushed on feature/city-search.";
   }
   if (phase === "red" && (state.evidence.red.exposure?.fixture !== "synthetic-hotels-v1"
     || state.evidence.red.exposure?.input !== "' OR 1=1 -- "
@@ -42,7 +43,8 @@ function validatePhaseGate(state, phase) {
     return "Initial delivery requires the supplied synthetic exposure receipt. Run npm run delivery again.";
   }
   if (phase === "purple" && (state.evidence.purple.kind !== "codeql-baseline"
-    || state.evidence.purple.reviewedBy !== "participant")) {
+    || state.evidence.purple.reviewedBy !== "participant"
+    || state.evidence.purple.ref !== "refs/heads/feature/city-search")) {
     return "Purple requires a participant-reviewed CodeQL finding, not a quiz receipt.";
   }
   if (phase === "green" && state.approvals?.remediation?.strategy !== "parameter-binding") {
@@ -51,9 +53,13 @@ function validatePhaseGate(state, phase) {
   if (phase === "blue" && state.evidence.blue?.pushed !== true) {
     return "Blue evidence must be tied to a correction pushed on main.";
   }
+  if (phase === "blue" && (state.evidence.blue.ref !== "refs/heads/main" || state.evidence.blue.branch !== "main")) {
+    return "Blue correction evidence must come from main.";
+  }
   if (phase === "codeql" && (state.evidence.codeql.kind !== "codeql-fixed"
     || state.evidence.codeql.reviewedBy !== "participant" || state.evidence.codeql.alertState !== "fixed"
     || state.evidence.codeql.resultCount !== 0 || state.evidence.codeql.commit !== state.evidence.blue?.commit
+    || state.evidence.codeql.ref !== "refs/heads/main"
     || state.evidence.codeql.repository !== state.evidence.purple?.repository
     || state.evidence.codeql.alertNumber !== state.evidence.purple?.alertNumber)) {
     return "Final completion requires the same CodeQL finding fixed on the corrected delivery commit.";
@@ -95,10 +101,10 @@ async function main() {
   const gateError = validatePhaseGate(state, phase);
   if (gateError) throw new Error(gateError);
   if (phase === "codeql") {
-    const context = repositoryContext();
+    const context = repositoryContext("fixed");
     const evidence = await collectCodeqlEvidence(context, "fixed", state.evidence.purple);
     if (evidence.commit !== state.evidence.codeql.commit || evidence.repository !== state.evidence.codeql.repository
-      || JSON.stringify(repositoryContext()) !== JSON.stringify(context)) {
+      || JSON.stringify(repositoryContext("fixed")) !== JSON.stringify(context)) {
       throw new Error("Final evidence is stale; review CodeQL again before publishing.");
     }
   }

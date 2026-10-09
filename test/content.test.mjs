@@ -106,7 +106,17 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.ok(content.indexOf("/model gpt-6-luna") < content.indexOf("Squad, create my team:"));
       assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
-      assert.match(content, /which language the app uses, answer `node app`/i);
+      assert.match(content, /Project context: This is a Node app/i);
+      assert.match(content, /complete specialist\s+roster/i);
+      assert.match(content, /do not cast additional names/i);
+      assert.doesNotMatch(content, /which language the app uses, answer `node app`/i);
+      const initSkill = await readFile(path.join(root, ".github/skills/coordinator-init-mode/SKILL.md"), "utf8");
+      assert.match(initSkill, /Complete-roster fast path/);
+      assert.match(initSkill, /Skip step 2 and the casting algorithm/i);
+      assert.match(initSkill, /Do not delegate team creation to a specialist agent/i);
+      const squadAgent = await readFile(path.join(root, ".github/agents/squad.agent.md"), "utf8");
+      assert.match(squadAgent, /match skills by intent, not isolated keywords/i);
+      assert.match(squadAgent, /do not load the `squad` command catalog or cross-squad skills/i);
       const shellCommands = Array.from(content.matchAll(/```bash\s*\n([\s\S]*?)\n\s*```/g),
         (match) => match[1].trim());
       assert.deepEqual(shellCommands, [
@@ -131,7 +141,8 @@ test("workshop steps link forward and use available commands at the appropriate 
   assert.ok(setup.indexOf("/model gpt-6-luna") < setup.indexOf("npm run workshop:start"));
   assert.match(setup, /answer No/);
   assert.match(setup, /❯ Yes, hire this team/);
-  assert.match(setup, /answer "node app"/);
+  assert.match(setup, /complete team prompt in \.github\/steps\/1-step\.md/);
+  assert.doesNotMatch(setup, /answer "node app"/);
   assert.match(setup, /all npm\s+commands in participant Terminal 1/);
   assert.doesNotMatch(setup, /\.squad\/config\.json/);
 });

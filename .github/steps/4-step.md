@@ -5,8 +5,7 @@ description: "Blue implements the approved patch and the participant confirms th
 
 ## Step 4: Deliver the correction and confirm fixed
 
-Target: local correction during minutes 19-25, corrected delivery during 25-28,
-and final evidence review during 28-30. Requires recorded participant approval.
+Requires recorded participant approval.
 
 ### 📖 Theory: Local tests and hosted scans answer different questions
 
@@ -23,13 +22,16 @@ a scan of an unrelated commit or repository.
 
 ### ⌨️ Activity: Implement, deliver, review
 
-1. Ask Blue to apply only Green's approved patch and its agreed tests.
-   Use the same Squad conversation:
+1. Ask Blue to create `fix/city-search` from the delivered
+   `feature/city-search` baseline and apply only Green's approved patch and its
+   agreed tests. This keeps the vulnerable baseline branch unchanged. Use the
+   same Squad conversation:
 
    ```text
-   Blue, apply only Green's exact patch that I approved. Preserve normal search
-   and the other filters. Show the diff and local verification results.
-   Do not commit or push until I authorize delivery.
+   Blue, create fix/city-search from feature/city-search and apply only Green's
+   exact patch that I approved. Preserve normal search and the other filters.
+   Show the correction diff against feature/city-search and local verification
+   results. Do not commit, push, open a PR or merge until I authorize it.
    ```
 
 1. Restart the app with `npm run workshop:restart`. Ask Blue to run
@@ -57,21 +59,54 @@ a scan of an unrelated commit or repository.
    baseline. Report failures or unchecked behavior; do not publish a phase.
    ```
 
-1. Review the diff and explicitly authorize Blue to commit the correction and
-   push `main`. Then run `npm run regressions` and publish `npm run phase -- blue`.
-   Regressions require the corrected commit already pushed; they are not an
-   initial attack-demonstration step.
-   Before authorizing the push, have Blue run the same behavior checks locally;
-   the post-push command ties the regression receipt to the delivered commit.
-   The `blue` milestone confirms delivery, not hosted CodeQL completion.
-
-   Once you have reviewed the passing local results:
+1. Review the correction diff against `feature/city-search` and have Blue run
+   the same behavior checks locally. Explicitly authorize Blue to commit the
+   approved correction and tests on `fix/city-search`, push that branch and
+   open a PR targeting `main`. Blue must not push to `feature/city-search` or
+   push directly to `main`.
 
    ```text
    Blue, I authorize committing only the reviewed correction and agreed tests
-   and pushing main in my participant repository. Report the corrected SHA
-   and confirm it matches origin/main. Do not claim CodeQL is clean from a push.
+   on fix/city-search, pushing that branch and opening a PR to main. Do not
+   merge until I review the PR and explicitly authorize the merge. Report the
+   PR URL and source commit. Do not claim CodeQL is clean from a PR.
    ```
+
+1. Review the complete PR diff against `main`. It includes the initial feature
+   as well as its correction because `main` predates city search. Check the PR
+   results, then explicitly authorize the merge. Blue must not merge before
+   your approval:
+
+   ```text
+   Blue, I reviewed the PR to main and its required checks passed. I explicitly
+   authorize merging this PR. Report the merge commit and confirm it is on
+   origin/main. Do not claim CodeQL is clean from a merge.
+   ```
+
+1. After the PR merges, update your local `main` and run the delivery regression
+   in Terminal 1. Run each command separately:
+
+   ```bash
+   git switch main
+   ```
+
+   ```bash
+   git pull --ff-only
+   ```
+
+   ```bash
+   npm run regressions
+   ```
+
+   Regressions require the corrected PR to be merged to `main`; they are not an
+   initial attack-demonstration step. Publish the delivery milestone after the
+   regression passes:
+
+   ```bash
+   npm run phase -- blue
+   ```
+
+   The `blue` milestone confirms delivery, not hosted CodeQL completion.
 
    `npm run verify` checks local behavior and records correction evidence.
    `npm run regressions` checks the running app and records delivery evidence
@@ -118,12 +153,13 @@ Continue to the [Review](x-review.md).
 <summary>Having trouble? 🤷</summary>
 
 - If verification differs from the diff, confirm the app restarted from the corrected code.
-- If `main` is not pushed, ask Blue to show the branch, remote commit, and scoped diff.
+- If the PR is not merged, ask Blue to show its source branch, target branch,
+  checks and scoped correction diff.
 - If CodeQL remains open or fails, report that result and ask Red to inspect it.
 - Missing or dismissed alerts do not count as fixed. Do not change scan settings
   to hide a finding or substitute another repository's result.
-- When the timer ends before GitHub finishes, keep the workshop pending and
-  resume the evidence review later. Do not publish final completion.
+- If GitHub analysis is still pending, keep the workshop pending and resume
+   the evidence review later. Do not publish final completion.
 
 For a verification failure:
 

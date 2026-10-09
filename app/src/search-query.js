@@ -1,6 +1,7 @@
 const { escapeLikePattern } = require("./input-normalizer");
 
-const LISTING_COLUMNS = `id, city, name, pricePerNight, listingStatus, partnerNetRate,
+const LISTING_COLUMNS = `id, city, name, pricePerNight, currency, roomType, maxGuests,
+      bedConfiguration, breakfastIncluded, freeCancellation, listingStatus, partnerNetRate,
       forecastOccupancyPct, syntheticReservationCount, internalReference`;
 
 const PUBLISHED_ONLY = "listingStatus = 'PUBLIC'";

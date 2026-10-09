@@ -5,7 +5,7 @@ description: "Ask Green for a minimal correction and choose the approved scope."
 
 ## Step 3: Choose the correction
 
-Target: minutes 16-19. Requires your reviewed CodeQL finding (`purple`).
+Requires your reviewed CodeQL finding (`purple`).
 
 ### 📖 Theory: Keep query syntax separate from values
 

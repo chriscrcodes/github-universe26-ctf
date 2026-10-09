@@ -34,7 +34,7 @@ async function main() {
     "the capture-the-flag token should no longer be reachable"
   );
 
-  const { commit, repository, ref } = repositoryContext();
+  const { commit, repository, ref } = repositoryContext("fixed");
 
   recordEvidence("blue", {
     command: "npm run regressions",

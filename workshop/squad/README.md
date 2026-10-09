@@ -22,26 +22,31 @@ not a pre-created roster. After approval, `npm run workshop:start` adopts the
 contracts for Blue, Red, and Green while preserving histories and shared
 decisions. Other members or agent directories cause a refusal without mutation.
 
-Blue develops and implements approved corrections. Red reviews security
-without editing or exploitation automation. Green proposes exact patches
-without editing. The participant chooses tasks, reviews evidence, and authorizes
-pushes; the built-ins support the team rather than teach mandatory lessons.
+Green integrates the supplied synthetic prototype and publishes only to
+`feature/city-search`; after the security review, Green advises on the correction
+without editing it. Red reviews security without editing or exploitation
+automation. Blue applies the approved correction and delivers it to `main`
+through a PR, merging only after participant review and authorization. The
+participant chooses tasks and reviews evidence; the built-ins support the team
+rather than teach mandatory lessons.
 
 Participants run `squad doctor` in Terminal 1 after `squad init`. They then open
 Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
-Squad to create the proposed team. At `Roster approval`, select
-`❯ Yes, hire this team`; if asked which language the app uses, answer
-`node app`. After approving the roster, they run
+Squad to create the proposed team using the complete roster and project context
+in Step 1. At `Roster approval`, select `❯ Yes, hire this team`. After approving
+the roster, they run
 `npm run workshop:start` in Terminal 1 to adopt the workshop contracts, register
 the participant, and launch the app. Startup does not run `squad doctor`; it
 stops on failure and never approves a push or publishes a phase. All later
 `npm` commands also run in Terminal 1.
 
-Blue's initial delivery is an explicitly authorized integration of the supplied
+Green's initial delivery is an explicitly authorized integration of the supplied
 synthetic challenge prototype, not a spontaneous model mistake. It is limited
-to fictitious training records and private app access. Red and Green remain
-read-only. The prototype is corrected only after the participant reviews
-the exact-commit CodeQL finding and approves Green's patch.
+to the supplied dataset, which uses real public hotel names and synthetic
+listing details and internal challenge records, plus private app access. Red
+remains read-only. The prototype is corrected only after the participant
+reviews the exact-commit CodeQL finding and approves Green's patch; Blue
+publishes the fix to `main` through a reviewed PR.
 
 The wrapper intentionally installs the workshop's managed contracts directly
 instead of using `squad import`. This keeps adoption deterministic and

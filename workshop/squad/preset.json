@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "id": "github-universe26-purple-team",
-  "version": 4,
+  "version": 5,
   "squadVersion": "1.0.0",
   "createdAt": "2026-09-22T00:00:00.000Z",
   "agents": [
     {
       "slug": "blue",
       "name": "Blue",
-      "role": "Developer and approved patch implementer",
+      "role": "Approved correction implementer and PR-to-main publisher",
       "universe": "descriptive"
     },
     {
@@ -20,7 +20,7 @@
     {
       "slug": "green",
       "name": "Green",
-      "role": "Read-only CodeQL remediator",
+      "role": "Initial feature developer and feature branch publisher",
       "universe": "descriptive"
     },
     {

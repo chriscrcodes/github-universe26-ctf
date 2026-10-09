@@ -1,4 +1,4 @@
-const { withDatabase } = require("./database");
+const { roomOptionsForHotel, withDatabase } = require("./database");
 const { normalizeSearchTerm, parsePositiveInteger } = require("./input-normalizer");
 const {
   buildCityFilter,
@@ -18,7 +18,10 @@ function searchHotelsByCity(city, options = {}) {
 function findHotelById(id) {
   const listingId = parsePositiveInteger(id);
   if (listingId === null) return null;
-  return withDatabase((db) => selectPublicListingById(db, listingId));
+  return withDatabase((db) => {
+    const hotel = selectPublicListingById(db, listingId);
+    return hotel ? { ...hotel, roomOptions: roomOptionsForHotel(hotel) } : null;
+  });
 }
 
 function partnerRateSummary(city) {

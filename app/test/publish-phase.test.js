@@ -22,7 +22,7 @@ function state(overrides = {}) {
 }
 
 function deliveryEvidence() {
-  return { recordedAt: "now", kind: "initial-delivery", pushed: true,
+  return { recordedAt: "now", kind: "initial-delivery", pushed: true, ref: "refs/heads/feature/city-search",
     exposure: { fixture: "synthetic-hotels-v1", input: "' OR 1=1 -- ",
       unpublishedCount: 4, syntheticReservationCount: 27400 } };
 }
@@ -98,7 +98,8 @@ test("quiz receipts cannot replace a participant-reviewed CodeQL finding", () =>
   const workshopState = state({ completedPhases: ["started", "red"],
     evidence: { purple: { command: "npm run checkpoint", gradedBy: "mentor" } } });
   assert.match(validatePhaseGate(workshopState, "purple"), /participant-reviewed CodeQL/);
-  workshopState.evidence.purple = { kind: "codeql-baseline", reviewedBy: "participant" };
+  workshopState.evidence.purple = { kind: "codeql-baseline", reviewedBy: "participant",
+    ref: "refs/heads/feature/city-search" };
   assert.equal(validatePhaseGate(workshopState, "purple"), null);
 });
 
@@ -127,8 +128,8 @@ test("initial delivery cannot advance without the exact synthetic exposure recei
 test("final completion requires fixed evidence matching delivery and the initial alert", () => {
   const workshopState = state({ completedPhases: ["started", "red", "purple", "green", "blue"],
     evidence: { purple: { repository: "participant/workshop", alertNumber: 7 },
-      blue: { commit: "b".repeat(40), pushed: true },
-      codeql: { kind: "codeql-fixed", reviewedBy: "participant", repository: "participant/workshop",
+      blue: { branch: "main", ref: "refs/heads/main", commit: "b".repeat(40), pushed: true },
+      codeql: { kind: "codeql-fixed", reviewedBy: "participant", ref: "refs/heads/main", repository: "participant/workshop",
         alertNumber: 7, alertState: "fixed", commit: "b".repeat(40), resultCount: 0 } } });
   assert.equal(validatePhaseGate(workshopState, "codeql"), null);
   for (const change of [{ alertState: "dismissed" }, { resultCount: 1 }, { commit: "a".repeat(40) }, { alertNumber: 8 }]) {
@@ -137,12 +138,14 @@ test("final completion requires fixed evidence matching delivery and the initial
   }
 });
 
-test("blue phase requires evidence tied to a pushed commit", () => {
+test("blue phase requires evidence tied to a pushed commit on main", () => {
   const workshopState = state({
     completedPhases: ["started", "red", "purple", "green"],
     evidence: { blue: { recordedAt: "now", pushed: false } },
   });
   assert.match(validatePhaseGate(workshopState, "blue"), /pushed on main/);
+  workshopState.evidence.blue = { branch: "feature/city-search", ref: "refs/heads/feature/city-search", pushed: true };
+  assert.match(validatePhaseGate(workshopState, "blue"), /main/);
 });
 
 test("participant final publisher emits the authenticated CodeQL receipt without owning the board", async () => {

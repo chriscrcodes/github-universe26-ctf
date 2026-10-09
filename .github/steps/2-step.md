@@ -5,8 +5,10 @@ description: "Ask Red to explain the code while the preconfigured CodeQL analysi
 
 ## Step 2: Explain the exposure and review CodeQL
 
-Target: minutes 10-16. Requires initial delivery (`red`).
-CodeQL is already configured and tested by the facilitator before the timer.
+Requires initial delivery (`red`). The advanced CodeQL workflow scans pushes
+and pull requests targeting `feature/city-search` and `main`. The vulnerable
+baseline is reviewed on `feature/city-search`; the corrected result is reviewed
+on `main`.
 
 ### 📖 Theory: A scan is evidence, not a verdict on every behavior
 
@@ -46,7 +48,7 @@ value becomes part of the statement text rather than a separate bound value.
    this supplied input against the local synthetic dataset. Do not create other
    payloads or target external systems.
 
-   ![Supplied demonstration input returns twelve stays, including unpublished records outlined in red.](../images/sqli-demo/2-injected-search.png)
+   ![Supplied demonstration input returns twenty-four stays, including unpublished records outlined in red.](../images/sqli-demo/2-injected-search.png)
 
    *🔎 Compare the observed records with the public-listing boundary.*
 1. In the same Squad conversation, ask Red to connect your observation to the
@@ -58,8 +60,10 @@ value becomes part of the statement text rather than a separate bound value.
    Separate observed exposure from potential impact. Do not edit or exploit.
    ```
 
-1. Open Security, Code scanning. Wait for an analysis of your delivered `main`
-   commit. Default Setup is managed by GitHub; no custom security workflow is required.
+1. Open Security, Code scanning. Wait for an analysis of your delivered
+   `feature/city-search` commit. The repository uses the advanced workflow in
+   `.github/workflows/codeql.yml`; disable CodeQL Default Setup if it is enabled
+   to avoid a second analysis with a different branch scope.
 1. Ask Red to explain the actual alert, its source, flow, sink, and public-data
    boundary. Have Red distinguish observed facts from potential impact. Red
    does not generate payloads, run an exploit, or change code.
@@ -115,10 +119,10 @@ file and line, not an assumed location. Continue to [Step 3](3-step.md).
 > [!IMPORTANT]
 > If the scan is queued, failed, inaccessible, or has no matching finding,
 > do not substitute a reference screenshot or a quiz for repository evidence.
-> At minute 16, stop scored progression if the exact-commit finding is not
-> available. Keep explaining the source with Red and debrief, but do not
-> modify `main`, approve remediation or publish `purple`. Resume after the
-> matching finding arrives. This threshold must be calibrated in rehearsal.
+> Stop scored progression if the exact-commit finding is not available. Keep
+> explaining the source with Red and debrief, but do not modify
+> `feature/city-search`, approve remediation or publish `purple`. Continue after
+> the matching finding arrives. Validate this recovery path in rehearsal.
 > Report queued analysis as pending, failed analysis as failed, and a completed
 > scan with no finding as a baseline problem. Do not manufacture evidence.
 
@@ -128,9 +132,9 @@ file and line, not an assumed location. Continue to [Step 3](3-step.md).
 - Ask Red to explain source, flow, and sink using the report's own file links.
 - Compare query syntax with separately bound values. Normalization alone is
   not parameter binding.
-- Configuration is not a timed task. The facilitator checks
-   `Settings/security_analysis > CodeQL analysis > Set up > Default`, supported
-   language, licensing, runners and permissions before the workshop.
+- The facilitator checks that `.github/workflows/codeql.yml` is present on
+   both target branches, Default Setup is disabled if enabled, and the
+   repository has the required language, licensing, runner and permission support.
 - The review command uses your existing `gh` login. Never paste a token into chat.
 
 For a shorter explanation without asking Red to supply your answer:

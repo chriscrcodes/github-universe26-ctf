@@ -39,6 +39,10 @@ test("the workshop server listens only on loopback by default", async () => {
     await once(server, "listening");
     assert.equal(server.address().address, "127.0.0.1");
     assert.equal((await fetch(`http://127.0.0.1:${server.address().port}/health`)).status, 200);
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/api/hotels?city=Paris`);
+    const payload = await response.json();
+    assert.equal(response.status, 501);
+    assert.equal(payload.code, "CITY_SEARCH_NOT_IMPLEMENTED");
   } finally {
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
@@ -129,9 +133,9 @@ test("parameter binding fixes the delivery prototype without breaking public sea
     assert.equal(search(city).length, 0);
   }
   assert.equal(search("Paris", { maxPrice: "230" }).length, 1);
-  assert.equal(search("Paris", { name: "Saint-Clair" }).length, 1);
+  assert.equal(search("Paris", { name: "Bourdonnais" }).length, 1);
   assert.equal(search("Paris", { name: "%" }).length, 0);
-  assert.equal(search("Tokyo", { sort: "price" })[0].name, "Asakusa Paper Lantern Inn");
+  assert.equal(search("Tokyo", { sort: "price" })[0].name, "APA Hotel Asakusa Tawaramachi Ekimae");
   assert.equal(search("Tokyo", { sort: "'; DROP TABLE hotels; --" }).length, 5);
 });
 
@@ -149,10 +153,20 @@ test("a normal city search returns only the two public Paris listings", () => {
   assert.deepEqual(searchHotelsByCity("paris"), hotels);
   assert.ok(hotels.every((hotel) =>
     Number.isInteger(hotel.pricePerNight) &&
+    /^[A-Z]{3}$/.test(hotel.currency) &&
+    typeof hotel.roomType === "string" &&
+    Number.isInteger(hotel.maxGuests) &&
+    typeof hotel.bedConfiguration === "string" &&
+    Number.isInteger(hotel.breakfastIncluded) &&
+    Number.isInteger(hotel.freeCancellation) &&
     Number.isInteger(hotel.partnerNetRate) &&
     Number.isInteger(hotel.forecastOccupancyPct) &&
     Number.isInteger(hotel.syntheticReservationCount)
   ));
+  assert.equal(hotels[0].roomType, "Classic Double / Twin");
+  assert.equal(hotels[0].currency, "EUR");
+  assert.equal(searchHotelsByCity("Tokyo", { sort: "price" })[0].pricePerNight, 24500);
+  assert.equal(searchHotelsByCity("Tokyo", { sort: "price" })[0].currency, "JPY");
   assert.deepEqual(searchHotelsByCity("NoSuchWorkshopCity"), []);
   assert.deepEqual(searchHotelsByCity(""), []);
   assert.deepEqual(searchHotelsByCity(null), []);
@@ -182,12 +196,12 @@ test("each city has a distinct public result count, including San Francisco", ()
   assert.deepEqual(
     searchHotelsByCity("San Francisco").map((hotel) => hotel.name),
     [
-      "Presidio Harbor House",
-      "Embarcadero Lantern Hotel",
-      "Pacific Heights Garden Inn",
-      "Mission Terrace Hotel",
-      "North Beach Gallery House",
-      "Sunset Commons Lodge",
+      "Hotel Zephyr",
+      "Argonaut Hotel",
+      "San Francisco Marriott Marquis",
+      "Hotel Zoe Fisherman's Wharf",
+      "Hotel Riu Plaza Fisherman's Wharf",
+      "Kimpton Alton Fisherman's Wharf",
     ],
   );
 });
@@ -196,9 +210,9 @@ test("the optional filters narrow the public result set", () => {
   resetDatabase();
   assert.equal(searchHotelsByCity("Paris", { maxPrice: "230" }).length, 1);
   assert.equal(searchHotelsByCity("Paris", { maxPrice: "not-a-number" }).length, 2);
-  assert.equal(searchHotelsByCity("Paris", { name: "Saint-Clair" }).length, 1);
+  assert.equal(searchHotelsByCity("Paris", { name: "Bourdonnais" }).length, 1);
   assert.equal(searchHotelsByCity("Paris", { name: "%" }).length, 0);
-  assert.equal(searchHotelsByCity("Tokyo", { sort: "price" })[0].name, "Asakusa Paper Lantern Inn");
+  assert.equal(searchHotelsByCity("Tokyo", { sort: "price" })[0].name, "APA Hotel Asakusa Tawaramachi Ekimae");
   assert.equal(searchHotelsByCity("Tokyo", { sort: "'; DROP TABLE hotels; --" }).length, 5);
 });
 

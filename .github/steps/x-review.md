@@ -5,8 +5,7 @@ description: "Reflect on specialist roles, participant decisions, and verified s
 
 ## Review
 
-Target: minutes 28-30. Review what was actually delivered, not what an agent
-intended to deliver.
+Review what was actually delivered, not what an agent intended to deliver.
 
 - How did Blue, Red, and Green divide responsibility?
 - Which approval or scope decision did you own?

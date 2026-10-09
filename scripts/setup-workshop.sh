@@ -45,10 +45,9 @@ Next:
   copilot --agent squad --yolo
 4. In Copilot, select the model:
   /model gpt-6-luna
-5. Ask Squad to create the three workshop roles and include its default
-  built-in support agents. Do not add @copilot or other workshop specialists.
-  At Roster approval, select "❯ Yes, hire this team". If asked which language
-  the app uses, answer "node app". Do not start implementation yet.
+5. Use the complete team prompt in .github/steps/1-step.md. It supplies the
+  project context and exact roster. At Roster approval, select
+  "❯ Yes, hire this team". Do not start implementation yet.
 6. After the approved roster exists and the health check passes, run all npm
   commands in participant Terminal 1. Start the app with:
   npm run workshop:start

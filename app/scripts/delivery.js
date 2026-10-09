@@ -32,9 +32,9 @@ async function checkDelivery(appUrl, request = fetch) {
 }
 
 async function main() {
-  const context = repositoryContext();
+  const context = repositoryContext("baseline");
   const exposure = await checkDelivery(process.env.APP_URL || "http://127.0.0.1:3000");
-  assert.deepEqual(repositoryContext(), context, "Remote main changed during delivery verification; retry.");
+  assert.deepEqual(repositoryContext("baseline"), context, "Remote feature/city-search changed during delivery verification; retry.");
   recordEvidence("red", { ...context, kind: "initial-delivery", command: "npm run delivery",
     pushed: true, exposure, cases: ["Paris", "paris", "unknown city", "empty city", "synthetic exposure"] });
   console.log("PASS: initial delivery checks recorded against the synthetic workshop data. No phase automatically advanced.");

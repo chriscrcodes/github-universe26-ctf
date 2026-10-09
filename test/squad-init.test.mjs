@@ -58,7 +58,7 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   const result = runInstaller(participant);
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Installed workshop Squad 4 for Squad 1\.0\.0/);
+  assert.match(result.stdout, /Installed workshop Squad 5 for Squad 1\.0\.0/);
 
   const registry = JSON.parse(
     readFileSync(path.join(participant, '.squad', 'casting', 'registry.json'), 'utf8'),
@@ -101,10 +101,12 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
     'utf8',
   );
   assert.match(green, /Produce the exact minimal parameterized-query patch/);
-  assert.match(green, /never edits code, even after approval/i);
-  assert.match(blue, /accept only Green's exact patch after explicit participant approval/i);
+  assert.match(green, /push only\s+`feature\/city-search`/i);
+  assert.match(green, /does not edit or push the correction/i);
+  assert.match(blue, /participant approves Green's exact\s+patch/i);
   assert.match(blue, /run `npm run verify`/);
-  assert.match(blue, /push `main`/);
+  assert.match(blue, /open a pull request targeting\s+`main`/i);
+  assert.match(blue, /explicitly\s+authorizes the merge/i);
   assert.match(red, /Never edit code/);
 
   const team = readFileSync(path.join(participant, '.squad', 'team.md'), 'utf8');
@@ -228,11 +230,13 @@ test('portable preset definitions enforce the workshop role boundary', () => {
   ].map((file) => readFileSync(file, 'utf8'));
 
   const combined = files.join('\n');
-  assert.match(combined, /Green never edits code|Green never applies or edits the patch/);
+  assert.match(combined, /Green later proposes the exact correction but does\s+not edit or push it/);
   assert.match(combined, /exact patch/i);
   assert.match(combined, /participant.*approv/i);
-  assert.match(combined, /Blue applies only|accept only Green's exact patch/i);
-  assert.match(combined, /push(?:es)? `main`|push `main`/i);
+  assert.match(combined, /Blue applies only the participant-approved correction|Work only on the participant-approved correction/i);
+  assert.match(combined, /push(?:ing)? only\s+`feature\/city-search`/i);
+  assert.match(combined, /pull request targeting\s+`main`/i);
+  assert.match(combined, /Never push directly to `main`/i);
   assert.match(combined, /Red is read-only|Red never edits code|Never edit code/i);
   assert.doesNotMatch(combined, /Mentor/);
   assert.match(combined, /without a quiz|no quiz is required/);
