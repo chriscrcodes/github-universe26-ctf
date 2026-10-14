@@ -123,7 +123,7 @@ function humanRosterRows(squadDir) {
     if (/^##\s/.test(line)) break;
     if (line.startsWith('|')) {
       inTable = true;
-      if (line.includes('👤')) rows.push(line);
+      if (line.includes('👤') || /\bhuman\b/i.test(line)) rows.push(line);
     } else if (inTable) {
       break;
     }
@@ -132,7 +132,7 @@ function humanRosterRows(squadDir) {
 }
 
 function isHumanPurpleRow(row) {
-  if (!row.includes('👤')) return false;
+  if (!row.includes('👤') && !/\bhuman\b/i.test(row)) return false;
   const cells = row.split('|').slice(1, -1).map((cell) =>
     cell.replaceAll('👤', '').replaceAll('**', '').trim());
   return cells.includes('Purple');
@@ -221,14 +221,17 @@ function recruitedTeamConflict(squadDir, preset) {
     return 'casting registry must contain an agents object';
   }
   const allowed = new Map(preset.agents.map((agent) => [agent.slug, agent.name]));
-  const purpleIsHuman = humanRosterRows(squadDir).some(isHumanPurpleRow);
   for (const slug of Object.keys(agents)) {
     if (slug === 'purple') {
-      if (!purpleIsHuman) {
-        return 'registry agent "purple" is not matched by a Purple row with the 👤 Human badge under ## Members';
-      }
       if (agents[slug]?.persistent_name !== 'Purple') {
         return 'registry agent "purple" must have persistent_name "Purple"';
+      }
+      if (agents[slug]?.status !== 'active') {
+        return 'registry agent "purple" must have status "active"';
+      }
+      const purpleDirectory = path.join(squadDir, 'agents', 'purple');
+      if (existsSync(purpleDirectory) && readdirSync(purpleDirectory).length > 0) {
+        return 'registry agent "purple" has agent files; refusing to convert its state to a human roster entry';
       }
       continue;
     }
@@ -244,8 +247,10 @@ function recruitedTeamConflict(squadDir, preset) {
   if (missing.length) return `missing registry agents: ${missing.join(', ')}`;
   const agentsDir = path.join(squadDir, 'agents');
   if (!existsSync(agentsDir)) return 'missing .squad/agents directory';
+  const allowedDirectories = new Set([...allowed.keys(), ...obsoleteBuiltInDirectories]);
+  if (agents.purple?.persistent_name === 'Purple') allowedDirectories.add('purple');
   const unexpected = readdirSync(agentsDir).find((slug) => !allowed.has(slug)
-    && !obsoleteBuiltInDirectories.has(slug));
+    && !allowedDirectories.has(slug));
   return unexpected ? `unexpected agent directory ${JSON.stringify(unexpected)}` : null;
 }
 
@@ -282,6 +287,10 @@ function install(root, preset, { adoptRecruited = false } = {}) {
 
   const projectName = path.basename(root);
   const humanRows = humanRosterRows(squadDir);
+  if (existingAgents?.purple?.persistent_name === 'Purple'
+    && !humanRows.some(isHumanPurpleRow)) {
+    humanRows.push('| Purple | Human workshop validation reviewer | | 👤 Human |');
+  }
   const routing = readFileSync(path.join(presetDir, 'routing.md'), 'utf8');
   const policy = {
     casting_policy_version: '1.2',

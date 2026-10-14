@@ -279,17 +279,15 @@ test('explicit adoption preserves recruited agent learning and requires the exac
   assert.match(rejected.stderr, /unexpected registry agent "mentor"/);
   assert.match(rejected.stderr, /Preserve \.squad\//);
   assert.equal(treeDigest(squad), incompatible);
-  const humanEntry = { persistent_name: 'Purple', status: 'active' };
-  writeFileSync(registry, JSON.stringify({ agents: { ...agents, purple: humanEntry } }));
-  const teamPath = path.join(squad, 'team.md');
-  const humanTeam = readFileSync(teamPath, 'utf8');
-  writeFileSync(teamPath, humanTeam.replace('👤 Human', 'active'));
+  writeFileSync(registry, JSON.stringify({
+    agents: { ...agents, purple: { persistent_name: 'Purple AI', status: 'active' } },
+  }));
   const agentTeam = treeDigest(squad);
   const rejectedPurple = runInstaller(participant, ['--adopt-recruited']);
   assert.notEqual(rejectedPurple.status, 0);
-  assert.match(rejectedPurple.stderr, /registry agent "purple" is not matched by a Purple row with the 👤 Human badge/);
+  assert.match(rejectedPurple.stderr, /registry agent "purple" must have persistent_name "Purple"/);
   assert.equal(treeDigest(squad), agentTeam);
-  writeFileSync(teamPath, humanTeam);
+  writeFileSync(registry, JSON.stringify({ agents: { ...agents, purple: { persistent_name: 'Purple', status: 'active' } } }));
   const adopted = runInstaller(participant, ['--adopt-recruited']);
   assert.equal(adopted.status, 0, adopted.stderr);
   for (const slug of ['blue', 'red', 'green']) {
@@ -341,6 +339,61 @@ test('adoption preserves the recruited rai built-in without creating a duplicate
     assert.equal(readFileSync(historyPath, 'utf8'), 'Participant Rai learning.\n');
     assert.equal(existsSync(path.join(squad, 'agents', 'rai-agent')), false);
   }
+});
+
+test('adoption converts a fileless Purple registry entry to the human roster member', (t) => {
+  const participant = makeParticipant(t);
+  const squad = path.join(participant, '.squad');
+  const agents = {};
+  for (const slug of ['blue', 'red', 'green']) {
+    agents[slug] = { persistent_name: slug[0].toUpperCase() + slug.slice(1), status: 'active' };
+    mkdirSync(path.join(squad, 'agents', slug), { recursive: true });
+  }
+  agents.purple = { persistent_name: 'Purple', status: 'active' };
+  mkdirSync(path.join(squad, 'casting'), { recursive: true });
+  writeFileSync(path.join(squad, 'casting', 'registry.json'), JSON.stringify({ agents }));
+  writeFileSync(path.join(squad, 'team.md'), [
+    '# Squad Team',
+    '',
+    '## Members',
+    '',
+    '| Name | Role | Charter | Status |',
+    '|------|------|---------|--------|',
+    '| Blue | Implements changes | .squad/agents/blue/charter.md | active |',
+    '| Red | Security reviewer | .squad/agents/red/charter.md | active |',
+    '| Green | Feature developer | .squad/agents/green/charter.md | active |',
+    '',
+  ].join('\n'));
+
+  const adopted = runInstaller(participant, ['--adopt-recruited']);
+  assert.equal(adopted.status, 0, adopted.stderr);
+  const team = readFileSync(path.join(squad, 'team.md'), 'utf8');
+  assert.match(team, /\| Purple \| Human workshop validation reviewer \| \| 👤 Human \|/);
+  const registry = JSON.parse(readFileSync(path.join(squad, 'casting', 'registry.json'), 'utf8'));
+  assert.equal(registry.agents.purple, undefined);
+  assert.equal(existsSync(path.join(squad, 'agents', 'purple')), false);
+});
+
+test('refuses to convert Purple when agent files exist', (t) => {
+  const participant = makeParticipant(t);
+  const squad = path.join(participant, '.squad');
+  const agents = {};
+  for (const slug of ['blue', 'red', 'green', 'purple']) {
+    agents[slug] = {
+      persistent_name: slug === 'purple' ? 'Purple' : slug[0].toUpperCase() + slug.slice(1),
+      status: 'active',
+    };
+    mkdirSync(path.join(squad, 'agents', slug), { recursive: true });
+  }
+  mkdirSync(path.join(squad, 'casting'), { recursive: true });
+  writeFileSync(path.join(squad, 'casting', 'registry.json'), JSON.stringify({ agents }));
+  writeFileSync(path.join(squad, 'agents', 'purple', 'history.md'), 'Preserve Purple history.\n');
+  const before = treeDigest(squad);
+
+  const rejected = runInstaller(participant, ['--adopt-recruited']);
+  assert.notEqual(rejected.status, 0);
+  assert.match(rejected.stderr, /refusing to convert its state to a human roster entry/);
+  assert.equal(treeDigest(squad), before);
 });
 
 test('participant template does not ship an active Squad team', () => {
