@@ -1,6 +1,22 @@
 const { collectCodeqlEvidence, repositoryContext } = require("../src/codeql-evidence");
 const { readWorkshopState, recordEvidence } = require("../src/workshop-progress");
 
+function baselineAttestation(context) {
+  return {
+    ...context,
+    kind: "codeql-baseline",
+    category: null,
+    analysisId: null,
+    alertNumber: null,
+    alertState: "participant-attested",
+    resultCount: null,
+    analysisStatus: "not-verified",
+    verification: "participant-attestation",
+    url: `https://github.com/${context.repository}/security/code-scanning`,
+    checkedAt: new Date().toISOString(),
+  };
+}
+
 async function main(argv = process.argv.slice(2), dependencies = {}) {
   const [stage, confirmation] = argv;
   if (!["baseline", "fixed"].includes(stage) || argv.length > 2
@@ -18,15 +34,23 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
     || state.evidence.red.repository !== context.repository || state.evidence.red.commit !== context.commit)) {
     throw new Error("Initial CodeQL review must match the recorded and published delivery on feature/city-search.");
   }
-  const review = await collect(context, stage, state.evidence.purple);
+  const review = stage === "baseline"
+    ? baselineAttestation(context)
+    : await collect(context, stage, state.evidence.purple);
   if (JSON.stringify(getContext(stage)) !== JSON.stringify(context)) throw new Error(`Remote ${stage === "baseline" ? "feature/city-search" : "main"} changed during review; retry.`);
   if (stage === "fixed" && (!state.evidence.blue?.pushed || state.evidence.blue.commit !== context.commit)) {
     throw new Error("Final CodeQL evidence must match the corrected commit pushed on main.");
   }
   console.log(`CodeQL ${stage}: ${review.url}`);
-  console.log(`Commit: ${context.commit}. Alert: ${review.alertState}. Results: ${review.resultCount}.`);
+  if (stage === "baseline") {
+    console.log(`Commit: ${context.commit}. Participant attestation; scan status not independently verified.`);
+  } else {
+    console.log(`Commit: ${context.commit}. Alert: ${review.alertState}. Results: ${review.resultCount}.`);
+  }
   if (confirmation !== "--reviewed") {
-    console.log("Read the report, then rerun with --reviewed to confirm your own review. No progress recorded.");
+    console.log(stage === "baseline"
+      ? "Review the delivered source and local synthetic result; inspect the scan if available. Rerun with --reviewed to attest. No progress recorded."
+      : "Read the report, then rerun with --reviewed to confirm your own review. No progress recorded.");
     return review;
   }
   const evidence = { ...review, command: `npm run codeql:review -- ${stage} --reviewed`,

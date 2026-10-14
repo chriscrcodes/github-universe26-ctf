@@ -167,9 +167,10 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /' OR 1=1 --/);
       assert.match(content, /sqli-demo\/2-injected-search\.png/);
       assert.match(content, /Do not edit or exploit\.\s+Answer only; do not offer fixes, a follow-up menu or a findings commit/i);
-      assert.match(content, /Confirm that you opened and saw the matching CodeQL alert for this exact\s+commit/i);
-      assert.match(content, /trust-based attestation[\s\S]*No quiz or additional proof is\s+required/i);
-      assert.match(content, /`--reviewed` records your confirmation that you viewed\s+the alert/i);
+      assert.match(content, /participant attestation for this exact commit/i);
+      assert.match(content, /does\s+not wait for or query the CodeQL API/i);
+      assert.match(content, /analysisStatus` as\s+`not-verified`/i);
+      assert.match(content, /final `codeql` milestone still requires a real successful scan/i);
       assert.doesNotMatch(content, /knowledge check|three-question quiz|Which statement describes the input flow/i);
       assert.match(content, /route the Step 2 checkpoint to Purple/);
     }

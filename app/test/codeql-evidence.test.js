@@ -39,7 +39,7 @@ test("baseline rejects a stale, failed or unmatched analysis", async () => {
   }
 });
 
-test("Code Scanning access denial is actionable and never records evidence", async () => {
+test("baseline participant attestation records without Code Scanning API access", async () => {
   const denied = Object.assign(new Error("gh api failed"), {
     stderr: Buffer.from("HTTP 403: Resource not accessible by integration"),
   });
@@ -48,14 +48,22 @@ test("Code Scanning access denial is actionable and never records evidence", asy
     () => { throw denied; }), /no evidence was recorded[\s\S]*Code Scanning read permission[\s\S]*Code scanning alerts: read/);
 
   const recorded = [];
-  await assert.rejects(main(["baseline", "--reviewed"], {
+  const dependencies = {
     repositoryContext: () => baselineContext,
     readState: () => ({ completedPhases: ["red"], evidence: { red: { kind: "initial-delivery",
       pushed: true, repository: baselineContext.repository, commit: baselineContext.commit } } }),
-    collect: (context, stage, initial) => collectCodeqlEvidence(context, stage, initial, deniedApi),
+    collect: () => assert.fail("Baseline attestation must not wait for the Code Scanning API"),
     recordEvidence: (...args) => recorded.push(args),
-  }), /Code Scanning read permission/);
-  assert.deepEqual(recorded, []);
+  };
+  const preview = await main(["baseline"], dependencies);
+  assert.equal(preview.analysisStatus, "not-verified");
+  assert.equal(recorded.length, 0);
+  const attestation = await main(["baseline", "--reviewed"], dependencies);
+  assert.equal(recorded.length, 1);
+  assert.equal(attestation.analysisStatus, "not-verified");
+  assert.equal(attestation.verification, "participant-attestation");
+  assert.equal(attestation.alertNumber, null);
+  assert.equal(attestation.resultCount, null);
 });
 
 test("fixed review requires the same finding resolved on the corrected commit", async () => {
@@ -71,6 +79,28 @@ test("fixed review requires the same finding resolved on the corrected commit", 
         fixtures({ ref: corrected.ref, commit: corrected.commit, state: "fixed", results: 0, ...options })));
       }
       await assert.rejects(collectCodeqlEvidence(corrected, "fixed", { ...initial, repository: "other/repo" }, fixtures()));
+});
+
+test("fixed review recovers the baseline alert from the attested feature commit", async () => {
+  const initial = { repository: baselineContext.repository, ref: baselineContext.ref,
+    commit: baselineContext.commit, kind: "codeql-baseline", reviewedBy: "participant",
+    verification: "participant-attestation", analysisStatus: "not-verified" };
+  const api = async (_repository, resource, ref) => {
+    if (resource === "analyses") return [{ id: ref === fixedContext.ref ? 22 : 20,
+      tool: { name: "CodeQL" }, ref, commit_sha: ref === fixedContext.ref ? fixedContext.commit : baselineContext.commit,
+      category, error: "", rules_count: 100, results_count: ref === fixedContext.ref ? 0 : 1 }];
+    if (resource === "alerts") return [{ number: 7, tool: { name: "CodeQL" },
+      rule: { id: "js/sql-injection" }, state: ref === fixedContext.ref ? "fixed" : "open" }];
+    if (resource === "alerts/7/instances") return [{ ref: baselineContext.ref,
+      commit_sha: baselineContext.commit, category, state: "open" }];
+    throw new Error(`Unexpected resource ${resource}`);
+  };
+
+  const review = await collectCodeqlEvidence(fixedContext, "fixed", initial, api);
+  assert.equal(review.kind, "codeql-fixed");
+  assert.equal(review.alertNumber, 7);
+  assert.equal(review.category, category);
+  assert.equal(review.resultCount, 0);
 });
 
 test("repository review enforces the feature baseline and main correction branches", () => {
