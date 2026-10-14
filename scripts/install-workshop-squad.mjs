@@ -214,7 +214,10 @@ function recruitedTeamConflict(squadDir, preset) {
     return 'casting registry must contain an agents object';
   }
   const allowed = new Map(preset.agents.map((agent) => [agent.slug, agent.name]));
+  const purpleIsHuman = humanRosterRows(squadDir).some((row) =>
+    row.split('|')[1].replace('👤', '').trim() === 'Purple');
   for (const slug of Object.keys(agents)) {
+    if (slug === 'purple' && purpleIsHuman && agents[slug]?.persistent_name === 'Purple') continue;
     if (!allowed.has(slug)) return `unexpected registry agent ${JSON.stringify(slug)}`;
     if (agents[slug]?.persistent_name !== allowed.get(slug)) {
       return `registry agent ${JSON.stringify(slug)} must have persistent_name ${JSON.stringify(allowed.get(slug))}`;

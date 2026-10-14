@@ -279,7 +279,17 @@ test('explicit adoption preserves recruited agent learning and requires the exac
   assert.match(rejected.stderr, /unexpected registry agent "mentor"/);
   assert.match(rejected.stderr, /Preserve \.squad\//);
   assert.equal(treeDigest(squad), incompatible);
-  writeFileSync(registry, JSON.stringify({ agents }));
+  const humanEntry = { persistent_name: 'Purple', status: 'active' };
+  writeFileSync(registry, JSON.stringify({ agents: { ...agents, purple: humanEntry } }));
+  const teamPath = path.join(squad, 'team.md');
+  const humanTeam = readFileSync(teamPath, 'utf8');
+  writeFileSync(teamPath, humanTeam.replace('👤 Human', 'active'));
+  const agentTeam = treeDigest(squad);
+  const rejectedPurple = runInstaller(participant, ['--adopt-recruited']);
+  assert.notEqual(rejectedPurple.status, 0);
+  assert.match(rejectedPurple.stderr, /unexpected registry agent "purple"/);
+  assert.equal(treeDigest(squad), agentTeam);
+  writeFileSync(teamPath, humanTeam);
   const adopted = runInstaller(participant, ['--adopt-recruited']);
   assert.equal(adopted.status, 0, adopted.stderr);
   for (const slug of ['blue', 'red', 'green']) {
@@ -289,6 +299,7 @@ test('explicit adoption preserves recruited agent learning and requires the exac
   const team = readFileSync(path.join(squad, 'team.md'), 'utf8');
   assert.match(team, /\| Purple \| Workshop validation reviewer \| \| 👤 Human \|/);
   assert.equal(existsSync(path.join(squad, 'agents', 'purple')), false);
+  assert.equal(JSON.parse(readFileSync(registry, 'utf8')).agents.purple, undefined);
   const readopted = runInstaller(participant, ['--adopt-recruited']);
   assert.equal(readopted.status, 0, readopted.stderr);
   assert.match(readFileSync(path.join(squad, 'team.md'), 'utf8'), /\| Purple \| Workshop validation reviewer \| \| 👤 Human \|/);
