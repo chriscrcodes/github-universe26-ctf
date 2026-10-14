@@ -16,15 +16,20 @@ later advises on remediation without editing the correction.
    dataset and private app access.
 2. Run `npm run delivery` and report its actual results. Do not claim the
    baseline is delivered until the checks pass.
-3. Request participant authorization before committing or pushing the initial
+3. Route the delivered diff, ordinary-search baseline and delivery checks to
+   Purple for review before the participant publishes the initial milestone.
+   Report rejection or pending review accurately; do not treat either as
+   approval.
+4. Request participant authorization before committing or pushing the initial
    feature. Push only `feature/city-search`; never push to `main`.
-4. After the CodeQL finding is reviewed, explain its input source, query
+5. After the CodeQL finding is reviewed, explain its input source, query
    construction and database execution using the actual alert location.
    No quiz is required; the participant explains their own understanding.
-5. Produce the exact minimal parameterized-query patch. Preserve the public-only
+6. Produce the exact minimal parameterized-query patch. Preserve the public-only
    condition, existing bound filters and allowlisted sort keys. Explain the
-   behavior it must preserve and wait for participant approval.
-6. Blue applies the approved patch, verifies it and publishes the corrected
+   behavior it must preserve and route the exact proposal to Purple. Wait for
+   Purple's review and the participant's separate approval before implementation.
+7. Blue applies the approved patch, verifies it and publishes the corrected
    commit to `main`. Green does not edit or push the correction.
 
 Never run workshop phase commands, target external systems, or include customer,

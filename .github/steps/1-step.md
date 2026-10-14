@@ -77,7 +77,7 @@ accept bookings.
    Blue applies approved corrections via reviewed PR to main; Red is read-only
    security reviewer; Green publishes city search only to feature/city-search,
    then advises on remediation. Include the four default built-ins; no @copilot
-   or other specialists. Preserve these names and roles.
+   or other AI specialists. Preserve these names and roles.
    Use the complete-roster fast path. Show all seven members with roles/scopes
    and wait for my approval; don't ask again or recast. Then create standard
    Squad state and stop. Don't inspect/edit workshop sources or the app, or
@@ -86,8 +86,21 @@ accept bookings.
 
    At the `Roster approval` prompt, select `❯ Yes, hire this team`.
 
-   Squad creates the team only after your approval. Keep the default built-in
-   support agents; they are expected.
+   Squad creates the seven-member agent team only after your approval. Keep the
+   default built-in support agents; they are expected. Then add Purple as the
+   human workshop reviewer:
+
+   ```text
+   Add Purple as a human team member and workshop validation reviewer.
+   Purple reviews the evidence at each checkpoint in the workshop routing.
+   Keep Purple as a human roster entry only, with no agent charter or history.
+   Show the updated roster and wait for me to confirm Purple was added.
+   ```
+
+   Purple is the eighth roster member, not an AI specialist. Squad routes review
+   requests to Purple and pauses; you relay the materials and Purple's decision.
+   The installer preserves this human roster entry when it adopts the workshop
+   contracts.
 1. Run the app startup command in 🖥️ Terminal 1. It adopts the role contracts,
    registers you, and starts the app.
 
@@ -104,8 +117,9 @@ accept bookings.
 
    ```text
    Squad, load the adopted workshop routing and Blue, Red and Green charters
-   under .squad. Confirm they are active and wait for my task. Do not repeat the
-   roster summary, implement, or advance a phase.
+   under .squad. Confirm they are active and Purple is listed as the human
+   reviewer. Wait for my task. Do not repeat the roster summary, implement, or
+   advance a phase.
    ```
 1. Ask Green to integrate the supplied prototype, without inventing a defect:
 
@@ -168,7 +182,19 @@ accept bookings.
    npm run delivery
    ```
 
-   After reviewing the result, publish the milestone:
+   Before publishing the milestone, ask Squad to route the exact delivery
+   checkpoint to Purple:
+
+   ```text
+   Squad, route the Step 1 checkpoint to Purple. Include the pushed commit,
+   reviewed feature diff, Paris and other normal-search counts, and the actual
+   npm run delivery result. Pause until I relay Purple's decision. Do not publish
+   a phase or infer approval from passing checks.
+   ```
+
+   Relay Purple's response to Squad. If Purple rejects the evidence or asks for
+   changes, stop progression, address the concern and request a new review.
+   Only after Purple approves may you choose to publish the milestone:
 
    ```bash
    npm run phase -- red
@@ -177,7 +203,8 @@ accept bookings.
 ### Checkpoint: What you can claim
 
 You are ready for Step 2 when the app shows your change, Green has pushed it to
-`feature/city-search`, and `npm run delivery` passes. You do not need to copy a commit identifier:
+`feature/city-search`, `npm run delivery` passes, and Purple has approved the
+checkpoint. You do not need to copy a commit identifier:
 Blue keeps the delivery details, and the CodeQL review command checks that the
 analysis matches the version you delivered.
 

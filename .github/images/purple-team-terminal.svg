@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
   <title id="title">Purple Team Squad terminal</title>
-  <desc id="description">A Copilot CLI terminal where Squad coordinates Red, Green, and Blue agents while the participant retains approval.</desc>
+  <desc id="description">A Copilot CLI terminal where Squad coordinates Red, Green, and Blue agents with Purple, a human checkpoint reviewer, while the participant retains approval.</desc>
   <defs>
     <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#30363d"/>
@@ -38,36 +38,45 @@
     <line x1="100" y1="278" x2="1100" y2="278" stroke="#30363d" stroke-width="2"/>
     <text x="100" y="318" fill="#8b949e" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="16" letter-spacing="1.4">SQUAD ROUTING</text>
 
-    <g transform="translate(100 344)">
-      <rect width="1000" height="54" rx="10" fill="#161b22"/>
-      <rect width="7" height="54" rx="3.5" fill="#f85149"/>
-      <circle cx="39" cy="27" r="13" fill="#f85149" opacity=".18"/>
-      <text x="34" y="34" fill="#ff7b72" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" font-weight="700">R</text>
-      <text x="70" y="34" fill="#ff7b72" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="19" font-weight="700">RED</text>
-      <text x="150" y="34" fill="#b1bac4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">reproducing the supplied read-only exploit</text>
+    <g transform="translate(100 332)">
+      <rect width="1000" height="48" rx="10" fill="#161b22"/>
+      <rect width="7" height="48" rx="3.5" fill="#f85149"/>
+      <circle cx="39" cy="24" r="13" fill="#f85149" opacity=".18"/>
+      <text x="34" y="31" fill="#ff7b72" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" font-weight="700">R</text>
+      <text x="70" y="31" fill="#ff7b72" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="19" font-weight="700">RED</text>
+      <text x="150" y="31" fill="#b1bac4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">read-only review of code and CodeQL evidence</text>
     </g>
 
-    <g transform="translate(100 410)">
-      <rect width="1000" height="54" rx="10" fill="#161b22"/>
-      <rect width="7" height="54" rx="3.5" fill="#3fb950"/>
-      <circle cx="39" cy="27" r="13" fill="#3fb950" opacity=".18"/>
-      <text x="34" y="34" fill="#56d364" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" font-weight="700">G</text>
-      <text x="70" y="34" fill="#56d364" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="19" font-weight="700">GREEN</text>
-      <text x="172" y="34" fill="#b1bac4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">tracing CodeQL flow and comparing remediations</text>
+    <g transform="translate(100 386)">
+      <rect width="1000" height="48" rx="10" fill="#161b22"/>
+      <rect width="7" height="48" rx="3.5" fill="#3fb950"/>
+      <circle cx="39" cy="24" r="13" fill="#3fb950" opacity=".18"/>
+      <text x="34" y="31" fill="#56d364" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" font-weight="700">G</text>
+      <text x="70" y="31" fill="#56d364" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="19" font-weight="700">GREEN</text>
+      <text x="172" y="31" fill="#b1bac4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">delivers the feature and proposes the correction</text>
     </g>
 
-    <g transform="translate(100 476)">
-      <rect width="1000" height="54" rx="10" fill="#161b22"/>
-      <rect width="7" height="54" rx="3.5" fill="#58a6ff"/>
-      <circle cx="39" cy="27" r="13" fill="#58a6ff" opacity=".18"/>
-      <text x="34" y="34" fill="#79c0ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" font-weight="700">B</text>
-      <text x="70" y="34" fill="#79c0ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="19" font-weight="700">BLUE</text>
-      <text x="161" y="34" fill="#b1bac4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">designing regressions and protecting normal behavior</text>
+    <g transform="translate(100 440)">
+      <rect width="1000" height="48" rx="10" fill="#161b22"/>
+      <rect width="7" height="48" rx="3.5" fill="#58a6ff"/>
+      <circle cx="39" cy="24" r="13" fill="#58a6ff" opacity=".18"/>
+      <text x="34" y="31" fill="#79c0ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" font-weight="700">B</text>
+      <text x="70" y="31" fill="#79c0ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="19" font-weight="700">BLUE</text>
+      <text x="161" y="31" fill="#b1bac4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">applies the approved correction and opens a PR</text>
+    </g>
+
+    <g transform="translate(100 494)">
+      <rect width="1000" height="48" rx="10" fill="#161b22"/>
+      <rect width="7" height="48" rx="3.5" fill="#a371f7"/>
+      <circle cx="39" cy="24" r="13" fill="#a371f7" opacity=".18"/>
+      <text x="31" y="31" fill="#d2a8ff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20">👤</text>
+      <text x="70" y="31" fill="#d2a8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="19" font-weight="700">PURPLE</text>
+      <text x="172" y="31" fill="#b1bac4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">human reviewer for evidence at each checkpoint</text>
     </g>
 
     <line x1="100" y1="554" x2="1100" y2="554" stroke="#30363d" stroke-width="2"/>
     <circle cx="111" cy="584" r="6" fill="#a371f7"/>
-    <text x="130" y="591" fill="#d2a8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">3 specialists investigating · participant approval required</text>
+    <text x="130" y="591" fill="#d2a8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18">Purple reviews · participant relays and authorizes</text>
     <rect x="897" y="568" width="203" height="34" rx="17" fill="#238636"/>
     <text x="925" y="591" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700">HUMAN IN CONTROL</text>
   </g>

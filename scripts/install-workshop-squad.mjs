@@ -108,12 +108,35 @@ function validatePreset(preset) {
   }
 }
 
-function buildTeam(projectName, agents) {
+function humanRosterRows(squadDir) {
+  const teamPath = path.join(squadDir, 'team.md');
+  if (!existsSync(teamPath)) return [];
+
+  const lines = readFileSync(teamPath, 'utf8').split(/\r?\n/);
+  const membersHeading = lines.findIndex((line) => /^## Members\s*$/.test(line));
+  if (membersHeading === -1) return [];
+
+  const rows = [];
+  let inTable = false;
+  for (const line of lines.slice(membersHeading + 1)) {
+    if (/^##\s/.test(line)) break;
+    if (line.startsWith('|')) {
+      inTable = true;
+      if (line.includes('👤')) rows.push(line);
+    } else if (inTable) {
+      break;
+    }
+  }
+  return rows;
+}
+
+function buildTeam(projectName, agents, humanRows = []) {
   const rows = agents
     .map(
       (agent) =>
         `| ${agent.name} | ${agent.role} | .squad/agents/${agent.slug}/charter.md | active |`,
     )
+    .concat(humanRows)
     .join('\n');
 
   return `# Squad Team
@@ -215,6 +238,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   }
 
   const projectName = path.basename(root);
+  const humanRows = humanRosterRows(squadDir);
   const routing = readFileSync(path.join(presetDir, 'routing.md'), 'utf8');
   const policy = {
     casting_policy_version: '1.2',
@@ -231,7 +255,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   const workshopConfig = { ...existingConfig, version: 1, defaultModel: 'gpt-6-luna' };
   const managed = new Map([
     ['.squad/config.json', stringifyJson(workshopConfig)],
-    ['.squad/team.md', buildTeam(projectName, preset.agents)],
+    ['.squad/team.md', buildTeam(projectName, preset.agents, humanRows)],
     ['.squad/routing.md', routing.endsWith('\n') ? routing : `${routing}\n`],
     ['.squad/decisions.md', '# Team Decisions\n\nNo shared decisions recorded.\n'],
     [

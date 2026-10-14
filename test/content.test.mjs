@@ -122,13 +122,16 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /Project: Local Node workshop/i);
       assert.match(content, /Blue applies approved corrections via reviewed PR to main/i);
       assert.match(content, /Red is read-only\s+security reviewer; Green publishes city search only to feature\/city-search/i);
-      assert.match(content, /Include the four default built-ins; no @copilot\s+or other specialists/i);
+      assert.match(content, /Include the four default built-ins; no @copilot\s+or other AI specialists/i);
       assert.match(content, /complete-roster fast path\. Show all seven members with roles\/scopes/i);
       assert.match(content, /wait for my approval; don't ask again or recast/i);
       assert.match(content, /Then create standard\s+Squad state and stop/i);
       assert.match(content, /Review the delivery checks in 🤖 Terminal 2/);
-      assert.match(content, /Confirm they are active and wait for my task/i);
-      assert.match(content, /Do not repeat the\s+roster summary, implement, or advance a phase/i);
+      assert.match(content, /Confirm they are active and Purple is listed as the human\s+reviewer/i);
+      assert.match(content, /Add Purple as a human team member and workshop validation reviewer/);
+      assert.match(content, /Purple is the eighth roster member, not an AI specialist/);
+      assert.match(content, /route the Step 1 checkpoint to Purple/);
+      assert.match(content, /Do not repeat the\s+roster summary, implement, or\s+advance a phase/i);
       assert.doesNotMatch(content, /which language the app uses, answer `node app`/i);
       const initSkill = await readFile(path.join(root, ".github/skills/coordinator-init-mode/SKILL.md"), "utf8");
       assert.match(initSkill, /Complete-roster fast path/);
@@ -157,10 +160,16 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /trust-based attestation[\s\S]*No quiz or additional proof is\s+required/i);
       assert.match(content, /`--reviewed` records your confirmation that you viewed\s+the alert/i);
       assert.doesNotMatch(content, /knowledge check|three-question quiz|Which statement describes the input flow/i);
+      assert.match(content, /route the Step 2 checkpoint to Purple/);
     }
+    if (index === 2) assert.match(content, /route this correction-scope checkpoint to Purple/);
     if (index === 3) {
       assert.match(content, /sqli-demo\/3-fixed-search\.png/);
       assert.match(content, /delivery regression\s+in 🖥️ Terminal 1/);
+      assert.match(content, /route the corrected-code checkpoint to Purple/);
+      assert.match(content, /route the pull-request checkpoint to Purple/);
+      assert.match(content, /route the merged-delivery checkpoint to Purple/);
+      assert.match(content, /route the final CodeQL checkpoint to Purple/);
     }
   }
   const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
@@ -170,6 +179,7 @@ test("workshop steps link forward and use available commands at the appropriate 
   assert.match(setup, /answer No/);
   assert.match(setup, /❯ Yes, hire this team/);
   assert.match(setup, /complete team prompt in \.github\/steps\/1-step\.md/);
+  assert.match(setup, /add Purple as the human workshop reviewer/);
   assert.doesNotMatch(setup, /answer "node app"/);
   assert.match(setup, /all npm\s+commands in participant Terminal 1/);
   assert.doesNotMatch(setup, /\.squad\/config\.json/);

@@ -8,6 +8,8 @@ description: "Reflect on specialist roles, participant decisions, and verified s
 Review what was actually delivered, not what an agent intended to deliver.
 
 - How did Blue, Red, and Green divide responsibility?
+- How did Blue, Red, Green and Purple divide responsibility?
+- Which checkpoint decisions did Purple validate, and which approvals remained yours?
 - Which approval or scope decision did you own?
 - What did the local checks prove about public listings?
 - Did the original CodeQL finding become fixed on the pushed commit?
@@ -22,9 +24,10 @@ Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do n
 start a new conversation. Ask for a factual recap:
 
 ```text
-Squad, summarize only evidence we actually obtained: team roles, observed
-synthetic exposure, initial delivery SHA, reviewed CodeQL alert, approved
-correction, local results, corrected SHA and final scan status. Mark missing
+Squad, summarize only evidence we actually obtained: team roles, Purple's
+checkpoint decisions, observed synthetic exposure, initial delivery SHA,
+reviewed CodeQL alert, approved correction, local results, corrected SHA and
+final scan status. Mark missing
 items as unverified. Do not run commands, advance phases or start another task.
 ```
 
@@ -37,7 +40,7 @@ then describe your own outcome:
 | Alert reviewed, no applied correction | Exposure explained; remediation not yet verified |
 | Local correction verified, not pushed | Local behavior corrected; delivery still pending |
 | Corrected commit pushed, final scan pending | Correction delivered; hosted confirmation pending |
-| Same alert fixed on the corrected SHA and clean analyses | Workshop evidence complete for the corrected delivery |
+| Same alert fixed on the corrected SHA, clean analyses and Purple's final approval | Workshop evidence complete for the corrected delivery |
 
 Use this short teach-back instead of accepting an agent's summary as your own:
 

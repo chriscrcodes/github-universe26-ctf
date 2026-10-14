@@ -96,7 +96,6 @@ value becomes part of the statement text rather than a separate bound value.
 
    ```bash
    npm run codeql:review -- baseline --reviewed
-   npm run phase -- purple
    ```
 
    The first command without `--reviewed` is a preview: it records no agreement.
@@ -104,12 +103,30 @@ value becomes part of the statement text rather than a separate bound value.
    Publishing `purple` advances the local milestone and attempts a board update;
    none of these commands replaces your explanation of the issue.
 
+   Before publishing, route the exact-commit evidence to Purple:
+
+   ```text
+   Squad, route the Step 2 checkpoint to Purple. Include my observed result for
+   the supplied synthetic input, the matching alert and analysis commit, and
+   the review command result. Pause until I relay Purple's decision. Do not
+   publish a phase or treat my attestation as Purple's approval.
+   ```
+
+   Relay Purple's response. If Purple rejects or requests clarification, stop
+   progression and resolve the evidence gap before asking for another review.
+   Publish `purple` only after Purple approves and you decide to continue.
+
+   ```bash
+   npm run phase -- purple
+   ```
+
 ### Checkpoint: An explanation tied to evidence
 
 Before continuing, you should be able to point to the input source, the unsafe
 construction, the database execution and the unpublished records in your
 observation. You also need the matching open finding for your initial delivery.
 Source review while a scan runs is useful preparation, not a completed CodeQL gate.
+Purple must approve the observed and hosted evidence before the `purple` milestone.
 
 The expected rule is `js/sql-injection`, commonly titled
 "Database query built from user-controlled sources". Use the real reported

@@ -64,7 +64,19 @@ not because fewer changed lines alone prove safety.
    unpublished-data exposure. Do not apply the patch.
    ```
 
-1. Give explicit approval of the displayed diff. For example:
+1. Route the exact proposed diff and test scope to Purple before approving it:
+
+   ```text
+   Squad, route this correction-scope checkpoint to Purple. Include Green's
+   exact proposed diff and the agreed behavior and tests. Pause until I relay
+   Purple's decision. Do not edit files or authorize Blue while review is
+   pending or rejected.
+   ```
+
+   Relay Purple's response. If Purple rejects or asks for changes, have Green
+   revise the proposal, then request a new review of the changed diff. Only
+   after Purple approves should you decide whether to give explicit approval.
+   For example:
    "I explicitly approve this exact patch".
    First explain why the patch prevents the observed predicate bypass.
    Once you understand it, you can make the boundary explicit:
@@ -91,6 +103,8 @@ passed separately. The public-listing rule remains ____. I will verify ____."
 Use the actual proposed code to fill the blanks, not the agent's confidence.
 
 The expected output is `APPROVED: parameter binding may be applied by Blue.`
+Purple's review does not replace your approval or authorize a commit, push,
+merge or phase publication.
 Continue to [Step 4](4-step.md). The `green` milestone is published only after
 Blue implements the correction and verification passes.
 
