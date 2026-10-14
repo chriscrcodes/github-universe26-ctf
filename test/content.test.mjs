@@ -76,7 +76,7 @@ test("workshop steps link forward and use available commands at the appropriate 
   assert.deepEqual(actual, stepFiles.map((file) => path.basename(file)).sort());
   const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   const requiredCommands = [
-    ["workshop:start", "delivery", "phase -- red"],
+    ["workshop:start", "workshop:baseline", "delivery", "phase -- red"],
     ["codeql:review -- baseline --reviewed", "phase -- purple"],
     ["approve -- parameter-binding"],
     ["verify", "regressions", "phase -- green", "phase -- blue", "codeql:review -- fixed --reviewed"],
@@ -115,20 +115,33 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.doesNotMatch(content, /sqli-demo\/2-injected-search\.png/);
       assert.ok(content.indexOf("squad init --no-workflows") < content.indexOf("squad doctor"));
       assert.ok(content.indexOf("squad doctor") < content.indexOf("npm run workshop:start"));
-      assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model gpt-6-luna"));
-      assert.ok(content.indexOf("/model gpt-6-luna") < content.indexOf("Squad, create my team:"));
+      assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model mai-code-1.1-flash"));
+      assert.ok(content.indexOf("/model mai-code-1.1-flash") < content.indexOf("Squad, create my team:"));
       assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
+      assert.ok(content.indexOf("npm run workshop:start") < content.indexOf("npm run workshop:baseline"));
+      assert.ok(content.indexOf("npm run workshop:baseline") < content.indexOf("npm run workshop:restart"));
+      assert.ok(content.indexOf("Squad : show me team members and roles") < content.indexOf("npm run workshop:start"));
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
-      assert.match(content, /Project: Local Node workshop/i);
-      assert.match(content, /Blue applies approved corrections via reviewed PR to main/i);
-      assert.match(content, /Red is read-only\s+security reviewer; Green publishes city search only to feature\/city-search/i);
-      assert.match(content, /Include the four default built-ins; no @copilot\s+or other specialists/i);
-      assert.match(content, /complete-roster fast path\. Show all seven members with roles\/scopes/i);
-      assert.match(content, /wait for my approval; don't ask again or recast/i);
-      assert.match(content, /Then create standard\s+Squad state and stop/i);
+      const rosterPrompt = content.match(/Squad, create my team:\n([\s\S]*?)\n\s*```/)?.[1];
+      assert.ok(rosterPrompt, "Step 1 includes the roster prompt");
+      assert.match(rosterPrompt, /Blue: implements participant-approved changes and delivers them through a\s+reviewed pull request/i);
+      assert.match(rosterPrompt, /Red: read-only security reviewer\.\s+Green: implements assigned features and advises on remediation/i);
+      assert.match(rosterPrompt, /Purple: human workshop validation reviewer[\s\S]*human roster\s+member with no agent charter or history/i);
+      assert.doesNotMatch(rosterPrompt, /city search|hotel|feature\/|main|branch/i);
+      assert.match(content, /Include the default built-ins support squad members; no @copilot\s+or other AI specialists/i);
+      assert.match(content, /complete-roster fast path\. Show all\s+eight roster entries, including seven agents and Purple as a human, with\s+roles\/scopes/i);
+      assert.match(content, /wait for my approval/i);
+      assert.match(content, /When I select `Yes, hire this team`,\s+that approves this roster and authorizes Phase 2 immediately/i);
+      assert.match(content, /Create the standard Squad\s+state under `\.squad\/`/i);
+      assert.match(content, /Do not stop or\s+ask for another confirmation after that selection/i);
+      assert.match(content, /Stop only after creating the state and\s+report the files and directories created/i);
+      assert.match(content, /vscode-jsonrpc exports field.*expected.*non-blocking/s);
       assert.match(content, /Review the delivery checks in 🤖 Terminal 2/);
-      assert.match(content, /Confirm they are active and wait for my task/i);
-      assert.match(content, /Do not repeat the\s+roster summary, implement, or advance a phase/i);
+      assert.match(content, /Delivery verifies that app\/src\/hotels\.js still contains the exact supplied\s+prototype/);
+      assert.match(content, /npm run workshop:baseline/);
+      assert.match(content, /Squad : show me team members and roles/);
+      assert.doesNotMatch(content, /Then add Purple as a human/);
+      assert.match(content, /route the Step 1 checkpoint to Purple/);
       assert.doesNotMatch(content, /which language the app uses, answer `node app`/i);
       const initSkill = await readFile(path.join(root, ".github/skills/coordinator-init-mode/SKILL.md"), "utf8");
       assert.match(initSkill, /Complete-roster fast path/);
@@ -144,6 +157,7 @@ test("workshop steps link forward and use available commands at the appropriate 
         "squad doctor",
         "copilot --agent squad --yolo",
         "npm run workshop:start",
+        "npm run workshop:baseline",
         "npm run workshop:restart",
         "npm run delivery",
         "npm run phase -- red",
@@ -153,23 +167,31 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /' OR 1=1 --/);
       assert.match(content, /sqli-demo\/2-injected-search\.png/);
       assert.match(content, /Do not edit or exploit\.\s+Answer only; do not offer fixes, a follow-up menu or a findings commit/i);
-      assert.match(content, /Confirm that you opened and saw the matching CodeQL alert for this exact\s+commit/i);
-      assert.match(content, /trust-based attestation[\s\S]*No quiz or additional proof is\s+required/i);
-      assert.match(content, /`--reviewed` records your confirmation that you viewed\s+the alert/i);
+      assert.match(content, /participant attestation for this exact commit/i);
+      assert.match(content, /does\s+not wait for or query the CodeQL API/i);
+      assert.match(content, /analysisStatus` as\s+`not-verified`/i);
+      assert.match(content, /final `codeql` milestone still requires a real successful scan/i);
       assert.doesNotMatch(content, /knowledge check|three-question quiz|Which statement describes the input flow/i);
+      assert.match(content, /route the Step 2 checkpoint to Purple/);
     }
+    if (index === 2) assert.match(content, /route this correction-scope checkpoint to Purple/);
     if (index === 3) {
       assert.match(content, /sqli-demo\/3-fixed-search\.png/);
       assert.match(content, /delivery regression\s+in 🖥️ Terminal 1/);
+      assert.match(content, /route the corrected-code checkpoint to Purple/);
+      assert.match(content, /route the pull-request checkpoint to Purple/);
+      assert.match(content, /route the merged-delivery checkpoint to Purple/);
+      assert.match(content, /route the final CodeQL checkpoint to Purple/);
     }
   }
   const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
   assert.ok(setup.indexOf("squad doctor") < setup.indexOf("copilot --agent squad --yolo"));
-  assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("/model gpt-6-luna"));
-  assert.ok(setup.indexOf("/model gpt-6-luna") < setup.indexOf("npm run workshop:start"));
+  assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("/model mai-code-1.1-flash"));
+  assert.ok(setup.indexOf("/model mai-code-1.1-flash") < setup.indexOf("npm run workshop:start"));
   assert.match(setup, /answer No/);
   assert.match(setup, /❯ Yes, hire this team/);
   assert.match(setup, /complete team prompt in \.github\/steps\/1-step\.md/);
+  assert.match(setup, /role definitions for seven agents and Purple as a human reviewer/);
   assert.doesNotMatch(setup, /answer "node app"/);
   assert.match(setup, /all npm\s+commands in participant Terminal 1/);
   assert.doesNotMatch(setup, /\.squad\/config\.json/);

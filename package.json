@@ -13,6 +13,7 @@
     "start": "npm --workspace app start",
     "workshop:app": "node scripts/start-workshop-app.mjs",
     "workshop:restart": "node scripts/start-workshop-app.mjs --restart",
+    "workshop:baseline": "npm --workspace app run workshop:baseline",
     "register": "npm --workspace app run register",
     "approve": "npm --workspace app run approve --",
     "verify": "npm --workspace app run verify",

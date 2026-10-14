@@ -47,8 +47,10 @@ accept bookings.
    squad init --no-workflows
    ```
 
-1. Still in 🖥️ Terminal 1, run the health check yourself and resolve any reported
-   issue before continuing.
+1. Still in 🖥️ Terminal 1, run the health check yourself. The warnings for
+   `vscode-jsonrpc exports field` and `copilot-sdk session.js ESM patch` are
+   expected in this workshop environment and are non-blocking. Resolve any
+   other reported issue before continuing.
 
    ```bash
    squad doctor
@@ -65,29 +67,49 @@ accept bookings.
    In Copilot, select the workshop model:
 
    ```text
-   /model gpt-6-luna
+   /model mai-code-1.1-flash
    ```
 
    Ask Squad to propose and create the team, then approve its roster:
 
    ```text
    Squad, create my team:
-   Project: Local Node workshop; city search first. Hotel names are real; listing
-   details and challenge records are synthetic.
-   Blue applies approved corrections via reviewed PR to main; Red is read-only
-   security reviewer; Green publishes city search only to feature/city-search,
-   then advises on remediation. Include the four default built-ins; no @copilot
-   or other specialists. Preserve these names and roles.
-   Use the complete-roster fast path. Show all seven members with roles/scopes
-   and wait for my approval; don't ask again or recast. Then create standard
-   Squad state and stop. Don't inspect/edit workshop sources or the app, or
-   implement.
+   Project: GitHub Universe workshop.
+    Blue: implements participant-approved changes and delivers them through a
+    reviewed pull request.
+    Red: read-only security reviewer.
+    Green: implements assigned features and advises on remediation.
+    Purple: human workshop validation reviewer. Add Purple as a human roster
+    member with no agent charter or history; review each workshop checkpoint.
+   Include the default built-ins support squad members; no @copilot or other AI specialists.
+   Preserve these names and roles. Use the complete-roster fast path. Show all
+   eight roster entries, including seven agents and Purple as a human, with
+   roles/scopes, then wait for my approval. When I select `Yes, hire this team`,
+   that approves this roster and authorizes Phase 2 immediately. Do not stop or
+   ask for another confirmation after that selection. Create the standard Squad
+   state under `.squad/`, including the team roster, routing, decisions, casting
+   state and required agent directories, charters and histories. Purple is a
+   human roster entry only, with no charter or history. Create `.gitattributes`
+   if standard Squad setup requires it. Do not inspect or modify workshop source
+   files or app code; this restriction does not apply to creating Squad state.
+   Do not start the app or implement. Stop only after creating the state and
+   report the files and directories created.
    ```
 
    At the `Roster approval` prompt, select `❯ Yes, hire this team`.
 
-   Squad creates the team only after your approval. Keep the default built-in
-   support agents; they are expected.
+   This selection approves the proposed roster and starts Squad's file-creation
+   phase. Confirm `.squad/team.md` and the standard Squad state were created
+   before continuing. The roster contains seven agents, including the four
+   default built-ins, and Purple as a human reviewer. Squad routes review
+   requests to Purple and pauses; you relay the materials and Purple's decision.
+   The installer preserves Purple's human roster entry when it adopts the
+   workshop contracts.
+
+   ```text
+   Squad : show me team members and roles
+   ```
+
 1. Run the app startup command in 🖥️ Terminal 1. It adopts the role contracts,
    registers you, and starts the app.
 
@@ -101,19 +123,23 @@ accept bookings.
    the facilitator before asking Green to implement. Each `bash` block is one
    command to paste into the named terminal. You do not need a new agent
    conversation per step.
+1. In 🖥️ Terminal 1, install the exact supplied prototype as the synthetic
+   workshop baseline. This creates the intentional SQL injection used for the
+   CodeQL exercise. The command changes only `app/src/hotels.js` and is safe to
+   rerun. Review the diff before continuing.
 
-   ```text
-   Squad, load the adopted workshop routing and Blue, Red and Green charters
-   under .squad. Confirm they are active and wait for my task. Do not repeat the
-   roster summary, implement, or advance a phase.
+   ```bash
+   npm run workshop:baseline
    ```
-1. Ask Green to integrate the supplied prototype, without inventing a defect:
+
+1. Ask Green to review the deterministic integration instead of rewriting it:
 
    ```text
-   Green, implement city search by integrating the supplied prototype from
-   app/data/city-search-prototype.txt into app/src/hotels.js unchanged.
-   Preserve other functions and filters. Show the diff and normal-search checks.
-   Do not commit or push without my approval.
+   Green, review the deterministic baseline in app/src/hotels.js against
+   app/data/city-search-prototype.txt. Do not edit or fix it. Explain the
+   changed data flow and confirm that only the supplied synthetic challenge
+   function changed. Show the diff and normal-search checks. Do not commit or
+   push without my approval.
    ```
 
    `Paris` and `paris` must return the same two public listings; unknown and
@@ -161,14 +187,29 @@ accept bookings.
    ```
 
 1. Review the delivery checks in 🤖 Terminal 2. Run each command separately. The
-   push starts analysis according to the preflighted CodeQL configuration; it
-   does not prove that analysis has completed.
+   Delivery verifies that app/src/hotels.js still contains the exact supplied
+   prototype and that the running app exposes the expected synthetic fixture.
+   A stale app or safe/re-written source fails the check before evidence is
+   recorded. The push starts analysis according to the preflighted CodeQL
+   configuration; it does not prove that analysis has completed.
 
    ```bash
    npm run delivery
    ```
 
-   After reviewing the result, publish the milestone:
+   Before publishing the milestone, ask Squad to route the exact delivery
+   checkpoint to Purple:
+
+   ```text
+   Squad, route the Step 1 checkpoint to Purple. Include the pushed commit,
+   reviewed feature diff, Paris and other normal-search counts, and the actual
+   npm run delivery result. Pause until I relay Purple's decision. Do not publish
+   a phase or infer approval from passing checks.
+   ```
+
+   Relay Purple's response to Squad. If Purple rejects the evidence or asks for
+   changes, stop progression, address the concern and request a new review.
+   Only after Purple approves may you choose to publish the milestone:
 
    ```bash
    npm run phase -- red
@@ -177,7 +218,8 @@ accept bookings.
 ### Checkpoint: What you can claim
 
 You are ready for Step 2 when the app shows your change, Green has pushed it to
-`feature/city-search`, and `npm run delivery` passes. You do not need to copy a commit identifier:
+`feature/city-search`, `npm run delivery` passes, and Purple has approved the
+checkpoint. You do not need to copy a commit identifier:
 Blue keeps the delivery details, and the CodeQL review command checks that the
 analysis matches the version you delivered.
 

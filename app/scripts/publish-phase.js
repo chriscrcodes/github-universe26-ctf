@@ -44,8 +44,9 @@ function validatePhaseGate(state, phase) {
   }
   if (phase === "purple" && (state.evidence.purple.kind !== "codeql-baseline"
     || state.evidence.purple.reviewedBy !== "participant"
+    || state.evidence.purple.verification !== "participant-attestation"
     || state.evidence.purple.ref !== "refs/heads/feature/city-search")) {
-    return "Purple requires a participant-reviewed CodeQL finding, not a quiz receipt.";
+    return "Purple requires a participant-attested CodeQL baseline review, not a quiz receipt.";
   }
   if (phase === "green" && state.approvals?.remediation?.strategy !== "parameter-binding") {
     return "Missing participant approval for parameter binding.";

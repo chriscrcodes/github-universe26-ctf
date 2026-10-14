@@ -94,12 +94,12 @@ test("phase publisher keeps the round going when the board is not configured", (
   assert.deepEqual(saved.completedPhases, ["started", "red"]);
 });
 
-test("quiz receipts cannot replace a participant-reviewed CodeQL finding", () => {
+test("quiz receipts cannot replace a participant-attested CodeQL baseline review", () => {
   const workshopState = state({ completedPhases: ["started", "red"],
     evidence: { purple: { command: "npm run checkpoint", gradedBy: "mentor" } } });
-  assert.match(validatePhaseGate(workshopState, "purple"), /participant-reviewed CodeQL/);
+  assert.match(validatePhaseGate(workshopState, "purple"), /participant-attested CodeQL baseline/);
   workshopState.evidence.purple = { kind: "codeql-baseline", reviewedBy: "participant",
-    ref: "refs/heads/feature/city-search" };
+    verification: "participant-attestation", ref: "refs/heads/feature/city-search" };
   assert.equal(validatePhaseGate(workshopState, "purple"), null);
 });
 

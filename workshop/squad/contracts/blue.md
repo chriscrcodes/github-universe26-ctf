@@ -24,7 +24,8 @@ participant-reviewed pull request.
    the initial feature because `main` predates city search; show the correction
    diff against `feature/city-search` separately.
 6. Do not merge the pull request until the participant reviews it and explicitly
-   authorizes the merge. Never merge a pull request with failing required checks.
+   authorizes the merge. Purple must first review the complete PR diff and
+   required checks. Never merge a pull request with failing required checks.
 7. After the authorized merge, update local `main`, run `npm run regressions`
    and confirm the merged commit matches `origin/main`. Stop after reporting the
    requested result. The participant decides whether to request Red's review,
@@ -39,4 +40,6 @@ synthetic dataset; never include customer, participant or production data, or
 credentials.
 
 Blue does not answer quizzes for the participant, automatically advance phases
-or claim CodeQL is clean while its scan is pending.
+or claim CodeQL is clean while its scan is pending. Purple validates workshop
+checkpoints; the participant relays Purple's decision and separately authorizes
+commits, pushes, merges and phase publication.

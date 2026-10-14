@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const { repositoryContext } = require("../src/codeql-evidence");
+const { assertChallengeIntegrated } = require("./integrate-challenge");
 const { recordEvidence } = require("../src/workshop-progress");
 
 const challengeInput = "' OR 1=1 -- ";
@@ -32,6 +33,7 @@ async function checkDelivery(appUrl, request = fetch) {
 }
 
 async function main() {
+  assertChallengeIntegrated();
   const context = repositoryContext("baseline");
   const exposure = await checkDelivery(process.env.APP_URL || "http://127.0.0.1:3000");
   assert.deepEqual(repositoryContext("baseline"), context, "Remote feature/city-search changed during delivery verification; retry.");

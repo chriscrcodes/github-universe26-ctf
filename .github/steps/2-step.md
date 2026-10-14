@@ -1,6 +1,6 @@
 ---
 title: Review CodeQL Evidence
-description: "Ask Red to explain the code while the preconfigured CodeQL analysis runs, then inspect the exact-commit finding."
+description: "Explain the delivered code and attest to reviewing the exact commit while CodeQL analysis runs asynchronously."
 ---
 
 ## Step 2: Explain the exposure and review CodeQL
@@ -29,7 +29,7 @@ that a particular runtime result was observed.
 | Flow | Normalization, city-filter construction and assembly of the listing query |
 | Sink | The database statement prepared and executed with that query |
 | Boundary | Only records with `listingStatus = 'PUBLIC'` should appear in public search |
-| Evidence | Your observed response and a CodeQL finding on the exact delivered commit |
+| Evidence | Your observed response, source review and participant attestation for the exact delivered commit |
 
 "Untrusted" means the application does not control the text a caller supplies,
 even when the caller uses the normal search form. The publication filter is a
@@ -67,63 +67,91 @@ value becomes part of the statement text rather than a separate bound value.
    Answer only; do not offer fixes, a follow-up menu or a findings commit.
    ```
 
-1. Open Security, Code scanning. Wait for an analysis of your delivered
-   `feature/city-search` commit. The repository uses the advanced workflow in
+1. Open Security, Code scanning and check whether analysis of your delivered
+   `feature/city-search` commit is available. CodeQL runs asynchronously, so
+   continue if it is pending or the alert cannot be read. The repository uses
    `.github/workflows/codeql.yml`; disable CodeQL Default Setup if it is enabled
    to avoid a second analysis with a different branch scope.
-1. Ask Red to explain the actual alert, its source, flow, sink, and public-data
-   boundary. Have Red distinguish observed facts from potential impact. Red
+1. Ask Red to explain the delivered source, data flow and public-data boundary.
+   If a matching alert is available, use its actual location and flow. Otherwise,
+   use the source and your local observation, and label the CodeQL status pending
+   or unavailable. Red distinguishes observed facts from potential impact and
    does not generate payloads, run an exploit, or change code.
 
    ```text
-   Red, explain the actual js/sql-injection finding from my delivered commit.
-   Use the alert's reported file, line and data-flow path, not a guessed line.
-   Connect each location to the code and the synthetic response I observed.
-   Separate runtime evidence, static-analysis evidence and anything unverified.
-   If the alert or matching analysis is unavailable, say so; do not edit.
+   Red, trace the supplied city input through my exact delivered source to SQL
+   execution and explain the observed synthetic response and PUBLIC boundary.
+   If the matching CodeQL alert is available, cite its actual location and flow.
+   Otherwise, explain from source and runtime evidence and label CodeQL pending
+   or unavailable. Separate observations, analysis and anything unverified.
+   Do not edit, exploit, or claim an alert that I have not seen.
    ```
 
-   In the alert, look for the rule, location and any available data-flow view.
-   Follow the request value toward query execution rather than reading only
-   the title. The review command checks that the analysis matches your delivery.
-   A finding on an older version is not evidence for this delivery.
-1. Confirm that you opened and saw the matching CodeQL alert for this exact
-   commit. This is a trust-based attestation. No quiz or additional proof is
-   required.
+   When an alert is available, inspect its rule, location and data-flow view.
+   Follow the request value toward query execution, and confirm the instance is
+   for your delivered commit rather than an older version.
+1. Review the delivered source and your local synthetic result, then record your
+   participant attestation for this exact commit:
 
-   Run `npm run codeql:review -- baseline` to inspect the repository, commit,
-   and report URL. After viewing the alert, confirm your review:
+   ```bash
+   npm run codeql:review -- baseline
+   ```
+
+   This first command previews the repository, commit and report URL without
+   recording an attestation. Confirm your review with:
 
    ```bash
    npm run codeql:review -- baseline --reviewed
-   npm run phase -- purple
    ```
 
-   The first command without `--reviewed` is a preview: it records no agreement.
-   Adding `--reviewed` records your confirmation that you viewed the alert.
-   Publishing `purple` advances the local milestone and attempts a board update;
-   none of these commands replaces your explanation of the issue.
+   This trust-based command verifies the pushed repository and commit but does
+   not wait for or query the CodeQL API. It records `analysisStatus` as
+   `not-verified`; it does not claim that CodeQL found an alert or that you saw
+   one. Publishing `purple` advances the local milestone and attempts a board
+   update; neither command replaces your explanation of the issue.
+
+   Before publishing, route the exact-commit evidence to Purple:
+
+   ```text
+   Squad, route the Step 2 checkpoint to Purple. Include my observed result for
+   the supplied synthetic input, source-based explanation, exact delivery
+   commit, participant attestation, and CodeQL alert status if available.
+   Clearly label any scan result that is pending or unavailable. Pause until I
+   relay Purple's decision. Do not publish a phase or treat my attestation as
+   Purple's approval.
+   ```
+
+   Relay Purple's response. If Purple rejects or requests clarification, stop
+   progression and resolve the evidence gap before asking for another review.
+   Publish `purple` only after Purple approves and you decide to continue.
+
+   ```bash
+   npm run phase -- purple
+   ```
 
 ### Checkpoint: An explanation tied to evidence
 
 Before continuing, you should be able to point to the input source, the unsafe
 construction, the database execution and the unpublished records in your
-observation. You also need the matching open finding for your initial delivery.
-Source review while a scan runs is useful preparation, not a completed CodeQL gate.
+observation. The participant attestation is tied to the pushed commit; report a
+pending or unavailable scan honestly rather than claiming an unverified alert.
+Purple must approve the observed and source-based evidence before the `purple`
+milestone. The final `codeql` milestone still requires a real successful scan on
+`main` showing the original finding fixed and zero results.
 
 The expected rule is `js/sql-injection`, commonly titled
-"Database query built from user-controlled sources". Use the real reported
-file and line, not an assumed location. Continue to [Step 3](3-step.md).
+"Database query built from user-controlled sources". If an alert is available,
+use its real reported file and line, not an assumed location. Continue to
+[Step 3](3-step.md).
 
 > [!IMPORTANT]
-> If the scan is queued, failed, inaccessible, or has no matching finding,
-> do not substitute a reference screenshot or your attestation for repository evidence.
-> Stop scored progression if the exact-commit finding is not available. Keep
-> explaining the source with Red and debrief, but do not modify
-> `feature/city-search`, approve remediation or publish `purple`. Continue after
-> the matching finding arrives. Validate this recovery path in rehearsal.
-> Report queued analysis as pending, failed analysis as failed, and a completed
-> scan with no finding as a baseline problem. Do not manufacture evidence.
+> If the scan is queued, failed, or inaccessible, report its status accurately.
+> The participant attestation records your review of the delivered source and
+> local observation for the exact pushed commit; it does not verify a scan or
+> replace an alert. A completed scan with no finding is a baseline problem and
+> should be reported honestly. The final `codeql` milestone still requires a
+> successful analysis of `main` that verifies the original finding is fixed and
+> reports zero results. Never manufacture evidence.
 
 <details>
 <summary>Having trouble? 🤷</summary>
@@ -139,7 +167,9 @@ file and line, not an assumed location. Continue to [Step 3](3-step.md).
   exists. Check `gh auth status`; ask the facilitator to confirm the signed-in
   account or integration has Code Scanning read access and that Code Scanning
   is available for the repository under its plan and organization policy.
-  Retry the review before recording evidence or publishing `purple`.
+   Baseline attestation does not query this API, so report the scan as
+   unavailable and continue with source-based evidence. Resolve API access when
+   actual scan evidence is required for the final `codeql` milestone.
 - The review command uses your existing `gh` login. Never paste a token into chat.
 
 For a shorter explanation without asking Red to supply your answer:

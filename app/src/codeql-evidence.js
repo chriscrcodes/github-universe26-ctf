@@ -82,10 +82,26 @@ async function collectCodeqlEvidence(context, stage, initial, api = githubApi) {
     if (!alert) throw new Error("No open SQL injection finding matches this feature branch commit and analysis.");
   } else {
     if (!initial || initial.kind !== "codeql-baseline" || initial.repository !== repository
-      || initial.ref !== REFS.baseline || ref !== REFS.fixed || initial.commit === commit || !Number.isInteger(initial.alertNumber)
+      || initial.ref !== REFS.baseline || ref !== REFS.fixed || initial.commit === commit
       || initial.reviewedBy !== "participant") throw new Error("Review the initial finding before the corrected delivery.");
-    analysis = analyses.find((entry) => entry.category === initial.category);
-    alert = alerts.find((entry) => entry.tool?.name === "CodeQL" && entry.number === initial.alertNumber
+    let initialAlertNumber = initial.alertNumber;
+    let initialCategory = initial.category;
+    if (!Number.isInteger(initialAlertNumber) || !initialCategory) {
+      const baselineAlerts = await api(repository, "alerts", initial.ref);
+      for (const candidate of baselineAlerts.filter((entry) => entry.tool?.name === "CodeQL"
+        && entry.rule?.id === "js/sql-injection" && Number.isInteger(entry.number))) {
+        const instances = await api(repository, `alerts/${candidate.number}/instances`, initial.ref);
+        const instance = instances.find((entry) => entry.ref === initial.ref
+          && entry.commit_sha === initial.commit && entry.state === "open");
+        if (instance) {
+          initialAlertNumber = candidate.number;
+          initialCategory = instance.category;
+          break;
+        }
+      }
+    }
+    analysis = analyses.find((entry) => entry.category === initialCategory);
+    alert = alerts.find((entry) => entry.tool?.name === "CodeQL" && entry.number === initialAlertNumber
       && entry.rule?.id === "js/sql-injection");
     if (!analysis) throw new Error("CodeQL is pending or its configuration changed; no clean evidence recorded.");
     if (!alert || alert.state !== "fixed") throw new Error("The initial finding must be fixed, not dismissed or missing.");

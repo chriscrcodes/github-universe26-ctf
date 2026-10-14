@@ -38,11 +38,42 @@ test("workshop identity preserves configured handles and the existing Codespace 
   for (const [env, expected] of [
     [{ BOARD_USER: " octocat " }, "octocat"],
     [{ BOARD_USER: "us12" }, "u12"],
+    [{ BOARD_USER: "us1", GITHUB_USER: "octocat" }, "octocat"],
+    [{ BOARD_USER: "invalid_handle", GITHUB_USER: "octocat" }, "octocat"],
+    [{ GITHUB_USER: "us1378m75_ghuni" }, "u75"],
+    [{ GITHUB_REPOSITORY: "owner/us1378m75-github-universe26-ctf" }, "u75"],
+    [{ BOARD_USER: "us1378m75_ghuni" }, "u75"],
     [{ GITHUB_REPOSITORY: "event/us7m42-workshop" }, "u42"],
     [{ BOARD_USER: "event/us7m42" }, "u42"],
     [{ BOARD_USER: "custom", GITHUB_REPOSITORY: "event/us7m42" }, "custom"],
+    [{ BOARD_USER: "invalid_handle", GITHUB_REPOSITORY: "owner/project" }, ""],
     [{}, ""],
   ]) assert.equal(resolveWorkshopBoardUser(env), expected);
+});
+
+test("workshop launch lets registration fall back when BOARD_USER is invalid", () => {
+  const calls = [];
+  const env = { BOARD_USER: "invalid_handle", GITHUB_REPOSITORY: "owner/project" };
+  assert.equal(startWorkshop(env, (command, args, options) => {
+    calls.push({ command, args, options });
+    return { status: 0, stdout: "test-version\n" };
+  }), 0);
+  assert.equal(env.BOARD_USER, "invalid_handle");
+  assert.ok(calls.slice(5).every((call) => !("BOARD_USER" in call.options.env)));
+  assert.ok(calls.slice(5).every((call) => call.options.env.GITHUB_REPOSITORY === "owner/project"));
+});
+
+test("workshop launch maps participant account and repository to scoreboard ID", () => {
+  const calls = [];
+  const env = {
+    GITHUB_USER: "us1378m75_ghuni",
+    GITHUB_REPOSITORY: "owner/us1378m75-github-universe26-ctf",
+  };
+  assert.equal(startWorkshop(env, (command, args, options) => {
+    calls.push({ command, args, options });
+    return { status: 0, stdout: "test-version\n" };
+  }), 0);
+  assert.ok(calls.slice(5).every((call) => call.options.env.BOARD_USER === "u75"));
 });
 
 test("app-only restart preserves participant state and refuses an unrelated process", async () => {

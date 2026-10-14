@@ -7,7 +7,7 @@ description: "A GitHub Copilot and Squad hotel-search security workshop with a l
 
 <h2>Capture the flag: Three AI teams, one codebase, zero mercy</h2>
 
-<p><strong>Green delivers city search, Red reviews the exposure, and you approve Blue's correction through a PR to main.</strong></p>
+<p><strong>Green delivers city search, Red reviews the exposure, Purple validates each checkpoint, and you approve Blue's correction through a PR to main.</strong></p>
 
 <p>
   <a href="https://githubuniverse.com/"><img src="https://img.shields.io/badge/GitHub%20Universe-2026-181717?logo=github&amp;logoColor=white" alt="GitHub Universe 2026"></a>
@@ -48,28 +48,30 @@ restore public-only search with parameter binding.
 
 ## 🤝 Meet Squad
 
-**Squad** coordinates three specialists through GitHub Copilot CLI.
-You run the setup commands yourself and recruit **Blue**, **Red** and **Green**.
-Copilot CLI runs the conversation; the Copilot coding agent is not a team member.
+**Squad** coordinates three specialists and one human reviewer through GitHub
+Copilot CLI. You recruit **Blue**, **Red** and **Green**, and include **Purple**
+as the human checkpoint reviewer in the same roster. Copilot CLI runs the conversation; the Copilot
+coding agent is not a team member.
 
 > [!NOTE]
 > Red, Green, and Blue are workshop roles defined in this repository.
 > This is not an official Squad product demonstration.
 
 <p align="center">
-  <img src=".github/images/purple-team-terminal.svg" alt="Copilot CLI terminal showing Squad routing the investigation to Red, Green, and Blue while participant approval remains required" width="900">
+  <img src=".github/images/purple-team-terminal.svg" alt="Copilot CLI terminal showing Squad routing work to Red, Green, Blue, and Purple, a human checkpoint reviewer, while participant approval remains required" width="900">
 </p>
 
 <p align="center">
-  <sub>Squad routes one investigation to Red, Green, and Blue. The participant
-  remains responsible for approval and phase publication.</sub>
+  <sub>Squad routes work to three specialists and Purple, the human checkpoint
+  reviewer. The participant relays Purple's decisions and authorizes delivery.</sub>
 </p>
 
-| Specialist | Responsibility |
+| Member | Responsibility |
 | --- | --- |
 | **Blue** | Implements the approved correction and opens a PR to `main`; merges only after participant approval |
 | **Red** | Reviews code and CodeQL findings without editing |
 | **Green** | Delivers the initial feature to `feature/city-search`, then advises on the correction |
+| **Purple** | Human reviewer who validates the evidence at each workshop checkpoint; does not implement or publish |
 
 Learn more about the upstream project in the
 [Squad documentation](https://bradygaster.github.io/squad/).
@@ -86,8 +88,8 @@ not independently analyze your code.
 ### 🚀 How to start this exercise
 
 1. Open the Codespace for your participant repository.
-1. Follow [Step 1](.github/steps/1-step.md) to initialize Squad, recruit your
-  three specialists and launch the app.
+1. Follow [Step 1](.github/steps/1-step.md) to initialize Squad, recruit three
+  specialists, add Purple as the human reviewer and launch the app.
 1. Run shell commands in a VS Code terminal and send prompts in the Squad
   conversation. Keep that conversation open for the remaining steps.
 

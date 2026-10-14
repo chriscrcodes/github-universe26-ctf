@@ -17,6 +17,7 @@ const builtInSlugs = new Set(['scribe', 'ralph', 'rai-agent', 'fact-checker']);
 const obsoleteBuiltInDirectories = new Set(['Rai']);
 const freshBuiltInDirectories = new Set([
   ...builtInSlugs,
+  'rai',
   ...obsoleteBuiltInDirectories,
 ]);
 
@@ -108,12 +109,42 @@ function validatePreset(preset) {
   }
 }
 
-function buildTeam(projectName, agents) {
+function humanRosterRows(squadDir) {
+  const teamPath = path.join(squadDir, 'team.md');
+  if (!existsSync(teamPath)) return [];
+
+  const lines = readFileSync(teamPath, 'utf8').split(/\r?\n/);
+  const membersHeading = lines.findIndex((line) => /^## Members\s*$/.test(line));
+  if (membersHeading === -1) return [];
+
+  const rows = [];
+  let inTable = false;
+  for (const line of lines.slice(membersHeading + 1)) {
+    if (/^##\s/.test(line)) break;
+    if (line.startsWith('|')) {
+      inTable = true;
+      if (line.includes('👤') || /\bhuman\b/i.test(line)) rows.push(line);
+    } else if (inTable) {
+      break;
+    }
+  }
+  return rows;
+}
+
+function isHumanPurpleRow(row) {
+  if (!row.includes('👤') && !/\bhuman\b/i.test(row)) return false;
+  const cells = row.split('|').slice(1, -1).map((cell) =>
+    cell.replaceAll('👤', '').replaceAll('**', '').trim());
+  return cells.includes('Purple');
+}
+
+function buildTeam(projectName, agents, humanRows = []) {
   const rows = agents
     .map(
       (agent) =>
         `| ${agent.name} | ${agent.role} | .squad/agents/${agent.slug}/charter.md | active |`,
     )
+    .concat(humanRows)
     .join('\n');
 
   return `# Squad Team
@@ -182,32 +213,72 @@ function writeManagedFile(root, relativePath, content) {
   writeFileSync(destination, content, 'utf8');
 }
 
-function isCompatibleRecruitedTeam(squadDir, preset) {
+function recruitedTeamConflict(squadDir, preset) {
   const registryPath = path.join(squadDir, 'casting', 'registry.json');
-  if (!existsSync(registryPath)) return false;
+  if (!existsSync(registryPath)) return 'missing .squad/casting/registry.json';
   const agents = readJson(registryPath)?.agents;
-  if (!agents || typeof agents !== 'object' || Array.isArray(agents)) return false;
+  if (!agents || typeof agents !== 'object' || Array.isArray(agents)) {
+    return 'casting registry must contain an agents object';
+  }
   const allowed = new Map(preset.agents.map((agent) => [agent.slug, agent.name]));
-  if (Object.keys(agents).some((slug) => !allowed.has(slug)
-    || agents[slug]?.persistent_name !== allowed.get(slug) || agents[slug]?.status !== 'active')) return false;
-  if (!['blue', 'red', 'green'].every((slug) => agents[slug])) return false;
+  for (const slug of Object.keys(agents)) {
+    if (slug === 'purple') {
+      if (agents[slug]?.persistent_name !== 'Purple') {
+        return 'registry agent "purple" must have persistent_name "Purple"';
+      }
+      if (agents[slug]?.status !== 'active') {
+        return 'registry agent "purple" must have status "active"';
+      }
+      const purpleDirectory = path.join(squadDir, 'agents', 'purple');
+      if (existsSync(purpleDirectory) && readdirSync(purpleDirectory).length > 0) {
+        return 'registry agent "purple" has agent files; refusing to convert its state to a human roster entry';
+      }
+      continue;
+    }
+    if (!allowed.has(slug)) return `unexpected registry agent ${JSON.stringify(slug)}`;
+    if (agents[slug]?.persistent_name !== allowed.get(slug)) {
+      return `registry agent ${JSON.stringify(slug)} must have persistent_name ${JSON.stringify(allowed.get(slug))}`;
+    }
+    if (agents[slug]?.status !== 'active') {
+      return `registry agent ${JSON.stringify(slug)} must have status "active"`;
+    }
+  }
+  const missing = ['blue', 'red', 'green'].filter((slug) => !agents[slug]);
+  if (missing.length) return `missing registry agents: ${missing.join(', ')}`;
   const agentsDir = path.join(squadDir, 'agents');
-  if (!existsSync(agentsDir)) return false;
-  return readdirSync(agentsDir).every((slug) => allowed.has(slug) || obsoleteBuiltInDirectories.has(slug));
+  if (!existsSync(agentsDir)) return 'missing .squad/agents directory';
+  const allowedDirectories = new Set([...allowed.keys(), ...obsoleteBuiltInDirectories]);
+  if (agents.purple?.persistent_name === 'Purple') allowedDirectories.add('purple');
+  const unexpected = readdirSync(agentsDir).find((slug) => !allowed.has(slug)
+    && !allowedDirectories.has(slug));
+  return unexpected ? `unexpected agent directory ${JSON.stringify(unexpected)}` : null;
 }
 
 function install(root, preset, { adoptRecruited = false } = {}) {
   if (!existsSync(root)) throw new Error(`repository root does not exist: ${root}`);
 
   const squadDir = path.join(root, '.squad');
-  if (!isFreshOrInstalled(squadDir, preset)
-    && !(adoptRecruited && isCompatibleRecruitedTeam(squadDir, preset))) {
-    throw new Error(
-      'an existing non-fresh Squad was found; refusing to overwrite participant team state',
-    );
+  const registryPath = path.join(squadDir, 'casting', 'registry.json');
+  const existingAgents = existsSync(registryPath) ? readJson(registryPath)?.agents : null;
+  if (existingAgents?.rai && !existingAgents['rai-agent']) {
+    preset = {
+      ...preset,
+      agents: preset.agents.map((agent) => agent.slug === 'rai-agent'
+        ? { ...agent, slug: 'rai' } : agent),
+    };
+  }
+  if (!isFreshOrInstalled(squadDir, preset)) {
+    const conflict = adoptRecruited ? recruitedTeamConflict(squadDir, preset)
+      : 'existing team adoption requires --adopt-recruited';
+    if (conflict) {
+      throw new Error(
+        `an existing non-fresh Squad was found; refusing to overwrite participant team state: ${conflict}. Preserve .squad/ and ask the facilitator to reconcile the roster before retrying`,
+      );
+    }
   }
 
   for (const obsoleteDirectory of obsoleteBuiltInDirectories) {
+    if (obsoleteDirectory === 'Rai' && existingAgents?.rai) continue;
     const obsoletePath = path.join(squadDir, 'agents', obsoleteDirectory);
     if (existsSync(obsoletePath)) {
       rmSync(obsoletePath, { recursive: true, force: true });
@@ -215,6 +286,11 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   }
 
   const projectName = path.basename(root);
+  const humanRows = humanRosterRows(squadDir);
+  if (existingAgents?.purple?.persistent_name === 'Purple'
+    && !humanRows.some(isHumanPurpleRow)) {
+    humanRows.push('| Purple | Human workshop validation reviewer | | 👤 Human |');
+  }
   const routing = readFileSync(path.join(presetDir, 'routing.md'), 'utf8');
   const policy = {
     casting_policy_version: '1.2',
@@ -228,10 +304,10 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   if (!existingConfig || typeof existingConfig !== 'object' || Array.isArray(existingConfig)) {
     throw new Error('participant Squad config must be a JSON object');
   }
-  const workshopConfig = { ...existingConfig, version: 1, defaultModel: 'gpt-6-luna' };
+  const workshopConfig = { ...existingConfig, version: 1, defaultModel: 'mai-code-1.1-flash' };
   const managed = new Map([
     ['.squad/config.json', stringifyJson(workshopConfig)],
-    ['.squad/team.md', buildTeam(projectName, preset.agents)],
+    ['.squad/team.md', buildTeam(projectName, preset.agents, humanRows)],
     ['.squad/routing.md', routing.endsWith('\n') ? routing : `${routing}\n`],
     ['.squad/decisions.md', '# Team Decisions\n\nNo shared decisions recorded.\n'],
     [
@@ -293,7 +369,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   ]);
 
   for (const agent of preset.agents) {
-    if (builtInSlugs.has(agent.slug)) continue;
+    if (builtInSlugs.has(agent.slug) || agent.slug === 'rai') continue;
     const charter = readFileSync(
       path.join(presetDir, 'contracts', `${agent.slug}.md`),
       'utf8',

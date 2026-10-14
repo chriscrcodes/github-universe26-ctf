@@ -41,8 +41,18 @@ a scan of an unrelated commit or repository.
    ```
 
 1. Restart the app with `npm run workshop:restart`. Ask Blue to run
-   `npm run verify` against the corrected code. Review the result and publish
-   `npm run phase -- green` only after it passes.
+   `npm run verify` against the corrected code. Review the result, then route
+   Blue's applied diff and local evidence to Purple:
+
+   ```text
+   Squad, route the corrected-code checkpoint to Purple. Include Blue's diff,
+   the restarted-app results, and actual npm run verify output. Pause until I
+   relay Purple's decision. Do not publish a phase or authorize a push.
+   ```
+
+   Relay Purple's response. If Purple rejects or requests changes, stop and
+   resolve the concern before requesting a new review. After Purple approves,
+   publish `npm run phase -- green` only if the checks pass.
    Reuse the normal search and the supplied demonstration input: normal search
    still works, but the demonstration must return no unpublished records.
 
@@ -79,9 +89,18 @@ a scan of an unrelated commit or repository.
    ```
 
 1. Review the complete PR diff against `main`. It includes the initial feature
-   as well as its correction because `main` predates city search. Check the PR
-   results, then explicitly authorize the merge. Blue must not merge before
-   your approval:
+   as well as its correction because `main` predates city search. Route the
+   complete diff and required checks to Purple, then relay the response:
+
+   ```text
+   Squad, route the pull-request checkpoint to Purple. Include the complete PR
+   diff against main and required check results. Pause until I relay Purple's
+   decision. Do not merge or publish a phase.
+   ```
+
+   If Purple rejects or requests changes, stop and resolve the concern before
+   requesting a new review. After Purple approves and you have reviewed the PR,
+   explicitly authorize the merge. Blue must not merge before your approval:
 
    ```text
    Blue, I reviewed the PR to main and its required checks passed. I explicitly
@@ -105,8 +124,17 @@ a scan of an unrelated commit or repository.
    ```
 
    Regressions require the corrected PR to be merged to `main`; they are not an
-   initial attack-demonstration step. Publish the delivery milestone after the
-   regression passes:
+   initial attack-demonstration step. Route the merge commit and regression
+   results to Purple:
+
+   ```text
+   Squad, route the merged-delivery checkpoint to Purple. Include the merge
+   commit on origin/main and actual npm run regressions result. Pause until I
+   relay Purple's decision. Do not publish a phase.
+   ```
+
+   Publish the delivery milestone only after Purple approves and you decide to
+   continue:
 
    ```bash
    npm run phase -- blue
@@ -124,6 +152,21 @@ a scan of an unrelated commit or repository.
 
    ```bash
    npm run codeql:review -- fixed --reviewed
+   ```
+
+   Route the final hosted evidence to Purple before publishing `codeql`:
+
+   ```text
+   Squad, route the final CodeQL checkpoint to Purple. Include the original
+   alert state, corrected commit, and successful analysis results for that
+   commit. Pause until I relay Purple's decision. Do not publish a phase or
+   claim clean while any analysis is pending or failed.
+   ```
+
+   Publish `codeql` only if the evidence is complete, Purple approves, and you
+   choose to continue:
+
+   ```bash
    npm run phase -- codeql
    ```
 

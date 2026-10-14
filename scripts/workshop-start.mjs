@@ -4,16 +4,34 @@ import { pathToFileURL } from "node:url";
 
 export function resolveWorkshopBoardUser(env) {
   const configuredUser = typeof env.BOARD_USER === "string" ? env.BOARD_USER.trim() : "";
+  const isValidHandle = (value) => value.length >= 3 && value.length <= 80
+    && /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(value);
+  const participantBoardUser = (value) => {
+    if (typeof value !== "string") return "";
+    const name = value.trim().split("/").at(-1) || "";
+    const participantId = name.match(/^us\d+m(\d+)(?:[-_]|$)/i);
+    const mappedUser = participantId ? `u${participantId[1]}` : "";
+    return isValidHandle(mappedUser) ? mappedUser : "";
+  };
   const legacyTeamId = configuredUser.match(/^us(\d+)$/i);
-  if (legacyTeamId) return `u${legacyTeamId[1]}`;
-  if (configuredUser && !configuredUser.includes("/")) return configuredUser;
+  if (legacyTeamId) {
+    const mappedUser = `u${legacyTeamId[1]}`;
+    if (isValidHandle(mappedUser)) return mappedUser;
+  }
+  const configuredParticipant = participantBoardUser(configuredUser);
+  if (configuredParticipant) return configuredParticipant;
+  if (!legacyTeamId && isValidHandle(configuredUser)) return configuredUser;
 
-  const repository = [env.GITHUB_REPOSITORY, env.GITHUB_USER, env.BOARD_USER].find(
-    (value) => typeof value === "string" && value.includes("/")
-  );
-  const repositoryName = repository?.trim().split("/").at(-1) || "";
-  const participantId = repositoryName.match(/^us\d+m(\d+)(?:-|$)/i);
-  return participantId ? `u${participantId[1]}` : configuredUser;
+  for (const source of [env.GITHUB_REPOSITORY, env.GITHUB_USER, env.GITHUB_ACTOR]) {
+    const mappedParticipant = participantBoardUser(source);
+    if (mappedParticipant) return mappedParticipant;
+  }
+
+  const githubUser = [env.GITHUB_USER, env.GITHUB_ACTOR]
+    .find((value) => typeof value === "string" && isValidHandle(value.trim()));
+  if (githubUser) return githubUser.trim();
+
+  return isValidHandle(configuredUser) ? configuredUser : "";
 }
 
 const requiredCommands = [
@@ -42,7 +60,9 @@ export function startWorkshop(env = process.env, run = spawnSync) {
   }
 
   const boardUser = resolveWorkshopBoardUser(env);
-  const participantEnv = { ...env, ...(boardUser ? { BOARD_USER: boardUser } : {}) };
+  const participantEnv = { ...env };
+  if (boardUser) participantEnv.BOARD_USER = boardUser;
+  else delete participantEnv.BOARD_USER;
   const steps = [
     [process.execPath, [resolve(root, "scripts/install-workshop-squad.mjs"), "--adopt-recruited"]],
     ["npm", ["run", "register"]],

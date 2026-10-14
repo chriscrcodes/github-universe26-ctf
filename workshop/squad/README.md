@@ -15,12 +15,14 @@ the installer refreshes role contracts and preserves learned histories,
 decisions, configuration, and unmanaged Squad-owned files such as templates.
 
 Participants create the roster with Squad after reviewing its proposal. It
-contains Blue, Red, and Green for workshop roles, plus Squad's four default
-built-in support agents: Scribe, Ralph, Rai, and Fact Checker. The participant
-casts and approves the team; `workshop/squad/contracts/` contains role rules,
-not a pre-created roster. After approval, `npm run workshop:start` adopts the
-contracts for Blue, Red, and Green while preserving histories and shared
-decisions. Other members or agent directories cause a refusal without mutation.
+contains Blue, Red, and Green for workshop roles, Squad's four default
+built-in support agents (Scribe, Ralph, Rai, and Fact Checker), and Purple as a
+human validation reviewer. The participant approves the seven agents and Purple
+as a human member in the same roster. Purple has no charter or history.
+`workshop/squad/contracts/` contains agent role rules, not a pre-created roster.
+After approval, `npm run workshop:start` adopts the contracts for Blue, Red,
+and Green while preserving histories, shared decisions, and human roster rows.
+Other agents or agent directories cause a refusal without mutation.
 
 Green integrates the supplied synthetic prototype and publishes only to
 `feature/city-search`; after the security review, Green advises on the correction
@@ -31,14 +33,20 @@ participant chooses tasks and reviews evidence; the built-ins support the team
 rather than teach mandatory lessons.
 
 Participants run `squad doctor` in 🖥️ Terminal 1 after `squad init`. They then open
-🤖 Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
-Squad to create the proposed team using the complete roster and project context
-in Step 1. At `Roster approval`, select `❯ Yes, hire this team`. After approving
-the roster, they run
+🤖 Terminal 2, start Copilot, select `mai-code-1.1-flash` with
+`/model mai-code-1.1-flash`, and ask
+Squad to create the proposed team using the role definitions in Step 1. At
+`Roster approval`, select `❯ Yes, hire this team` to trigger Squad's standard
+file-creation phase. Confirm `.squad/team.md` exists before running
 `npm run workshop:start` in 🖥️ Terminal 1 to adopt the workshop contracts, register
 the participant, and launch the app. Startup does not run `squad doctor`; it
 stops on failure and never approves a push or publishes a phase. All later
 `npm` commands also run in 🖥️ Terminal 1.
+
+Purple reviews the named evidence at each workshop checkpoint. Squad pauses for
+the human decision; the participant relays it and remains responsible for task,
+commit, merge, and phase-publication authorization. Purple does not implement,
+run commands, or publish phases.
 
 Green's initial delivery is an explicitly authorized integration of the supplied
 synthetic challenge prototype, not a spontaneous model mistake. It is limited
@@ -59,8 +67,8 @@ Expected npm script:
 "squad:install-workshop-team": "node scripts/install-workshop-squad.mjs"
 ```
 
-Set `.squad/config.json` to use only `gpt-6-luna` before starting Copilot. The
-The installer accepts `--root <participant-repository>` for automation and
+The installer sets `.squad/config.json` to use `mai-code-1.1-flash` as the
+default model. It accepts `--root <participant-repository>` for automation and
 tests, optionally combined with `--adopt-recruited`. It does not read
 environment files, copy histories from the source repository, or include
 credentials.
