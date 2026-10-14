@@ -47,8 +47,10 @@ accept bookings.
    squad init --no-workflows
    ```
 
-1. Still in 🖥️ Terminal 1, run the health check yourself and resolve any reported
-   issue before continuing.
+1. Still in 🖥️ Terminal 1, run the health check yourself. The warnings for
+   `vscode-jsonrpc exports field` and `copilot-sdk session.js ESM patch` are
+   expected in this workshop environment and are non-blocking. Resolve any
+   other reported issue before continuing.
 
    ```bash
    squad doctor
@@ -65,7 +67,7 @@ accept bookings.
    In Copilot, select the workshop model:
 
    ```text
-   /model gpt-6-luna
+   /model mai-code-1.1-flash
    ```
 
    Ask Squad to propose and create the team, then approve its roster:
@@ -80,20 +82,29 @@ accept bookings.
     Purple: human workshop validation reviewer. Add Purple as a human roster
     member with no agent charter or history; review each workshop checkpoint.
    Include the default built-ins support squad members; no @copilot or other AI specialists.
-    Preserve these names and roles. Use the complete-roster fast path. Show all
-    eight roster entries, including seven agents and Purple as a human, with
-    roles/scopes, and wait for my approval; don't ask again or recast. Then
-    create standard Squad state and stop. Don't inspect/edit workshop sources or
-    the app, or implement.
+   Preserve these names and roles. Use the complete-roster fast path. Show all
+   eight roster entries, including seven agents and Purple as a human, with
+   roles/scopes, then wait for my approval. When I select `Yes, hire this team`,
+   that approves this roster and authorizes Phase 2 immediately. Do not stop or
+   ask for another confirmation after that selection. Create the standard Squad
+   state under `.squad/`, including the team roster, routing, decisions, casting
+   state and required agent directories, charters and histories. Purple is a
+   human roster entry only, with no charter or history. Create `.gitattributes`
+   if standard Squad setup requires it. Do not inspect or modify workshop source
+   files or app code; this restriction does not apply to creating Squad state.
+   Do not start the app or implement. Stop only after creating the state and
+   report the files and directories created.
    ```
 
    At the `Roster approval` prompt, select `❯ Yes, hire this team`.
 
-   Squad creates the roster only after your approval. It contains seven agents,
-   including the four default built-ins, and Purple as a human reviewer. Squad
-   routes review requests to Purple and pauses; you relay the materials and
-   Purple's decision. The installer preserves Purple's human roster entry when
-   it adopts the workshop contracts.
+   This selection approves the proposed roster and starts Squad's file-creation
+   phase. Confirm `.squad/team.md` and the standard Squad state were created
+   before continuing. The roster contains seven agents, including the four
+   default built-ins, and Purple as a human reviewer. Squad routes review
+   requests to Purple and pauses; you relay the materials and Purple's decision.
+   The installer preserves Purple's human roster entry when it adopts the
+   workshop contracts.
 
    ```text
    Squad : show me team members and roles

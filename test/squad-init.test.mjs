@@ -85,7 +85,7 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   }
   assert.deepEqual(
     JSON.parse(readFileSync(path.join(participant, '.squad', 'config.json'), 'utf8')),
-    { version: 1, defaultModel: 'gpt-6-luna' },
+    { version: 1, defaultModel: 'mai-code-1.1-flash' },
   );
 
   const green = readFileSync(
@@ -147,7 +147,7 @@ test('reinstallation preserves learned history, decisions, policies and particip
     if (relativePath === 'config.json') {
       assert.deepEqual(JSON.parse(actual), {
         version: 1,
-        defaultModel: 'gpt-6-luna',
+        defaultModel: 'mai-code-1.1-flash',
         customSetting: 'preserve',
       });
     } else {

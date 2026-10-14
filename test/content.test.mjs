@@ -115,8 +115,8 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.doesNotMatch(content, /sqli-demo\/2-injected-search\.png/);
       assert.ok(content.indexOf("squad init --no-workflows") < content.indexOf("squad doctor"));
       assert.ok(content.indexOf("squad doctor") < content.indexOf("npm run workshop:start"));
-      assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model gpt-6-luna"));
-      assert.ok(content.indexOf("/model gpt-6-luna") < content.indexOf("Squad, create my team:"));
+      assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model mai-code-1.1-flash"));
+      assert.ok(content.indexOf("/model mai-code-1.1-flash") < content.indexOf("Squad, create my team:"));
       assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
       assert.ok(content.indexOf("Squad : show me team members and roles") < content.indexOf("npm run workshop:start"));
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
@@ -128,8 +128,12 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.doesNotMatch(rosterPrompt, /city search|hotel|feature\/|main|branch/i);
       assert.match(content, /Include the default built-ins support squad members; no @copilot\s+or other AI specialists/i);
       assert.match(content, /complete-roster fast path\. Show all\s+eight roster entries, including seven agents and Purple as a human, with\s+roles\/scopes/i);
-      assert.match(content, /wait for my approval; don't ask again or recast/i);
-      assert.match(content, /Then\s+create standard\s+Squad state and stop/i);
+      assert.match(content, /wait for my approval/i);
+      assert.match(content, /When I select `Yes, hire this team`,\s+that approves this roster and authorizes Phase 2 immediately/i);
+      assert.match(content, /Create the standard Squad\s+state under `\.squad\/`/i);
+      assert.match(content, /Do not stop or\s+ask for another confirmation after that selection/i);
+      assert.match(content, /Stop only after creating the state and\s+report the files and directories created/i);
+      assert.match(content, /vscode-jsonrpc exports field.*expected.*non-blocking/s);
       assert.match(content, /Review the delivery checks in 🤖 Terminal 2/);
       assert.match(content, /Squad : show me team members and roles/);
       assert.doesNotMatch(content, /Then add Purple as a human/);
@@ -176,8 +180,8 @@ test("workshop steps link forward and use available commands at the appropriate 
   }
   const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
   assert.ok(setup.indexOf("squad doctor") < setup.indexOf("copilot --agent squad --yolo"));
-  assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("/model gpt-6-luna"));
-  assert.ok(setup.indexOf("/model gpt-6-luna") < setup.indexOf("npm run workshop:start"));
+  assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("/model mai-code-1.1-flash"));
+  assert.ok(setup.indexOf("/model mai-code-1.1-flash") < setup.indexOf("npm run workshop:start"));
   assert.match(setup, /answer No/);
   assert.match(setup, /❯ Yes, hire this team/);
   assert.match(setup, /complete team prompt in \.github\/steps\/1-step\.md/);

@@ -252,7 +252,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   if (!existingConfig || typeof existingConfig !== 'object' || Array.isArray(existingConfig)) {
     throw new Error('participant Squad config must be a JSON object');
   }
-  const workshopConfig = { ...existingConfig, version: 1, defaultModel: 'gpt-6-luna' };
+  const workshopConfig = { ...existingConfig, version: 1, defaultModel: 'mai-code-1.1-flash' };
   const managed = new Map([
     ['.squad/config.json', stringifyJson(workshopConfig)],
     ['.squad/team.md', buildTeam(projectName, preset.agents, humanRows)],

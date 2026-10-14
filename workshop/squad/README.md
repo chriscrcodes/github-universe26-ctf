@@ -33,10 +33,11 @@ participant chooses tasks and reviews evidence; the built-ins support the team
 rather than teach mandatory lessons.
 
 Participants run `squad doctor` in 🖥️ Terminal 1 after `squad init`. They then open
-🤖 Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
+🤖 Terminal 2, start Copilot, select `mai-code-1.1-flash` with
+`/model mai-code-1.1-flash`, and ask
 Squad to create the proposed team using the role definitions in Step 1. At
-`Roster approval`, select `❯ Yes, hire this team`. After approving
-the roster, they run
+`Roster approval`, select `❯ Yes, hire this team` to trigger Squad's standard
+file-creation phase. Confirm `.squad/team.md` exists before running
 `npm run workshop:start` in 🖥️ Terminal 1 to adopt the workshop contracts, register
 the participant, and launch the app. Startup does not run `squad doctor`; it
 stops on failure and never approves a push or publishes a phase. All later
@@ -66,8 +67,8 @@ Expected npm script:
 "squad:install-workshop-team": "node scripts/install-workshop-squad.mjs"
 ```
 
-Set `.squad/config.json` to use only `gpt-6-luna` before starting Copilot. The
-The installer accepts `--root <participant-repository>` for automation and
+The installer sets `.squad/config.json` to use `mai-code-1.1-flash` as the
+default model. It accepts `--root <participant-repository>` for automation and
 tests, optionally combined with `--adopt-recruited`. It does not read
 environment files, copy histories from the source repository, or include
 credentials.
