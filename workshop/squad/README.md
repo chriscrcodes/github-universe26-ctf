@@ -17,8 +17,8 @@ decisions, configuration, and unmanaged Squad-owned files such as templates.
 Participants create the roster with Squad after reviewing its proposal. It
 contains Blue, Red, and Green for workshop roles, Squad's four default
 built-in support agents (Scribe, Ralph, Rai, and Fact Checker), and Purple as a
-human validation reviewer. The participant approves the seven-agent roster,
-then adds Purple as a human through Squad. Purple has no charter or history.
+human validation reviewer. The participant approves the seven agents and Purple
+as a human member in the same roster. Purple has no charter or history.
 `workshop/squad/contracts/` contains agent role rules, not a pre-created roster.
 After approval, `npm run workshop:start` adopts the contracts for Blue, Red,
 and Green while preserving histories, shared decisions, and human roster rows.
@@ -34,8 +34,8 @@ rather than teach mandatory lessons.
 
 Participants run `squad doctor` in 🖥️ Terminal 1 after `squad init`. They then open
 🤖 Terminal 2, start Copilot, select `gpt-6-luna` with `/model gpt-6-luna`, and ask
-Squad to create the proposed team using the complete roster and project context
-in Step 1. At `Roster approval`, select `❯ Yes, hire this team`. After approving
+Squad to create the proposed team using the role definitions in Step 1. At
+`Roster approval`, select `❯ Yes, hire this team`. After approving
 the roster, they run
 `npm run workshop:start` in 🖥️ Terminal 1 to adopt the workshop contracts, register
 the participant, and launch the app. Startup does not run `squad doctor`; it

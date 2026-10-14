@@ -49,8 +49,8 @@ restore public-only search with parameter binding.
 ## 🤝 Meet Squad
 
 **Squad** coordinates three specialists and one human reviewer through GitHub
-Copilot CLI. You recruit **Blue**, **Red** and **Green**, then add **Purple** as
-the human checkpoint reviewer. Copilot CLI runs the conversation; the Copilot
+Copilot CLI. You recruit **Blue**, **Red** and **Green**, and include **Purple**
+as the human checkpoint reviewer in the same roster. Copilot CLI runs the conversation; the Copilot
 coding agent is not a team member.
 
 > [!NOTE]

@@ -72,35 +72,28 @@ accept bookings.
 
    ```text
    Squad, create my team:
-   Project: Local Node workshop; city search first. Hotel names are real; listing
-   details and challenge records are synthetic.
-   Blue applies approved corrections via reviewed PR to main; Red is read-only
-   security reviewer; Green publishes city search only to feature/city-search,
-   then advises on remediation. Include the four default built-ins; no @copilot
-   or other AI specialists. Preserve these names and roles.
-   Use the complete-roster fast path. Show all seven members with roles/scopes
-   and wait for my approval; don't ask again or recast. Then create standard
-   Squad state and stop. Don't inspect/edit workshop sources or the app, or
-   implement.
+   Project: GitHub Universe workshop.
+    Blue: implements participant-approved changes and delivers them through a
+    reviewed pull request.
+    Red: read-only security reviewer.
+    Green: implements assigned features and advises on remediation.
+    Purple: human workshop validation reviewer. Add Purple as a human roster
+    member with no agent charter or history; review each workshop checkpoint.
+   Include the default built-ins support squad members; no @copilot or other AI specialists.
+    Preserve these names and roles. Use the complete-roster fast path. Show all
+    eight roster entries, including seven agents and Purple as a human, with
+    roles/scopes, and wait for my approval; don't ask again or recast. Then
+    create standard Squad state and stop. Don't inspect/edit workshop sources or
+    the app, or implement.
    ```
 
    At the `Roster approval` prompt, select `❯ Yes, hire this team`.
 
-   Squad creates the seven-member agent team only after your approval. Keep the
-   default built-in support agents; they are expected. Then add Purple as the
-   human workshop reviewer:
-
-   ```text
-   Add Purple as a human team member and workshop validation reviewer.
-   Purple reviews the evidence at each checkpoint in the workshop routing.
-   Keep Purple as a human roster entry only, with no agent charter or history.
-   Show the updated roster and wait for me to confirm Purple was added.
-   ```
-
-   Purple is the eighth roster member, not an AI specialist. Squad routes review
-   requests to Purple and pauses; you relay the materials and Purple's decision.
-   The installer preserves this human roster entry when it adopts the workshop
-   contracts.
+   Squad creates the roster only after your approval. It contains seven agents,
+   including the four default built-ins, and Purple as a human reviewer. Squad
+   routes review requests to Purple and pauses; you relay the materials and
+   Purple's decision. The installer preserves Purple's human roster entry when
+   it adopts the workshop contracts.
 1. Run the app startup command in 🖥️ Terminal 1. It adopts the role contracts,
    registers you, and starts the app.
 

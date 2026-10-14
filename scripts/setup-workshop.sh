@@ -46,9 +46,8 @@ Next:
 4. In Copilot, select the model:
   /model gpt-6-luna
 5. Use the complete team prompt in .github/steps/1-step.md. It supplies the
-  project context and seven-agent roster. At Roster approval, select
-  "❯ Yes, hire this team", then add Purple as the human workshop reviewer as
-  described there. Do not start implementation yet.
+  role definitions for seven agents and Purple as a human reviewer. At Roster
+  approval, select "❯ Yes, hire this team". Do not start implementation yet.
 6. After the approved roster exists and the health check passes, run all npm
   commands in participant Terminal 1. Start the app with:
   npm run workshop:start
