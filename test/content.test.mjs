@@ -76,7 +76,7 @@ test("workshop steps link forward and use available commands at the appropriate 
   assert.deepEqual(actual, stepFiles.map((file) => path.basename(file)).sort());
   const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   const requiredCommands = [
-    ["workshop:start", "delivery", "phase -- red"],
+    ["workshop:start", "workshop:baseline", "delivery", "phase -- red"],
     ["codeql:review -- baseline --reviewed", "phase -- purple"],
     ["approve -- parameter-binding"],
     ["verify", "regressions", "phase -- green", "phase -- blue", "codeql:review -- fixed --reviewed"],
@@ -118,6 +118,8 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model mai-code-1.1-flash"));
       assert.ok(content.indexOf("/model mai-code-1.1-flash") < content.indexOf("Squad, create my team:"));
       assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
+      assert.ok(content.indexOf("npm run workshop:start") < content.indexOf("npm run workshop:baseline"));
+      assert.ok(content.indexOf("npm run workshop:baseline") < content.indexOf("npm run workshop:restart"));
       assert.ok(content.indexOf("Squad : show me team members and roles") < content.indexOf("npm run workshop:start"));
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
       const rosterPrompt = content.match(/Squad, create my team:\n([\s\S]*?)\n\s*```/)?.[1];
@@ -135,6 +137,8 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /Stop only after creating the state and\s+report the files and directories created/i);
       assert.match(content, /vscode-jsonrpc exports field.*expected.*non-blocking/s);
       assert.match(content, /Review the delivery checks in 🤖 Terminal 2/);
+      assert.match(content, /Delivery verifies that app\/src\/hotels\.js still contains the exact supplied\s+prototype/);
+      assert.match(content, /npm run workshop:baseline/);
       assert.match(content, /Squad : show me team members and roles/);
       assert.doesNotMatch(content, /Then add Purple as a human/);
       assert.match(content, /route the Step 1 checkpoint to Purple/);
@@ -153,6 +157,7 @@ test("workshop steps link forward and use available commands at the appropriate 
         "squad doctor",
         "copilot --agent squad --yolo",
         "npm run workshop:start",
+        "npm run workshop:baseline",
         "npm run workshop:restart",
         "npm run delivery",
         "npm run phase -- red",

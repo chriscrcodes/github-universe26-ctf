@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node src/server.js",
+    "workshop:baseline": "node scripts/integrate-challenge.js",
     "register": "node scripts/register.js",
     "verify": "node scripts/verify.js",
     "codeql:review": "node scripts/codeql-review.js",

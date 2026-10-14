@@ -123,13 +123,23 @@ accept bookings.
    the facilitator before asking Green to implement. Each `bash` block is one
    command to paste into the named terminal. You do not need a new agent
    conversation per step.
-1. Ask Green to integrate the supplied prototype, without inventing a defect:
+1. In 🖥️ Terminal 1, install the exact supplied prototype as the synthetic
+   workshop baseline. This creates the intentional SQL injection used for the
+   CodeQL exercise. The command changes only `app/src/hotels.js` and is safe to
+   rerun. Review the diff before continuing.
+
+   ```bash
+   npm run workshop:baseline
+   ```
+
+1. Ask Green to review the deterministic integration instead of rewriting it:
 
    ```text
-   Green, implement city search by integrating the supplied prototype from
-   app/data/city-search-prototype.txt into app/src/hotels.js unchanged.
-   Preserve other functions and filters. Show the diff and normal-search checks.
-   Do not commit or push without my approval.
+   Green, review the deterministic baseline in app/src/hotels.js against
+   app/data/city-search-prototype.txt. Do not edit or fix it. Explain the
+   changed data flow and confirm that only the supplied synthetic challenge
+   function changed. Show the diff and normal-search checks. Do not commit or
+   push without my approval.
    ```
 
    `Paris` and `paris` must return the same two public listings; unknown and
@@ -177,8 +187,11 @@ accept bookings.
    ```
 
 1. Review the delivery checks in 🤖 Terminal 2. Run each command separately. The
-   push starts analysis according to the preflighted CodeQL configuration; it
-   does not prove that analysis has completed.
+   Delivery verifies that app/src/hotels.js still contains the exact supplied
+   prototype and that the running app exposes the expected synthetic fixture.
+   A stale app or safe/re-written source fails the check before evidence is
+   recorded. The push starts analysis according to the preflighted CodeQL
+   configuration; it does not prove that analysis has completed.
 
    ```bash
    npm run delivery
