@@ -10,9 +10,17 @@ const {
 } = require("./search-query");
 
 function searchHotelsByCity(city, options = {}) {
-  const error = new Error("Hotel search by city has not been delivered yet.");
-  error.code = "CITY_SEARCH_NOT_IMPLEMENTED";
-  throw error;
+  const term = normalizeSearchTerm(city);
+  if (!term) return [];
+
+  const filters = [{ clause: `city = '${term}' COLLATE NOCASE`, parameters: [] }];
+  const maxPrice = parsePositiveInteger(options.maxPrice);
+  if (maxPrice !== null) filters.push(buildMaxPriceFilter(maxPrice));
+  const name = normalizeSearchTerm(options.name);
+  if (name) filters.push(buildNameFilter(name));
+
+  const query = buildPublicListingQuery(filters, options.sort);
+  return withDatabase((db) => db.prepare(query.sql).all(...query.parameters));
 }
 
 function findHotelById(id) {
