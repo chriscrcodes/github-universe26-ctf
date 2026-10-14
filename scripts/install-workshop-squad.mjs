@@ -17,6 +17,7 @@ const builtInSlugs = new Set(['scribe', 'ralph', 'rai-agent', 'fact-checker']);
 const obsoleteBuiltInDirectories = new Set(['Rai']);
 const freshBuiltInDirectories = new Set([
   ...builtInSlugs,
+  'rai',
   ...obsoleteBuiltInDirectories,
 ]);
 
@@ -235,6 +236,15 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   if (!existsSync(root)) throw new Error(`repository root does not exist: ${root}`);
 
   const squadDir = path.join(root, '.squad');
+  const registryPath = path.join(squadDir, 'casting', 'registry.json');
+  const existingAgents = existsSync(registryPath) ? readJson(registryPath)?.agents : null;
+  if (existingAgents?.rai && !existingAgents['rai-agent']) {
+    preset = {
+      ...preset,
+      agents: preset.agents.map((agent) => agent.slug === 'rai-agent'
+        ? { ...agent, slug: 'rai' } : agent),
+    };
+  }
   if (!isFreshOrInstalled(squadDir, preset)) {
     const conflict = adoptRecruited ? recruitedTeamConflict(squadDir, preset)
       : 'existing team adoption requires --adopt-recruited';
@@ -246,6 +256,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   }
 
   for (const obsoleteDirectory of obsoleteBuiltInDirectories) {
+    if (obsoleteDirectory === 'Rai' && existingAgents?.rai) continue;
     const obsoletePath = path.join(squadDir, 'agents', obsoleteDirectory);
     if (existsSync(obsoletePath)) {
       rmSync(obsoletePath, { recursive: true, force: true });
@@ -332,7 +343,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   ]);
 
   for (const agent of preset.agents) {
-    if (builtInSlugs.has(agent.slug)) continue;
+    if (builtInSlugs.has(agent.slug) || agent.slug === 'rai') continue;
     const charter = readFileSync(
       path.join(presetDir, 'contracts', `${agent.slug}.md`),
       'utf8',

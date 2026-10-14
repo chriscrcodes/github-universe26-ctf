@@ -294,6 +294,44 @@ test('explicit adoption preserves recruited agent learning and requires the exac
   assert.match(readFileSync(path.join(squad, 'team.md'), 'utf8'), /\| Purple \| Workshop validation reviewer \| \| 👤 Human \|/);
 });
 
+test('adoption preserves the recruited rai built-in without creating a duplicate', (t) => {
+  const participant = makeParticipant(t);
+  const squad = path.join(participant, '.squad');
+  const agents = {};
+  for (const [slug, name] of [['blue', 'Blue'], ['red', 'Red'], ['green', 'Green'], ['rai', 'Rai']]) {
+    agents[slug] = { persistent_name: name, status: 'active' };
+    mkdirSync(path.join(squad, 'agents', slug), { recursive: true });
+  }
+  mkdirSync(path.join(squad, 'casting'), { recursive: true });
+  const registryPath = path.join(squad, 'casting', 'registry.json');
+  writeFileSync(registryPath, JSON.stringify({ agents }));
+  const charterPath = path.join(squad, 'agents', 'rai', 'charter.md');
+  const historyPath = path.join(squad, 'agents', 'rai', 'history.md');
+  writeFileSync(charterPath, 'Participant Rai charter.\n');
+  writeFileSync(historyPath, 'Participant Rai learning.\n');
+
+  const invalid = { ...agents, rai: { persistent_name: 'Other', status: 'active' } };
+  writeFileSync(registryPath, JSON.stringify({ agents: invalid }));
+  const before = treeDigest(squad);
+  const rejected = runInstaller(participant, ['--adopt-recruited']);
+  assert.notEqual(rejected.status, 0);
+  assert.match(rejected.stderr, /registry agent "rai" must have persistent_name "Rai"/);
+  assert.equal(treeDigest(squad), before);
+  writeFileSync(registryPath, JSON.stringify({ agents }));
+
+  for (const options of [['--adopt-recruited'], []]) {
+    const result = runInstaller(participant, options);
+    assert.equal(result.status, 0, result.stderr);
+    const registry = JSON.parse(readFileSync(registryPath, 'utf8'));
+    assert.equal(registry.agents.rai.persistent_name, 'Rai');
+    assert.equal(registry.agents['rai-agent'], undefined);
+    assert.match(readFileSync(path.join(squad, 'team.md'), 'utf8'), /\.squad\/agents\/rai\/charter\.md/);
+    assert.equal(readFileSync(charterPath, 'utf8'), 'Participant Rai charter.\n');
+    assert.equal(readFileSync(historyPath, 'utf8'), 'Participant Rai learning.\n');
+    assert.equal(existsSync(path.join(squad, 'agents', 'rai-agent')), false);
+  }
+});
+
 test('participant template does not ship an active Squad team', () => {
   const trackedSquad = spawnSync(
     'git',
