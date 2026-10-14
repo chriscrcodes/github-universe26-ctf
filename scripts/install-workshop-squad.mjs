@@ -131,6 +131,13 @@ function humanRosterRows(squadDir) {
   return rows;
 }
 
+function isHumanPurpleRow(row) {
+  if (!row.includes('👤')) return false;
+  const cells = row.split('|').slice(1, -1).map((cell) =>
+    cell.replaceAll('👤', '').replaceAll('**', '').trim());
+  return cells.includes('Purple');
+}
+
 function buildTeam(projectName, agents, humanRows = []) {
   const rows = agents
     .map(
@@ -214,10 +221,17 @@ function recruitedTeamConflict(squadDir, preset) {
     return 'casting registry must contain an agents object';
   }
   const allowed = new Map(preset.agents.map((agent) => [agent.slug, agent.name]));
-  const purpleIsHuman = humanRosterRows(squadDir).some((row) =>
-    row.split('|')[1].replace('👤', '').trim() === 'Purple');
+  const purpleIsHuman = humanRosterRows(squadDir).some(isHumanPurpleRow);
   for (const slug of Object.keys(agents)) {
-    if (slug === 'purple' && purpleIsHuman && agents[slug]?.persistent_name === 'Purple') continue;
+    if (slug === 'purple') {
+      if (!purpleIsHuman) {
+        return 'registry agent "purple" is not matched by a Purple row with the 👤 Human badge under ## Members';
+      }
+      if (agents[slug]?.persistent_name !== 'Purple') {
+        return 'registry agent "purple" must have persistent_name "Purple"';
+      }
+      continue;
+    }
     if (!allowed.has(slug)) return `unexpected registry agent ${JSON.stringify(slug)}`;
     if (agents[slug]?.persistent_name !== allowed.get(slug)) {
       return `registry agent ${JSON.stringify(slug)} must have persistent_name ${JSON.stringify(allowed.get(slug))}`;

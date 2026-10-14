@@ -287,7 +287,7 @@ test('explicit adoption preserves recruited agent learning and requires the exac
   const agentTeam = treeDigest(squad);
   const rejectedPurple = runInstaller(participant, ['--adopt-recruited']);
   assert.notEqual(rejectedPurple.status, 0);
-  assert.match(rejectedPurple.stderr, /unexpected registry agent "purple"/);
+  assert.match(rejectedPurple.stderr, /registry agent "purple" is not matched by a Purple row with the 👤 Human badge/);
   assert.equal(treeDigest(squad), agentTeam);
   writeFileSync(teamPath, humanTeam);
   const adopted = runInstaller(participant, ['--adopt-recruited']);
