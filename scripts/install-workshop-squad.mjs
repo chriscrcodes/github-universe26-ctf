@@ -205,29 +205,44 @@ function writeManagedFile(root, relativePath, content) {
   writeFileSync(destination, content, 'utf8');
 }
 
-function isCompatibleRecruitedTeam(squadDir, preset) {
+function recruitedTeamConflict(squadDir, preset) {
   const registryPath = path.join(squadDir, 'casting', 'registry.json');
-  if (!existsSync(registryPath)) return false;
+  if (!existsSync(registryPath)) return 'missing .squad/casting/registry.json';
   const agents = readJson(registryPath)?.agents;
-  if (!agents || typeof agents !== 'object' || Array.isArray(agents)) return false;
+  if (!agents || typeof agents !== 'object' || Array.isArray(agents)) {
+    return 'casting registry must contain an agents object';
+  }
   const allowed = new Map(preset.agents.map((agent) => [agent.slug, agent.name]));
-  if (Object.keys(agents).some((slug) => !allowed.has(slug)
-    || agents[slug]?.persistent_name !== allowed.get(slug) || agents[slug]?.status !== 'active')) return false;
-  if (!['blue', 'red', 'green'].every((slug) => agents[slug])) return false;
+  for (const slug of Object.keys(agents)) {
+    if (!allowed.has(slug)) return `unexpected registry agent ${JSON.stringify(slug)}`;
+    if (agents[slug]?.persistent_name !== allowed.get(slug)) {
+      return `registry agent ${JSON.stringify(slug)} must have persistent_name ${JSON.stringify(allowed.get(slug))}`;
+    }
+    if (agents[slug]?.status !== 'active') {
+      return `registry agent ${JSON.stringify(slug)} must have status "active"`;
+    }
+  }
+  const missing = ['blue', 'red', 'green'].filter((slug) => !agents[slug]);
+  if (missing.length) return `missing registry agents: ${missing.join(', ')}`;
   const agentsDir = path.join(squadDir, 'agents');
-  if (!existsSync(agentsDir)) return false;
-  return readdirSync(agentsDir).every((slug) => allowed.has(slug) || obsoleteBuiltInDirectories.has(slug));
+  if (!existsSync(agentsDir)) return 'missing .squad/agents directory';
+  const unexpected = readdirSync(agentsDir).find((slug) => !allowed.has(slug)
+    && !obsoleteBuiltInDirectories.has(slug));
+  return unexpected ? `unexpected agent directory ${JSON.stringify(unexpected)}` : null;
 }
 
 function install(root, preset, { adoptRecruited = false } = {}) {
   if (!existsSync(root)) throw new Error(`repository root does not exist: ${root}`);
 
   const squadDir = path.join(root, '.squad');
-  if (!isFreshOrInstalled(squadDir, preset)
-    && !(adoptRecruited && isCompatibleRecruitedTeam(squadDir, preset))) {
-    throw new Error(
-      'an existing non-fresh Squad was found; refusing to overwrite participant team state',
-    );
+  if (!isFreshOrInstalled(squadDir, preset)) {
+    const conflict = adoptRecruited ? recruitedTeamConflict(squadDir, preset)
+      : 'existing team adoption requires --adopt-recruited';
+    if (conflict) {
+      throw new Error(
+        `an existing non-fresh Squad was found; refusing to overwrite participant team state: ${conflict}. Preserve .squad/ and ask the facilitator to reconcile the roster before retrying`,
+      );
+    }
   }
 
   for (const obsoleteDirectory of obsoleteBuiltInDirectories) {

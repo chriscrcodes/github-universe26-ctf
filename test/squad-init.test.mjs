@@ -274,7 +274,10 @@ test('explicit adoption preserves recruited agent learning and requires the exac
   assert.equal(treeDigest(squad), before);
   writeFileSync(registry, JSON.stringify({ agents: { ...agents, mentor: { persistent_name: 'Mentor', status: 'active' } } }));
   const incompatible = treeDigest(squad);
-  assert.notEqual(runInstaller(participant, ['--adopt-recruited']).status, 0);
+  const rejected = runInstaller(participant, ['--adopt-recruited']);
+  assert.notEqual(rejected.status, 0);
+  assert.match(rejected.stderr, /unexpected registry agent "mentor"/);
+  assert.match(rejected.stderr, /Preserve \.squad\//);
   assert.equal(treeDigest(squad), incompatible);
   writeFileSync(registry, JSON.stringify({ agents }));
   const adopted = runInstaller(participant, ['--adopt-recruited']);
