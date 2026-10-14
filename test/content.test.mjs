@@ -118,6 +118,7 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model gpt-6-luna"));
       assert.ok(content.indexOf("/model gpt-6-luna") < content.indexOf("Squad, create my team:"));
       assert.ok(content.indexOf("Squad, create my team:") < content.indexOf("npm run workshop:start"));
+      assert.ok(content.indexOf("Squad : show me team members and roles") < content.indexOf("npm run workshop:start"));
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
       const rosterPrompt = content.match(/Squad, create my team:\n([\s\S]*?)\n\s*```/)?.[1];
       assert.ok(rosterPrompt, "Step 1 includes the roster prompt");
@@ -130,10 +131,9 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /wait for my approval; don't ask again or recast/i);
       assert.match(content, /Then\s+create standard\s+Squad state and stop/i);
       assert.match(content, /Review the delivery checks in 🤖 Terminal 2/);
-      assert.match(content, /Confirm they are active and Purple is listed as the human\s+reviewer/i);
+      assert.match(content, /Squad : show me team members and roles/);
       assert.doesNotMatch(content, /Then add Purple as a human/);
       assert.match(content, /route the Step 1 checkpoint to Purple/);
-      assert.match(content, /Do not repeat the\s+roster summary, implement, or\s+advance a phase/i);
       assert.doesNotMatch(content, /which language the app uses, answer `node app`/i);
       const initSkill = await readFile(path.join(root, ".github/skills/coordinator-init-mode/SKILL.md"), "utf8");
       assert.match(initSkill, /Complete-roster fast path/);

@@ -94,6 +94,11 @@ accept bookings.
    routes review requests to Purple and pauses; you relay the materials and
    Purple's decision. The installer preserves Purple's human roster entry when
    it adopts the workshop contracts.
+
+   ```text
+   Squad : show me team members and roles
+   ```
+
 1. Run the app startup command in 🖥️ Terminal 1. It adopts the role contracts,
    registers you, and starts the app.
 
@@ -107,13 +112,6 @@ accept bookings.
    the facilitator before asking Green to implement. Each `bash` block is one
    command to paste into the named terminal. You do not need a new agent
    conversation per step.
-
-   ```text
-   Squad, load the adopted workshop routing and Blue, Red and Green charters
-   under .squad. Confirm they are active and Purple is listed as the human
-   reviewer. Wait for my task. Do not repeat the roster summary, implement, or
-   advance a phase.
-   ```
 1. Ask Green to integrate the supplied prototype, without inventing a defect:
 
    ```text
