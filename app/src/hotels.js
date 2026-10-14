@@ -13,7 +13,7 @@ function searchHotelsByCity(city, options = {}) {
   const term = normalizeSearchTerm(city);
   if (!term) return [];
 
-  const filters = [{ clause: `city = '${term}' COLLATE NOCASE`, parameters: [] }];
+  const filters = [buildCityFilter(term)];
   const maxPrice = parsePositiveInteger(options.maxPrice);
   if (maxPrice !== null) filters.push(buildMaxPriceFilter(maxPrice));
   const name = normalizeSearchTerm(options.name);
