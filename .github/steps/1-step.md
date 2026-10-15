@@ -7,12 +7,12 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
 ## Step 1: Recruit your team and deliver search (Tasks 01 to 05)
 
-> [!IMPORTANT]
-> **📍 Phase Progress:** 🎯 **`1. red` (Initial Delivery: CURRENT)** ➔ ⏳ `2. purple` (CodeQL Review) ➔ ⏳ `3. green` (Local Fix Verified) ➔ ⏳ `4. blue` (PR Merged to `main`) ➔ ⏳ `5. codeql` (Hosted Scan Clean)
->
-> **Active Specialist:** 🟢 **Green** · **Checkpoint Reviewer:** 🟣 **Purple** · **Target Milestone:** `npm run workshop -- phase red`
->
-> **Terminal guide:** 🖥️ Terminal 1 is for setup and the running app. 🤖 Terminal 2 holds the ongoing Squad conversation and agent prompts. Use the browser for the app and GitHub checks. Follow the terminal named above each command.
+### At a glance
+
+* Current phase: `1. red`, initial delivery
+* Roles: Green delivers; Purple reviews checkpoints
+* Publish after delivery checks: `npm run workshop -- phase red`
+* Terminals: 🖥️ Terminal 1 for setup and the app; 🤖 Terminal 2 for Squad and prompts. Use the browser for the app and GitHub checks. Follow each command's terminal label.
 
 ### Theory: Separate responsibilities and phase order
 

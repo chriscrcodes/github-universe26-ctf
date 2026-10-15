@@ -178,7 +178,7 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /route the Step 2 checkpoint to Purple/);
     }
     if (index === 2) {
-      assert.match(content, /Current checkpoint:\*\* Approve the correction scope/);
+      assert.match(content, /Current checkpoint: Approve the correction scope/);
       assert.match(content, /does not publish a scoreboard phase/);
       assert.match(content, /route this correction-scope checkpoint to Purple/);
     }

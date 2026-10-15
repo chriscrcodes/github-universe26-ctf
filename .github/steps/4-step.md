@@ -7,10 +7,11 @@ description: "Blue implements the approved patch and the participant confirms th
 
 ## Step 4: Deliver the correction and confirm fixed (Tasks 11 to 15)
 
-> [!IMPORTANT]
-> **📍 Phase Progress:** ✅ `1. red` (Initial Delivery) ➔ ✅ `2. purple` (CodeQL Review) ➔ 🎯 **`3. green` (Local Fix Verified)** ➔ 🎯 **`4. blue` (PR Merged to `main`)** ➔ 🎯 **`5. codeql` (Hosted Scan Clean)**
->
-> **Active Specialist:** 🔵 **Blue** *(then 🔴 **Red** for optional scan comparison)* · **Checkpoint Reviewer:** 🟣 **Purple** · **Target Milestones:** `green` ➔ `blue` ➔ `codeql`
+### At a glance
+
+* Current work: Verify the local fix, merge the PR, then confirm the hosted CodeQL alert is fixed.
+* Roles: Blue delivers the approved fix; Purple reviews checkpoints; Red can compare scan results.
+* Terminals: Continue in 🤖 Terminal 2 for Squad. Use 🖥️ Terminal 1 only for commands labeled there.
 >
 ### Theory: Why `green` is validated before `blue` (and before `codeql`)
 
@@ -26,7 +27,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
 
 ### Stage 4A: Verify the fix locally and publish Phase 3: `green` (Tasks 11 to 12)
 
-> **📍 Current Target:** ✅ `red` ➔ ✅ `purple` ➔ 🎯 **`3. green` (Local Fix Verified)** ➔ ⏳ `4. blue` ➔ ⏳ `5. codeql`
+> **Phase target:** `3. green`, local fix verified
 
 11. **[Task 11] Apply the patch on `fix/city-search`, verify locally, and route to Purple (🤖 Terminal 2 + 🌐 Browser)**
 
@@ -79,7 +80,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
 
 ### Stage 4B: Merge the PR to `main` and publish Phase 4: `blue` (Tasks 13 to 14)
 
-> **📍 Current Target:** ✅ `red` ➔ ✅ `purple` ➔ ✅ `green` ➔ 🎯 **`4. blue` (PR Merged to `main`)** ➔ ⏳ `5. codeql`
+> **Phase target:** `4. blue`, PR merged to `main`
 
 13. **[Task 13] Relay Purple's PR approval, merge to `main`, and run regressions (🤖 Terminal 2)**
 
@@ -115,7 +116,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
 
 ### Stage 4C: Confirm hosted CodeQL scan and publish Phase 5: `codeql` (Task 15)
 
-> **📍 Current Target:** ✅ `red` ➔ ✅ `purple` ➔ ✅ `green` ➔ ✅ `blue` ➔ 🎯 **`5. codeql` (Hosted Scan Clean)**
+> **Phase target:** `5. codeql`, hosted scan clean
 
 15. **[Task 15] Review the fixed CodeQL alert on `main` and publish Phase 5: `codeql` (🌐 Browser + 🤖 Terminal 2)**
 
@@ -190,7 +191,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
 
 ---
 
-### ✅ Checkpoint: All 5 Phases Complete (`red` ➔ `purple` ➔ `green` ➔ `blue` ➔ `codeql`)
+### ✅ Checkpoint: All 5 phases complete
 
 - [ ] **Phase 3 (`green`):** Local app restarted and `npm run verify` passed on `fix/city-search`.
 - [ ] **Phase 4 (`blue`):** Pull request merged to `main` and `npm run regressions` passed.

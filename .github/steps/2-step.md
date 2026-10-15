@@ -7,12 +7,12 @@ description: "Explain the delivered code and attest to reviewing the exact commi
 
 ## Step 2: Explain the exposure and review CodeQL (Tasks 06 to 08)
 
-> [!IMPORTANT]
-> **📍 Phase Progress:** ✅ `1. red` (Initial Delivery) ➔ 🎯 **`2. purple` (CodeQL Review: CURRENT)** ➔ ⏳ `3. green` (Local Fix Verified) ➔ ⏳ `4. blue` (PR Merged to `main`) ➔ ⏳ `5. codeql` (Hosted Scan Clean)
->
-> **Active Specialist:** 🔴 **Red** · **Checkpoint Reviewer:** 🟣 **Purple** · **Target Milestone:** `npm run workshop -- phase purple`
->
-> **Terminal guide:** Continue in the existing 🤖 Terminal 2 Squad conversation. Use 🖥️ Terminal 1 only for commands labeled there.
+### At a glance
+
+* Current phase: `2. purple`, CodeQL review
+* Roles: Red reviews the security finding; Purple reviews the checkpoint
+* Publish after Purple approves: `npm run workshop -- phase purple`
+* Terminals: Continue in the existing 🤖 Terminal 2 Squad conversation. Use 🖥️ Terminal 1 only for commands labeled there.
 
 ### Theory: A scan is evidence, not a verdict on every behavior
 

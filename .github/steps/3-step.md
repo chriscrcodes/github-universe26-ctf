@@ -7,14 +7,12 @@ description: "Ask Green for a minimal correction and choose the approved scope."
 
 ## Step 3: Choose the correction (Tasks 09 to 10)
 
-> [!IMPORTANT]
-> **📍 Scoreboard:** ✅ `1. red` (Initial Delivery) ➔ ✅ `2. purple` (CodeQL Review) ➔ ⏳ `3. green` (Local Fix Verified) ➔ ⏳ `4. blue` (PR Merged to `main`) ➔ ⏳ `5. codeql` (Hosted Scan Clean)
->
-> **Current checkpoint:** Approve the correction scope. This does not publish a scoreboard phase.
->
-> **Active specialist:** 🟢 **Green** (advises only) · **Reviewer:** 🟣 **Purple** · **Approval command:** `npm run approve -- parameter-binding`
->
-> **Terminal guide:** Continue in the existing 🤖 Terminal 2 Squad conversation. Use 🖥️ Terminal 1 only for commands labeled there.
+### At a glance
+
+* Current checkpoint: Approve the correction scope. This does not publish a scoreboard phase.
+* Roles: Green advises; Purple reviews the scope
+* Record your approval: `npm run approve -- parameter-binding`
+* Terminals: Continue in the existing 🤖 Terminal 2 Squad conversation. Use 🖥️ Terminal 1 only for commands labeled there.
 
 ### Theory: Keep query syntax separate from values
 
