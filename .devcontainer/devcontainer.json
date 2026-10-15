@@ -1,6 +1,9 @@
 {
   "name": "Universe 2026 CTF",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
   "remoteUser": "node",
   "forwardPorts": [3000],
   "portsAttributes": {

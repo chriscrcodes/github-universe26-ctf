@@ -26,13 +26,18 @@ const workshopDocumentation = [
 test("README omits manual workshop board connection instructions", async () => {
   const readme = await readFile(readmePath, "utf8");
   const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+  const appManifest = JSON.parse(await readFile(path.join(root, "app/package.json"), "utf8"));
   assert.deepEqual(manifest.workspaces, ["app"]);
+  assert.equal(manifest.engines.node, ">=24 <25");
+  assert.equal(appManifest.dependencies["better-sqlite3"], "^12.4.1");
   assert.equal(manifest.scripts["board:local"], undefined);
   assert.equal(manifest.scripts["load:board"], undefined);
+  assert.doesNotMatch(readme, /local.{0,30}scoreboard|scoreboard.{0,30}local/i);
   assert.doesNotMatch(readme, /Connect to the Workshop Board|Manual board connection/);
   assert.doesNotMatch(readme, /ALLOW_LOCAL_BOARD|BOARD_SESSION_ID|BOARD_TOKEN|127\.0\.0\.1:8080/);
   assert.doesNotMatch(readme, /BOARD_OPERATOR_KEY|npm run board:local|FACILITATOR\.md/);
   assert.doesNotMatch(readme, /--request (?:DELETE|POST)|\/api\/teams\/|\/api\/reset/);
+  assert.doesNotMatch(readme, /GH_TOKEN|GITHUB_TOKEN|CodeQL access in Codespaces|Code scanning alerts: read/i);
 });
 
 test("operator artifacts do not ship in the participant repository", async () => {
@@ -50,6 +55,7 @@ test("operator artifacts do not ship in the participant repository", async () =>
 test("participant pages have metadata and workshop documents have valid blocks and links", async () => {
   for (const file of workshopDocumentation) {
     const content = await readFile(path.join(root, file), "utf8");
+    assert.doesNotMatch(content, /GH_TOKEN|Codespaces secret|Code scanning alerts: read/i, `${file}: no CodeQL access secret instructions`);
     if (file === "README.md" || stepFiles.includes(file)) {
       assert.match(content, /^---\ntitle: .+\ndescription: .+\n---/, `${file}: metadata`);
     }
@@ -201,6 +207,17 @@ test("workshop steps link forward and use available commands at the appropriate 
   assert.match(review, /Security lessons/);
   assert.match(review, /Evidence trail/);
   const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
+  assert.match(setup, /GitHub handle: %s/);
+  assert.match(setup, /Scoreboard URL: %s/);
+  assert.match(setup, /Scoreboard token: configured/);
+  assert.match(setup, /Scoreboard token: not configured/);
+  assert.doesNotMatch(setup, /printf[^\n]*BOARD_TOKEN/);
+  assert.doesNotMatch(setup, /npm install --global/);
+  const devcontainer = JSON.parse(await readFile(path.join(root, ".devcontainer/devcontainer.json"), "utf8"));
+  assert.equal(devcontainer.build.dockerfile, "Dockerfile");
+  const dockerfile = await readFile(path.join(root, ".devcontainer/Dockerfile"), "utf8");
+  assert.match(dockerfile, /@bradygaster\/squad-cli@1\.0\.0/);
+  assert.match(dockerfile, /@github\/copilot@1\.0\.88/);
   assert.ok(setup.indexOf("squad doctor") < setup.indexOf("copilot --agent squad --yolo"));
   assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("/model mai-code-1.1-flash"));
   assert.ok(setup.indexOf("/model mai-code-1.1-flash") < setup.indexOf("npm run workshop:start"));

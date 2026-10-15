@@ -4,7 +4,7 @@
   "private": true,
   "description": "GitHub Universe purple-team workshop",
   "engines": {
-    "node": ">=22"
+    "node": ">=24 <25"
   },
   "workspaces": [
     "app"
@@ -27,5 +27,8 @@
     "squad:install-workshop-team": "node scripts/install-workshop-squad.mjs",
     "test": "node --test test/*.test.mjs app/test/*.test.js",
     "test:integration": "node --test test/*.integration.mjs"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true
   }
 }

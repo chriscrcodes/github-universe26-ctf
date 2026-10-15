@@ -221,10 +221,6 @@ Step 4 advances through the final three scoreboard phases in strict order, match
   to hide a finding or substitute another repository's result.
 - If GitHub analysis is still pending, keep the workshop pending and resume
    the evidence review later. Do not publish final completion.
-- If the review reports Code Scanning access denied, configure the `GH_TOKEN`
-   Codespaces secret as described in the README's "CodeQL access in Codespaces"
-   section, restart the Codespace, and verify API access before reviewing again.
-   An API-access check is not evidence that the scan is clean.
 
 For a verification failure:
 

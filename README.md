@@ -1,6 +1,6 @@
 ---
 title: "GitHub Universe CTF: AI Teams, One Codebase"
-description: "A GitHub Copilot and Squad hotel-search security workshop with a local or shared scoreboard."
+description: "A GitHub Copilot and Squad hotel-search security workshop with a shared participant scoreboard."
 ---
 
 <div align="center">
@@ -29,7 +29,7 @@ names with synthetic prices, dates, room options, and challenge records.
 Keep it local or use private Codespaces forwarding.
 
 Before starting, open your participant Codespace. The facilitator prepares
-Node.js 22, dependencies, GitHub Copilot CLI, `gh`, Squad, and CodeQL.
+Node.js 24 LTS, dependencies, GitHub Copilot CLI, `gh`, Squad, and CodeQL.
 
 Complete 15 numbered tasks in order:
 
@@ -87,29 +87,6 @@ prompts are optional. Report a queued CodeQL scan as **pending**, not clean.
 <p align="left">
   <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>
 </p>
-
-<details>
-<summary>CodeQL access in Codespaces (configure <code>GH_TOKEN</code> if Code Scanning returns 403/404)</summary>
-
-The Codespaces-provided `GITHUB_TOKEN` may not have permission to read Code
-Scanning. To enable the final CodeQL review automatically:
-
-1. Create a fine-grained personal access token with access to the participant repository and the repository permission **Code scanning alerts: read**.
-1. Add it to your GitHub account under **Settings > Codespaces > Secrets** with the name `GH_TOKEN`, and grant it to the participant repository.
-1. Restart an existing Codespace (or create a new one) to load the secret. GitHub CLI gives `GH_TOKEN` precedence over `GITHUB_TOKEN`; never commit the token or paste it in chat.
-
-Confirm that the API is accessible from the Codespace:
-
-```bash
-gh api "repos/$(gh repo view --json nameWithOwner --jq .nameWithOwner)/code-scanning/analyses" \
-  -f ref=refs/heads/main -f tool_name=CodeQL -f per_page=1 --jq 'length'
-```
-
-A number, including `0`, confirms API access only; it does not prove the scan is
-clean. A `403` or `404` means the token, repository access, or Code Scanning
-availability still needs attention.
-
-</details>
 
 ![Humorous science-fiction illustration of Squad characters facing a creature in a corridor.](.github/images/squad.jpeg)
 
