@@ -216,6 +216,7 @@ test("workshop steps link forward and use available commands at the appropriate 
   const devcontainer = JSON.parse(await readFile(path.join(root, ".devcontainer/devcontainer.json"), "utf8"));
   assert.equal(devcontainer.build.dockerfile, "Dockerfile");
   const dockerfile = await readFile(path.join(root, ".devcontainer/Dockerfile"), "utf8");
+  assert.match(dockerfile, /FROM mcr\.microsoft\.com\/devcontainers\/javascript-node:24-bookworm/);
   assert.match(dockerfile, /@bradygaster\/squad-cli@1\.0\.0/);
   assert.match(dockerfile, /@github\/copilot@1\.0\.88/);
   assert.ok(setup.indexOf("squad doctor") < setup.indexOf("copilot --agent squad --yolo"));
