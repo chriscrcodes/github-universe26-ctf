@@ -66,6 +66,7 @@ test("participant pages have metadata and workshop documents have valid blocks a
   const squadReadme = await readFile(path.join(root, "workshop/squad/README.md"), "utf8");
   assert.match(squadReadme, /🖥️ Terminal 1/);
   assert.match(squadReadme, /🤖 Terminal 2/);
+  assert.match(squadReadme, /follow \[Task 03 in Step 1\].*load the\s+baseline and restart the app in order/is);
   for (const slug of ["blue", "red", "green", "scribe", "ralph", "rai-agent", "fact-checker"]) {
     await assert.rejects(access(path.join(root, "workshop/squad/agents", slug, "charter.md")), { code: "ENOENT" });
   }
@@ -110,6 +111,10 @@ test("workshop steps link forward and use available commands at the appropriate 
     }
     if (index === 0) {
       assert.match(content, /copilot --agent squad --yolo/);
+      assert.match(content, /run these steps in order\. Wait for each command to finish/i);
+      assert.match(content, /Load the baseline:[\s\S]*supplied city-search baseline/i);
+      assert.match(content, /`red` means the baseline is ready for Red to review/i);
+      assert.doesNotMatch(content, /vulnerable prototype/i);
       assert.doesNotMatch(content, /' OR 1=1 --/);
       assert.match(content, /Add @copilot as an autonomous team member\? \[Y\/n\].*answer `No`/s);
       assert.doesNotMatch(content, /\.squad\/config\.json/);

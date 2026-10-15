@@ -91,17 +91,23 @@ description: "Explain the delivered code and attest to reviewing the exact commi
    <details>
    <summary>🖥️ Manual fallback commands (only if you prefer running in Terminal 1)</summary>
 
-   ```bash
-   npm run codeql:review -- baseline
-   ```
+   1. Collect the baseline report:
 
-   ```bash
-   npm run codeql:review -- baseline --reviewed
-   ```
+      ```bash
+      npm run codeql:review -- baseline
+      ```
 
-   ```bash
-   npm run workshop -- phase purple
-   ```
+   2. After reviewing the exact commit, record your attestation:
+
+      ```bash
+      npm run codeql:review -- baseline --reviewed
+      ```
+
+   3. After Purple approves the checkpoint, publish the phase and confirm the prompt:
+
+      ```bash
+      npm run workshop -- phase purple
+      ```
 
    </details>
 

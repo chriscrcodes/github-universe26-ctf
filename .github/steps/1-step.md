@@ -39,21 +39,24 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
 1. **[Task 01] Initialize Squad and check environment health (🖥️ Terminal 1)**
 
-   * **Action:** Initialize Squad at the repository root and run the health check.
    * **Prompt answer:** If asked `Add @copilot as an autonomous team member? [Y/n]`, answer `No`.
    * **Expected warnings:** `vscode-jsonrpc exports field` and `copilot-sdk session.js ESM patch` are expected and non-blocking.
 
-   > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
-
-   ```bash
-   squad init --no-workflows
-   ```
+   * **Action:** In 🖥️ Terminal 1, complete these steps in order:
 
    > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
 
-   ```bash
-   squad doctor
-   ```
+   1. **Initialize Squad:**
+
+      ```bash
+      squad init --no-workflows
+      ```
+
+   2. **After initialization finishes, check the environment:**
+
+      ```bash
+      squad doctor
+      ```
 
 2. **[Task 02] Launch Squad and recruit your team (🤖 Terminal 2)**
 
@@ -108,25 +111,27 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
 3. **[Task 03] Start the app, install the baseline, and verify in the browser (🖥️ Terminal 1 + 🌐 Browser)**
 
-   * **Action:** Run all three startup commands in **🖥️ Terminal 1** (adopt contracts, install the vulnerable prototype in `app/src/hotels.js`, and restart the app):
+   * **Action:** In 🖥️ Terminal 1, run these steps in order. Wait for each command to finish before starting the next.
 
    > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
 
-   ```bash
-   npm run workshop:start
-   ```
+   1. **Prepare and start:** Check the environment, adopt your Squad, register, and start the app.
 
-   > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
+      ```bash
+      npm run workshop:start
+      ```
 
-   ```bash
-   npm run workshop:baseline
-   ```
+   2. **Load the baseline:** Integrate the supplied city-search baseline into `app/src/hotels.js`.
 
-   > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
+      ```bash
+      npm run workshop:baseline
+      ```
 
-   ```bash
-   npm run workshop:restart
-   ```
+   3. **Reload the app:** Restart it so it uses the integrated baseline.
+
+      ```bash
+      npm run workshop:restart
+      ```
 
    > [!TIP]
    > **You are now done with 🖥️ Terminal 1!** Leave it running in the background. For **Tasks 04 to 15**, you will work exclusively in **🤖 Terminal 2 (Squad)** and **🌐 Browser**.
@@ -202,7 +207,7 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
 - [ ] Normal search returns **2 listings** for `Paris` / `paris` and **0** for unknown/empty cities.
 - [ ] **🟢 Green** pushed `feature/city-search` and `npm run delivery` passed.
-- [ ] **🟣 Purple** approved the checkpoint and **`Phase red recorded`** appears in the output. *(Note: `red` means the vulnerable surface is live for Red to review next.)*
+- [ ] **🟣 Purple** approved the checkpoint and **`Phase red recorded`** appears in the output. *(Note: `red` means the baseline is ready for Red to review.)*
 
 **Next step:** Continue to [Step 2](2-step.md).
 
@@ -210,7 +215,7 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 <summary>Having trouble?</summary>
 
 - **Facilitator preflight:** `BOARD_URL` and `BOARD_TOKEN` are preconfigured privately (offline mode is also supported; never paste or commit tokens).
-- **501 response:** City search has not been loaded yet—run `npm run workshop:baseline` and `npm run workshop:restart` in 🖥️ Terminal 1.
+- **501 response:** The city-search baseline is not loaded. In 🖥️ Terminal 1, run `npm run workshop:baseline`; after it finishes, run `npm run workshop:restart`.
 - **Relaunch app only:** `npm run workshop:app` restarts the server without re-registering.
 - **Roster conflict:** Adoption requires the exact Blue/Red/Green/Purple roster plus the four default built-ins. Ask the facilitator if installation is refused.
 

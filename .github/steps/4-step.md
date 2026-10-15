@@ -151,41 +151,52 @@ Step 4 advances through the final three scoreboard phases in strict order, match
     <details>
     <summary>🖥️ Manual fallback commands (if you prefer running delivery regression in 🖥️ Terminal 1)</summary>
 
-    ```bash
-    npm run workshop:restart
-    ```
+     Run the commands in order. Stop if one fails, and wait for Purple's approval
+     wherever a checkpoint is specified.
 
-    ```bash
-    npm run verify
-    ```
+     1. Restart the app, then verify the local fix:
 
-    ```bash
-    npm run workshop -- phase green
-    ```
+         ```bash
+         npm run workshop:restart
+         ```
 
-    ```bash
-    git switch main
-    ```
+         ```bash
+         npm run verify
+         ```
 
-    ```bash
-    git pull --ff-only
-    ```
+     2. After Purple approves the corrected-code checkpoint, publish `green` and
+         confirm the prompt:
 
-    ```bash
-    npm run regressions
-    ```
+         ```bash
+         npm run workshop -- phase green
+         ```
 
-    ```bash
-    npm run workshop -- phase blue
-    ```
+     3. After the PR is merged, update local `main` and run regressions in order.
+         Stop if any command fails:
 
-    ```bash
-    npm run codeql:review -- fixed --reviewed
-    ```
+         ```bash
+         git switch main &&
+         git pull --ff-only &&
+         npm run regressions
+         ```
 
-    ```bash
-    npm run workshop -- phase codeql
-    ```
+     4. After Purple approves the merged-delivery checkpoint, publish `blue` and
+         confirm the prompt:
+
+         ```bash
+         npm run workshop -- phase blue
+         ```
+
+     5. After CodeQL confirms the alert is fixed and Purple approves, record your
+         attestation, then publish `codeql`:
+
+         ```bash
+         npm run codeql:review -- fixed --reviewed
+         ```
+
+         ```bash
+         npm run workshop -- phase codeql
+         ```
 
     </details>
 

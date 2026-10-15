@@ -38,7 +38,7 @@ Complete 15 numbered tasks in order:
 1. [Step 3 (Tasks 09 to 10): Ask Green for a correction and approve the scope (`parameter-binding`)](.github/steps/3-step.md).
 1. [Step 4 (Tasks 11 to 15): Verify locally (Phase `green`), merge the PR to `main` (Phase `blue`), and confirm CodeQL fixed (Phase `codeql`)](.github/steps/4-step.md).
 
-Use the supplied training prototype. First record normal search behavior, then
+Use the supplied training baseline. First record normal search behavior, then
 investigate the challenge and restore public-only search with parameter binding.
 
 ![Normal Paris search showing two public hotel listings with real property names and synthetic room options.](.github/images/sqli-demo/1-normal-search.png)

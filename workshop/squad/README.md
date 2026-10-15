@@ -25,7 +25,7 @@ history. The contracts in `workshop/squad/contracts/` define agent roles; they
 do not create a roster. Other agents or agent directories cause adoption to
 stop without changing `.squad/`.
 
-Green integrates the supplied synthetic prototype on `feature/city-search`,
+Green integrates the supplied synthetic baseline on `feature/city-search`,
 then proposes the exact correction but does not edit or push it. Red reviews
 security evidence without changing code or automating exploitation. Blue applies
 the approved correction and delivers it through a participant-reviewed PR to
@@ -39,13 +39,14 @@ After approval, publish a milestone with `npm run workshop -- phase <phase>`
 and confirm the command prompt. Purple does not implement, run commands, or
 publish phases.
 
-The initial prototype is an explicitly authorized synthetic exercise. It uses
+The supplied baseline is an explicitly authorized synthetic exercise. It uses
 public hotel names, synthetic listing details, private challenge records, and
 private app access. Never use customer, participant, or production data.
 
 ### Setup
 
-1. In 🖥️ Terminal 1, run `squad init --no-workflows`, then `squad doctor`.
+1. In 🖥️ Terminal 1, run `squad init --no-workflows`. Wait for it to finish,
+   then run `squad doctor`.
 2. In 🤖 Terminal 2, run `copilot --agent squad --yolo`, select
 	`mai-code-1.1-flash` with `/model mai-code-1.1-flash`, and ask Squad to create
 	the roster described in Step 1.
@@ -54,8 +55,9 @@ private app access. Never use customer, participant, or production data.
 4. In 🖥️ Terminal 1, run `npm run workshop:start`. This adopts the contracts,
 	registers the participant, and starts the app. Startup stops on failure; it
 	does not run `squad doctor`, approve a push, or publish a phase.
-5. Install the baseline and restart the app in Terminal 1. Continue the prompts
-	in the same Terminal 2 conversation. Run fallback commands in Terminal 1.
+5. Follow [Task 03 in Step 1](../../.github/steps/1-step.md) to load the
+	baseline and restart the app in order. Continue prompts in the same Terminal
+	2 conversation. Run fallback commands in Terminal 1.
 
 ### Installer details
 
