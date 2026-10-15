@@ -11,7 +11,7 @@ description: "Explain the delivered code and attest to reviewing the exact commi
 
 * Current phase: `2. purple`, CodeQL review
 * Roles: Red reviews the security finding; Purple reviews the checkpoint
-* Publish after Purple approves: `npm run workshop -- phase purple`
+* Publish after Purple approves: `npm run phase -- purple`
 * Terminals: Continue in the existing 🤖 Terminal 2 Squad conversation. Use 🖥️ Terminal 1 only for commands labeled there.
 
 ### Theory: A scan is evidence, not a verdict on every behavior
@@ -84,7 +84,7 @@ description: "Explain the delivered code and attest to reviewing the exact commi
    ```text
    Purple approves the Step 2 checkpoint. I have reviewed the delivered source
    and local synthetic result for this exact commit. I authorize running
-   `npm run codeql:review -- baseline --reviewed` and `npm run workshop -- phase purple`
+   `npm run codeql:review -- baseline --reviewed` and `npm run phase -- purple`
    now, then stop and wait for Step 3.
    ```
 
@@ -106,7 +106,7 @@ description: "Explain the delivered code and attest to reviewing the exact commi
    3. After Purple approves the checkpoint, publish the phase and confirm the prompt:
 
       ```bash
-      npm run workshop -- phase purple
+      npm run phase -- purple
       ```
 
    </details>

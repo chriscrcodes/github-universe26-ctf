@@ -8,7 +8,7 @@ const phases = new Set(["red", "purple", "green", "blue", "codeql"]);
 
 async function main(args = process.argv.slice(2)) {
   if (args.length !== 2 || args[0] !== "phase" || !phases.has(args[1])) {
-    throw new Error("Usage: npm run workshop -- phase <red|purple|green|blue|codeql>.");
+    throw new Error("Usage: npm run phase -- <red|purple|green|blue|codeql>.");
   }
 
   const phase = args[1];

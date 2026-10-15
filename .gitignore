@@ -1,11 +1,5 @@
-# Squad: ignore runtime state (logs, inbox, sessions)
-# Note: .squad/casting/* is identity and MUST be committed to main, not ignored
-.squad/orchestration-log/
-.squad/log/
-.squad/decisions/inbox/
-.squad/sessions/
-.squad/.scratch/
-.squad/.cache/
+# Squad: ignore all local team state, including casting and roster files
+.squad/
 # Squad: SubSquad activation file (local to this machine)
 .squad-workstream
 
@@ -15,3 +9,5 @@ app/data/*
 !app/data/city-search-prototype.txt
 app/.team-state*.json
 app/.board-outbox.log
+.mcp.json
+.workshop-app*
