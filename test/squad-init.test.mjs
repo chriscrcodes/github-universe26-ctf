@@ -341,6 +341,56 @@ test('adoption preserves the recruited rai built-in without creating a duplicate
   }
 });
 
+test('adoption accepts the provenance registry agents array and preserves recruited learning', (t) => {
+  const participant = makeParticipant(t);
+  const squad = path.join(participant, '.squad');
+  const roster = [
+    ['Blue', 'Implementation Lead'],
+    ['Red', 'Security Reviewer'],
+    ['Green', 'Feature Engineer'],
+    ['Purple', 'Human Validation Reviewer'],
+    ['Scribe', 'Session Logger'],
+    ['Ralph', 'Work Monitor'],
+    ['Rai', 'RAI Reviewer'],
+    ['Fact Checker', 'Verification Analyst'],
+  ].map(([persistent_name, role]) => ({
+    persistent_name,
+    role,
+    status: 'active',
+    is_human: persistent_name === 'Purple',
+  }));
+  mkdirSync(path.join(squad, 'casting'), { recursive: true });
+  mkdirSync(path.join(squad, 'agents', 'blue'), { recursive: true });
+  writeFileSync(
+    path.join(squad, 'casting', 'registry.json'),
+    JSON.stringify({ schema: 'squad-agent-provenance/v1', agents: roster }),
+  );
+  writeFileSync(path.join(squad, 'agents', 'blue', 'history.md'), 'Participant learning.\n');
+  writeFileSync(path.join(squad, 'decisions.md'), 'Participant-owned decisions.\n');
+  writeFileSync(path.join(squad, 'team.md'), [
+    '# Squad Team',
+    '',
+    '## Members',
+    '',
+    '| Name | Role | Charter | Status |',
+    '|------|------|---------|--------|',
+    '| Purple | Human validation reviewer | | 👤 Human |',
+    '',
+  ].join('\n'));
+
+  const adopted = runInstaller(participant, ['--adopt-recruited']);
+
+  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(readFileSync(path.join(squad, 'agents', 'blue', 'history.md'), 'utf8'), 'Participant learning.\n');
+  assert.equal(readFileSync(path.join(squad, 'decisions.md'), 'utf8'), 'Participant-owned decisions.\n');
+  const registry = JSON.parse(readFileSync(path.join(squad, 'casting', 'registry.json'), 'utf8'));
+  assert.equal(Array.isArray(registry.agents), false);
+  assert.equal(registry.agents.blue.persistent_name, 'Blue');
+  assert.equal(registry.agents.rai.persistent_name, 'Rai');
+  assert.equal(registry.agents.purple, undefined);
+  assert.match(readFileSync(path.join(squad, 'team.md'), 'utf8'), /\| Purple \| Human validation reviewer \| \| 👤 Human \|/);
+});
+
 test('adoption converts a fileless Purple registry entry to the human roster member', (t) => {
   const participant = makeParticipant(t);
   const squad = path.join(participant, '.squad');

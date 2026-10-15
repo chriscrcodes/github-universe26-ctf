@@ -27,19 +27,23 @@ silence, a passing check, or the participant's own review.
 
 | Gate | Purple reviews | Continue only after |
 |------|----------------|--------------------|
-| Initial delivery (`red`) | Green's delivered diff, ordinary-search baseline and delivery checks for the pushed commit | Purple approves the evidence; the participant then authorizes publishing `red` (`npm run workshop -- phase red`) |
-| CodeQL baseline (`purple`) | The observed synthetic result and matching alert on the delivered commit | Purple approves the evidence; the participant then authorizes baseline attestation (`npm run codeql:review -- baseline --reviewed`) and publishing `purple` (`npm run workshop -- phase purple`) |
+| Initial delivery (`red`) | Green's delivered diff, ordinary-search baseline and delivery checks for the pushed commit | Purple approves the evidence; the participant then authorizes publishing `red` (`npm run phase -- red`) |
+| CodeQL baseline (`purple`) | The observed synthetic result and matching alert on the delivered commit | Purple approves the evidence; the participant then authorizes baseline attestation (`npm run codeql:review -- baseline --reviewed`) and publishing `purple` (`npm run phase -- purple`) |
 | Correction scope | Green's exact parameter-binding diff and agreed test scope | Purple approves the proposed scope; the participant then authorizes recording approval (`npm run approve -- parameter-binding`) so Blue may apply it |
-| Corrected delivery (`green`) | Blue's applied diff, restarted-app results and local verification | Purple approves the evidence; the participant then authorizes publishing `green` (`npm run workshop -- phase green`), committing, pushing and opening the PR |
+| Corrected delivery (`green`) | Blue's applied diff, restarted-app results and local verification | Purple approves the evidence; the participant then authorizes publishing `green` (`npm run phase -- green`), committing, pushing and opening the PR |
 | Pull request (`blue`) | The complete PR diff and required checks | Purple approves the review; the participant then authorizes merging the PR |
-| Merged delivery (`blue`) | The merge commit on `origin/main` and `npm run regressions` output | Purple approves the evidence; the participant then authorizes publishing `blue` (`npm run workshop -- phase blue`) |
-| Final CodeQL (`codeql`) | The original alert's fixed state and successful analyses for the corrected commit | Purple approves the hosted evidence; the participant then authorizes recording fixed review (`npm run codeql:review -- fixed --reviewed`) and publishing `codeql` (`npm run workshop -- phase codeql`) |
+| Merged delivery (`blue`) | The merge commit on `origin/main` and `npm run regressions` output | Purple approves the evidence; the participant then authorizes publishing `blue` (`npm run phase -- blue`) |
+| Final CodeQL (`codeql`) | The original alert's fixed state and successful analyses for the corrected commit | Purple approves the hosted evidence; the participant then authorizes recording fixed review (`npm run codeql:review -- fixed --reviewed`) and publishing `codeql` (`npm run phase -- codeql`) |
+
+After Purple approves a checkpoint and the participant authorizes publication,
+publish its milestone with `npm run phase -- <phase>`, for example
+`npm run phase -- red`.
 
 ## Rules
 
 1. The participant chooses each task and agent. Do not run the full journey
    automatically or treat an agent's approval as the participant's decision.
-   Run `npm run workshop -- phase`, `npm run phase`, `npm run approve`, and
+   Run `npm run phase -- <phase>`, `npm run approve`, and
    `npm run codeql:review -- ... --reviewed` only after the participant relays
    Purple's approval and explicitly authorizes the command.
 2. Route each listed checkpoint to Purple. If Purple rejects or requests

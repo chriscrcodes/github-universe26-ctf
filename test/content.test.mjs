@@ -82,11 +82,15 @@ test("workshop steps link forward and use available commands at the appropriate 
   const actual = (await readdir(path.join(root, ".github/steps"))).sort();
   assert.deepEqual(actual, stepFiles.map((file) => path.basename(file)).sort());
   const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+  const squadRouting = await readFile(path.join(root, "workshop/squad/routing.md"), "utf8");
+  assert.ok(Object.hasOwn(manifest.scripts, "phase"));
+  assert.match(squadRouting, /npm run phase -- <phase>/);
+  assert.doesNotMatch(squadRouting, /npm run workshop -- phase/);
   const requiredCommands = [
-    ["workshop:start", "workshop:baseline", "delivery", "workshop -- phase red"],
-    ["codeql:review -- baseline --reviewed", "workshop -- phase purple"],
+    ["workshop:start", "workshop:baseline", "delivery", "phase -- red"],
+    ["codeql:review -- baseline --reviewed", "phase -- purple"],
     ["approve -- parameter-binding"],
-    ["verify", "regressions", "workshop -- phase green", "workshop -- phase blue", "codeql:review -- fixed --reviewed"],
+    ["verify", "regressions", "phase -- green", "phase -- blue", "codeql:review -- fixed --reviewed"],
   ];
   const readme = await readFile(readmePath, "utf8");
   assert.match(readme, /\.github\/images\/squad\.jpeg/);
@@ -127,6 +131,13 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /sqli-demo\/0-search-not-implemented\.png/);
       assert.match(content, /sqli-demo\/1-normal-search\.png/);
       assert.doesNotMatch(content, /sqli-demo\/2-injected-search\.png/);
+      const startupCommand = content.indexOf("npm run workshop:start");
+      const unavailableSearchImage = content.indexOf("0-search-not-implemented.png");
+      const baselineCommand = content.indexOf("npm run workshop:baseline");
+      const restartCommand = content.indexOf("npm run workshop:restart");
+      const implementedSearchImage = content.indexOf("1-normal-search.png");
+      assert.ok(startupCommand < unavailableSearchImage && unavailableSearchImage < baselineCommand);
+      assert.ok(baselineCommand < restartCommand && restartCommand < implementedSearchImage);
       assert.ok(content.indexOf("squad init --no-workflows") < content.indexOf("squad doctor"));
       assert.ok(content.indexOf("squad doctor") < content.indexOf("npm run workshop:start"));
       assert.ok(content.indexOf("copilot --agent squad --yolo") < content.indexOf("/model mai-code-1.1-flash"));
@@ -174,7 +185,7 @@ test("workshop steps link forward and use available commands at the appropriate 
         "npm run workshop:baseline",
         "npm run workshop:restart",
         "npm run delivery",
-        "npm run workshop -- phase red",
+        "npm run phase -- red",
       ]);
     } else assert.doesNotMatch(content, /--yolo/);
     if (index === 1) {

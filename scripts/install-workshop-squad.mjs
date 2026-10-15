@@ -203,6 +203,31 @@ No project-specific learnings recorded.
 `;
 }
 
+
+function normalizeRegistryAgents(registry, preset) {
+  const source = registry?.agents;
+  if (Array.isArray(source)) {
+    const slugsByName = new Map(preset.agents.map((agent) => [agent.name, agent.slug]));
+    slugsByName.set('Purple', 'purple');
+    slugsByName.set('Rai', 'rai');
+    const agents = {};
+    for (const agent of source) {
+      if (!agent || typeof agent !== 'object' || Array.isArray(agent)
+        || typeof agent.persistent_name !== 'string') {
+        return { error: 'casting registry agents array must contain named agent objects' };
+      }
+      const slug = slugsByName.get(agent.persistent_name)
+        ?? agent.persistent_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      if (!slug || agents[slug]) return { error: `duplicate or invalid registry agent ${JSON.stringify(agent.persistent_name)}` };
+      agents[slug] = agent;
+    }
+    return { agents };
+  }
+  if (!source || typeof source !== 'object') {
+    return { error: 'casting registry must contain an agents object or array' };
+  }
+  return { agents: source };
+}
 function stringifyJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
@@ -216,10 +241,9 @@ function writeManagedFile(root, relativePath, content) {
 function recruitedTeamConflict(squadDir, preset) {
   const registryPath = path.join(squadDir, 'casting', 'registry.json');
   if (!existsSync(registryPath)) return 'missing .squad/casting/registry.json';
-  const agents = readJson(registryPath)?.agents;
-  if (!agents || typeof agents !== 'object' || Array.isArray(agents)) {
-    return 'casting registry must contain an agents object';
-  }
+  const normalized = normalizeRegistryAgents(readJson(registryPath), preset);
+  if (normalized.error) return normalized.error;
+  const { agents } = normalized;
   const allowed = new Map(preset.agents.map((agent) => [agent.slug, agent.name]));
   for (const slug of Object.keys(agents)) {
     if (slug === 'purple') {
@@ -259,7 +283,8 @@ function install(root, preset, { adoptRecruited = false } = {}) {
 
   const squadDir = path.join(root, '.squad');
   const registryPath = path.join(squadDir, 'casting', 'registry.json');
-  const existingAgents = existsSync(registryPath) ? readJson(registryPath)?.agents : null;
+  const existingRegistry = existsSync(registryPath) ? readJson(registryPath) : null;
+  const existingAgents = normalizeRegistryAgents(existingRegistry, preset).agents;
   if (existingAgents?.rai && !existingAgents['rai-agent']) {
     preset = {
       ...preset,

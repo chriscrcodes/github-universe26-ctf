@@ -35,7 +35,7 @@ review or approval.
 
 Purple reviews the named evidence at each checkpoint. The participant relays
 Purple's decision and authorizes commits, pushes, merges, and phase publication.
-After approval, publish a milestone with `npm run workshop -- phase <phase>`
+After approval, publish a milestone with `npm run phase -- <phase>`
 and confirm the command prompt. Purple does not implement, run commands, or
 publish phases.
 

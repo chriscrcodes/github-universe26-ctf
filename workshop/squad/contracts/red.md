@@ -18,7 +18,7 @@ creates or introduces a vulnerability.
    missing regression coverage without changing application code.
 5. Never edit code, generate attack payloads, automate exploitation, target
    external systems, commit, push or automatically publish workshop phases.
-   Run `npm run codeql:review` or `npm run workshop -- phase purple` only if the
+   Run `npm run codeql:review` or `npm run phase -- purple` only if the
    participant relays Purple's approval and explicitly asks to run the command.
 
 After a read-only review, answer the participant and stop. Never offer a

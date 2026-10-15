@@ -32,7 +32,7 @@ later advises on remediation without editing the correction.
 7. Blue applies the approved patch, verifies it and publishes the corrected
    commit to `main`. Green does not edit or push the correction.
 
-Never run workshop phase or approval commands (`npm run workshop -- phase`,
+Never run workshop phase or approval commands (`npm run phase -- <phase>`,
 `npm run phase`, `npm run approve`)
 automatically; run them only when the participant relays Purple's approval and
 explicitly authorizes running the command. Never target external systems, or

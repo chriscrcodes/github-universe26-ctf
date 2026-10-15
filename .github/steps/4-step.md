@@ -67,7 +67,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
 
     ```text
     Purple approves the corrected-code checkpoint. I authorize running
-    `npm run workshop -- phase green` now and confirm the prompt to record local fix verification.
+    `npm run phase -- green` now and confirm the prompt to record local fix verification.
 
     Then I authorize Blue to commit only the reviewed correction and agreed tests on
     fix/city-search, push that branch, and open a PR targeting main. Do not merge
@@ -108,7 +108,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
 
     ```text
     Purple approves the merged-delivery checkpoint. I authorize running
-    `npm run workshop -- phase blue` now and confirm the prompt to record delivery on main, then stop while we
+    `npm run phase -- blue` now and confirm the prompt to record delivery on main, then stop while we
     check the hosted CodeQL analysis.
     ```
 
@@ -144,7 +144,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
     ```text
     Purple approves the final CodeQL checkpoint. I have confirmed the original
     alert is fixed on the merged main commit. I authorize running
-    `npm run codeql:review -- fixed --reviewed` and `npm run workshop -- phase codeql`
+    `npm run codeql:review -- fixed --reviewed` and `npm run phase -- codeql`
     now to complete the workshop.
     ```
 
@@ -168,7 +168,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
          confirm the prompt:
 
          ```bash
-         npm run workshop -- phase green
+         npm run phase -- green
          ```
 
      3. After the PR is merged, update local `main` and run regressions in order.
@@ -184,7 +184,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
          confirm the prompt:
 
          ```bash
-         npm run workshop -- phase blue
+         npm run phase -- blue
          ```
 
      5. After CodeQL confirms the alert is fixed and Purple approves, record your
@@ -195,7 +195,7 @@ Step 4 advances through the final three scoreboard phases in strict order, match
          ```
 
          ```bash
-         npm run workshop -- phase codeql
+         npm run phase -- codeql
          ```
 
     </details>
