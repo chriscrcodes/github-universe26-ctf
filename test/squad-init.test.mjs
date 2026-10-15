@@ -230,17 +230,17 @@ test('portable preset definitions enforce the workshop role boundary', () => {
   ].map((file) => readFileSync(file, 'utf8'));
 
   const combined = files.join('\n');
-  assert.match(combined, /Green later proposes the exact correction but does\s+not edit or push it/);
+  assert.match(combined, /propose the exact patch but do not edit or push it/i);
   assert.match(combined, /exact patch/i);
   assert.match(combined, /participant.*approv/i);
-  assert.match(combined, /Blue applies only the participant-approved correction|Work only on the participant-approved correction/i);
+  assert.match(combined, /participant-approved correction/i);
   assert.match(combined, /push(?:ing)? only\s+`feature\/city-search`/i);
   assert.match(combined, /pull request targeting\s+`main`/i);
   assert.match(combined, /Never push directly to `main`/i);
   assert.match(combined, /Red is read-only|Red never edits code|Never edit code/i);
   assert.doesNotMatch(combined, /Mentor/);
-  assert.match(combined, /without a quiz|no quiz is required/);
-  assert.match(combined, /participant chooses the next task/i);
+  assert.match(combined, /without a quiz|no quiz is required/i);
+  assert.match(combined, /participant chooses (?:the next|each) task/i);
   assert.match(combined, /never deliberately introduce a defect/i);
   assert.match(combined, /do not.*automate exploitation|never.*automate exploitation|automate exploitation/i);
   assert.match(combined, /Never offer a\s+follow-up action menu, remediation options or a committed findings summary/i);

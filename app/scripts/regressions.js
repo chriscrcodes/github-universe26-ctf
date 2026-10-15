@@ -46,7 +46,7 @@ async function main() {
     pushed: true,
   });
   console.log("PASS: participant-selected regression matrix preserved the public-listing boundary.");
-  console.log("Evidence recorded. Run npm run phase -- blue yourself.");
+  console.log("Evidence recorded. Run npm run workshop -- phase blue yourself.");
 }
 
 function git(args, optional = false) {

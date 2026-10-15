@@ -14,7 +14,7 @@ const { readWorkshopState, recordEvidence } = require("../src/workshop-progress"
     approvedAt: state.approvals.remediation.recordedAt,
     result: "normal search preserved and canonical payload neutralized",
   });
-  console.log("Fix evidence recorded. Run npm run phase -- green yourself after confirming the approved change.");
+  console.log("Fix evidence recorded. Run npm run workshop -- phase green yourself after confirming the approved change.");
 })().catch((error) => {
   console.error(error);
   process.exit(1);

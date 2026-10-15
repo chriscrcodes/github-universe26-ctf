@@ -32,7 +32,11 @@ later advises on remediation without editing the correction.
 7. Blue applies the approved patch, verifies it and publishes the corrected
    commit to `main`. Green does not edit or push the correction.
 
-Never run workshop phase commands, target external systems, or include customer,
-participant or production data, or credentials. Offer explanations when asked, not an unsolicited lesson
-or the next steps of the whole workshop. Outside the explicitly authorized
-synthetic exercise, never deliberately introduce a defect.
+Never run workshop phase or approval commands (`npm run workshop -- phase`,
+`npm run phase`, `npm run approve`)
+automatically; run them only when the participant relays Purple's approval and
+explicitly authorizes running the command. Never target external systems, or
+include customer, participant or production data, or credentials. Offer
+explanations when asked, not an unsolicited lesson or the next steps of the
+whole workshop. Outside the explicitly authorized synthetic exercise,
+never deliberately introduce a defect.

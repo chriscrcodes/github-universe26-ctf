@@ -76,25 +76,28 @@ test("workshop steps link forward and use available commands at the appropriate 
   assert.deepEqual(actual, stepFiles.map((file) => path.basename(file)).sort());
   const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   const requiredCommands = [
-    ["workshop:start", "workshop:baseline", "delivery", "phase -- red"],
-    ["codeql:review -- baseline --reviewed", "phase -- purple"],
+    ["workshop:start", "workshop:baseline", "delivery", "workshop -- phase red"],
+    ["codeql:review -- baseline --reviewed", "workshop -- phase purple"],
     ["approve -- parameter-binding"],
-    ["verify", "regressions", "phase -- green", "phase -- blue", "codeql:review -- fixed --reviewed"],
+    ["verify", "regressions", "workshop -- phase green", "workshop -- phase blue", "codeql:review -- fixed --reviewed"],
   ];
   const readme = await readFile(readmePath, "utf8");
   assert.match(readme, /\.github\/images\/squad\.jpeg/);
   assert.ok(readme.includes(".github/steps/1-step.md"));
   for (const [index, file] of stepFiles.entries()) {
     const content = await readFile(path.join(root, file), "utf8");
-    if (index > 0) {
+    assert.match(content, /\*\*Workshop steps:\*\*/i, `${file}: breadcrumb`);
+    assert.match(content, /Tasks (?:01–05|06–08|09–10|11–15|01–15)/, `${file}: global task position`);
+    if (index > 0 && index < stepFiles.length - 1) {
       assert.match(content, /Continue\s+in 🤖 Terminal 2, using the Squad conversation opened in Step 1/);
       assert.match(content, /Do\s+not\s+start\s+a new conversation/);
     }
     if (/^[1-4]-step\.md$/.test(path.basename(file))) {
-      assert.match(content, /🖥️ Terminal 1 is for participant shell commands/);
-      assert.match(content, /🤖 Terminal 2 is\s+the Copilot CLI\/Squad conversation for prompts/);
-      assert.match(content, /unless a command block names another terminal/);
-      assert.match(content, /📖 introduces theory, ⌨️ introduces\s+activities, and other emoji are visual markers/);
+      assert.match(content, /🖥️ Terminal 1/);
+      assert.match(content, /🤖 Terminal 2/);
+      assert.match(content, /### Theory:/);
+      assert.match(content, /### Activity:|### Stage 4/);
+      assert.doesNotMatch(content, /### (?:📖|⌨️)/);
     }
     if (index < stepFiles.length - 1) {
       assert.ok(content.includes(`](${path.basename(stepFiles[index + 1])})`), `${file}: next step`);
@@ -160,7 +163,7 @@ test("workshop steps link forward and use available commands at the appropriate 
         "npm run workshop:baseline",
         "npm run workshop:restart",
         "npm run delivery",
-        "npm run phase -- red",
+        "npm run workshop -- phase red",
       ]);
     } else assert.doesNotMatch(content, /--yolo/);
     if (index === 1) {
@@ -168,13 +171,17 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /sqli-demo\/2-injected-search\.png/);
       assert.match(content, /Do not edit or exploit\.\s+Answer only; do not offer fixes, a follow-up menu or a findings commit/i);
       assert.match(content, /participant attestation for this exact commit/i);
-      assert.match(content, /does\s+not wait for or query the CodeQL API/i);
-      assert.match(content, /analysisStatus` as\s+`not-verified`/i);
+      assert.match(content, /does\s+not query or wait for CodeQL analysis/i);
+      assert.match(content, /analysisStatus` remains `not-verified`/i);
       assert.match(content, /final `codeql` milestone still requires a real successful scan/i);
       assert.doesNotMatch(content, /knowledge check|three-question quiz|Which statement describes the input flow/i);
       assert.match(content, /route the Step 2 checkpoint to Purple/);
     }
-    if (index === 2) assert.match(content, /route this correction-scope checkpoint to Purple/);
+    if (index === 2) {
+      assert.match(content, /Current checkpoint:\*\* Approve the correction scope/);
+      assert.match(content, /does not publish a scoreboard phase/);
+      assert.match(content, /route this correction-scope checkpoint to Purple/);
+    }
     if (index === 3) {
       assert.match(content, /sqli-demo\/3-fixed-search\.png/);
       assert.match(content, /delivery regression\s+in 🖥️ Terminal 1/);
@@ -184,6 +191,10 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /route the final CodeQL checkpoint to Purple/);
     }
   }
+  const review = await readFile(path.join(root, ".github/steps/x-review.md"), "utf8");
+  assert.doesNotMatch(review, /\?/);
+  assert.match(review, /Security lessons/);
+  assert.match(review, /Evidence trail/);
   const setup = await readFile(path.join(root, "scripts/setup-workshop.sh"), "utf8");
   assert.ok(setup.indexOf("squad doctor") < setup.indexOf("copilot --agent squad --yolo"));
   assert.ok(setup.indexOf("copilot --agent squad --yolo") < setup.indexOf("/model mai-code-1.1-flash"));

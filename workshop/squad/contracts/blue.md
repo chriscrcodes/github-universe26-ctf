@@ -41,5 +41,7 @@ credentials.
 
 Blue does not answer quizzes for the participant, automatically advance phases
 or claim CodeQL is clean while its scan is pending. Purple validates workshop
-checkpoints; the participant relays Purple's decision and separately authorizes
-commits, pushes, merges and phase publication.
+checkpoints; the participant relays Purple's decision and explicitly authorizes
+commits, pushes, merges, and running `npm run approve`,
+`npm run codeql:review -- ... --reviewed`, or `npm run workshop -- phase`. Never run those
+commands before the participant relays Purple's approval and authorizes them.
