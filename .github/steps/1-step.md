@@ -11,7 +11,7 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
 * Current phase: `1. red`, initial delivery
 * Roles: Green delivers; Purple reviews checkpoints
-* Publish after delivery checks: `npm run workshop -- phase red`
+   * Publish after delivery checks: `npm run phase -- red`
 * Terminals: 🖥️ Terminal 1 for setup and the app; 🤖 Terminal 2 for Squad and prompts. Use the browser for the app and GitHub checks. Follow each command's terminal label.
 
 ### Theory: Separate responsibilities and phase order
@@ -28,12 +28,6 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 | **Step 4A** | Tasks 11 to 12 | 🔵 **Blue** | Apply patch on `fix/city-search` and pass local `npm run verify` | 🟢 `green` *(local fix verified before PR)* |
 | **Step 4B** | Tasks 13 to 14 | 🔵 **Blue** | Open and merge PR to `main`, then pass `npm run regressions` | 🔵 `blue` *(fix merged and delivered on `main`)* |
 | **Step 4C** | Task 15 | 🔴 **Red** / 🔵 **Blue** | Confirm GitHub CodeQL alert is fixed on `main` | 🛡️ `codeql` *(hosted scan clean)* |
-
-![Paris search before city search is implemented, showing the app's not-available-yet message.](../images/sqli-demo/0-search-not-implemented.png)
-
-*Before Task 03, the app is running, but city search is not implemented yet.*
-
----
 
 ### Activity: Recruit, then deliver (Tasks 01 to 05)
 
@@ -121,6 +115,10 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
       npm run workshop:start
       ```
 
+       ![Paris search after startup shows that city search is not available yet.](../images/sqli-demo/0-search-not-implemented.png)
+
+       *Before the baseline is installed, city search is not implemented.*
+
    2. **Load the baseline:** Integrate the supplied city-search baseline into `app/src/hotels.js`.
 
       ```bash
@@ -184,7 +182,7 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
    ```text
    Purple approves the Step 1 checkpoint. I authorize running
-   `npm run workshop -- phase red` now and confirm the prompt to publish the initial delivery milestone, then
+   `npm run phase -- red` now and confirm the prompt to publish the initial delivery milestone, then
    stop and wait for Step 2.
    ```
 
@@ -196,7 +194,7 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
    ```
 
    ```bash
-   npm run workshop -- phase red
+   npm run phase -- red
    ```
 
    </details>
