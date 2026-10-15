@@ -1,11 +1,11 @@
 ---
-title: "Capture the flag: Three AI teams, one codebase, zero mercy"
-description: "A GitHub Copilot and Squad hotel-search security workshop with a local or shared scoreboard."
+title: "GitHub Universe CTF: AI Teams, One Codebase"
+description: "A GitHub Copilot and Squad hotel-search security workshop with a shared participant scoreboard."
 ---
 
 <div align="center">
 
-<h2>Capture the flag: Three AI teams, one codebase, zero mercy</h2>
+<h2>GitHub Universe CTF: AI Teams, One Codebase</h2>
 
 <p><strong>Green delivers city search, Red reviews the exposure, Purple validates each checkpoint, and you approve Blue's correction through a PR to main.</strong></p>
 
@@ -17,41 +17,40 @@ description: "A GitHub Copilot and Squad hotel-search security workshop with a l
 
 </div>
 
-## 👋 Welcome
+## Workshop overview
 
-- **Who is this for**: Developers, security practitioners, and technical leads
-  who want to work with AI agents without handing over engineering judgment.
-- **What you'll learn**: Recruit specialist agents, read a CodeQL finding,
-  approve a correction, and distinguish local checks from hosted scan evidence.
-- **What you'll build**: Green's isolated hotel-search prototype on
-  `feature/city-search`, then Blue's parameter-bound correction on `main`.
-- **Prerequisites**: Your participant Codespace, with Node.js 22, dependencies,
-  GitHub Copilot CLI, `gh`, Squad and CodeQL prepared by the facilitator.
-  Basic terminal familiarity is enough.
+This hands-on security exercise is for developers, security practitioners, and
+technical leads. You will work with specialist AI agents while retaining
+control of reviews, approvals, and delivery.
 
-In this exercise, you will:
+You will review a CodeQL finding, approve a parameter-binding correction, and
+compare local checks with hosted scan evidence. The app uses real public hotel
+names with synthetic prices, dates, room options, and challenge records.
+Keep it local or use private Codespaces forwarding.
 
-1. [Discover Squad, recruit your team, and deliver search](.github/steps/1-step.md).
-1. [Explain the exposure and review the CodeQL finding](.github/steps/2-step.md).
-1. [Ask Green for a correction and approve the scope](.github/steps/3-step.md).
-1. [Ask Blue to deliver the correction and confirm CodeQL fixed](.github/steps/4-step.md).
+Before starting, open your participant Codespace. The facilitator prepares
+Node.js 24 LTS, dependencies, GitHub Copilot CLI, `gh`, Squad, and CodeQL.
 
-The exercise uses real hotel names in public listings, with synthetic prices,
-dates, room options and internal challenge records, plus a supplied training
-prototype. Keep the app local or privately forwarded in Codespaces. Your goal
-is to record normal search behavior first, then investigate the challenge and
-restore public-only search with parameter binding.
+Complete 15 numbered tasks in order:
+
+1. [Step 1 (Tasks 01 to 05): Discover Squad, recruit your team, and deliver search (Phase `red`)](.github/steps/1-step.md).
+1. [Step 2 (Tasks 06 to 08): Explain the exposure and review the CodeQL finding (Phase `purple`)](.github/steps/2-step.md).
+1. [Step 3 (Tasks 09 to 10): Ask Green for a correction and approve the scope (`parameter-binding`)](.github/steps/3-step.md).
+1. [Step 4 (Tasks 11 to 15): Verify locally (Phase `green`), merge the PR to `main` (Phase `blue`), and confirm CodeQL fixed (Phase `codeql`)](.github/steps/4-step.md).
+
+Use the supplied training baseline. First record normal search behavior, then
+investigate the challenge and restore public-only search with parameter binding.
 
 ![Normal Paris search showing two public hotel listings with real property names and synthetic room options.](.github/images/sqli-demo/1-normal-search.png)
 
-*📊 The baseline: two public stays for Paris.*
+*Baseline: two public stays for Paris.*
 
-## 🤝 Meet Squad
+## Meet Squad
 
 **Squad** coordinates three specialists and one human reviewer through GitHub
-Copilot CLI. You recruit **Blue**, **Red** and **Green**, and include **Purple**
-as the human checkpoint reviewer in the same roster. Copilot CLI runs the conversation; the Copilot
-coding agent is not a team member.
+Copilot CLI. Recruit **Green**, **Red**, and **Blue**, then include **Purple** as
+the human checkpoint reviewer in the same roster. Copilot CLI runs the
+conversation; the Copilot coding agent is not a team member.
 
 > [!NOTE]
 > Red, Green, and Blue are workshop roles defined in this repository.
@@ -66,32 +65,24 @@ coding agent is not a team member.
   reviewer. The participant relays Purple's decisions and authorizes delivery.</sub>
 </p>
 
-| Member | Responsibility |
-| --- | --- |
-| **Blue** | Implements the approved correction and opens a PR to `main`; merges only after participant approval |
-| **Red** | Reviews code and CodeQL findings without editing |
-| **Green** | Delivers the initial feature to `feature/city-search`, then advises on the correction |
-| **Purple** | Human reviewer who validates the evidence at each workshop checkpoint; does not implement or publish |
+| Member | Order of Action | Responsibility | Scoreboard Milestones |
+| --- | --- | --- | --- |
+| 🟢 **Green** | Step 1 & Step 3 | Delivers the initial feature to `feature/city-search`, then proposes the minimal parameter-binding patch | Publishes `red` (after Purple approval) and prepares scope for `green` |
+| 🔴 **Red** | Step 2 & Step 4C | Reviews code and CodeQL findings without editing or exploiting | Supports `purple` (baseline review) and `codeql` (fixed scan) |
+| 🟣 **Purple** | All Checkpoints | Human reviewer who validates evidence at each checkpoint; never edits code or runs commands | Validates every checkpoint before you authorize a phase |
+| 🔵 **Blue** | Step 4A & Step 4B | Applies Green's approved patch on `fix/city-search`, verifies locally, and merges a PR to `main` after approval | Publishes `green` (local fix verified) and `blue` (PR merged to `main`) |
 
 Learn more about the upstream project in the
 [Squad documentation](https://bradygaster.github.io/squad/).
 
-Each step provides the commands, prompts and expected results when you need
-them. Extra prompts under "Having trouble?" are optional.
-You do not need to send every prompt to finish the exercise.
+Each step provides commands, prompts, and expected results. Troubleshooting
+prompts are optional. Report a queued CodeQL scan as **pending**, not clean.
 
-If analysis is pending, follow [Step 2](.github/steps/2-step.md) and report the
-result accurately. A delivered correction can still be "CodeQL pending"; do not
-report a pending scan as clean. The scoreboard displays your milestones and does
-not independently analyze your code.
-
-### 🚀 How to start this exercise
+### Start the exercise
 
 1. Open the Codespace for your participant repository.
-1. Follow [Step 1](.github/steps/1-step.md) to initialize Squad, recruit three
-  specialists, add Purple as the human reviewer and launch the app.
-1. Run shell commands in a VS Code terminal and send prompts in the Squad
-  conversation. Keep that conversation open for the remaining steps.
+1. Follow [Step 1](.github/steps/1-step.md) to initialize Squad, recruit your team, and launch the app in **🖥️ Terminal 1**.
+1. Drive the rest of the exercise from **🤖 Terminal 2 (Squad)** and **🌐 Browser**.
 
 <p align="left">
   <a href=".github/steps/1-step.md"><img src="https://img.shields.io/badge/Start%20the%20exercise-%E2%86%92-1f883d?style=for-the-badge&amp;logo=github" alt="Start the exercise"></a>
@@ -99,4 +90,4 @@ not independently analyze your code.
 
 ![Humorous science-fiction illustration of Squad characters facing a creature in a corridor.](.github/images/squad.jpeg)
 
-*A humorous interlude, not a literal workshop roster. Explore [Brady Gaster's Squad project on GitHub](https://github.com/bradygaster/squad). 🤖*
+*A humorous interlude, not a literal workshop roster. Explore [Brady Gaster's Squad project on GitHub](https://github.com/bradygaster/squad).*

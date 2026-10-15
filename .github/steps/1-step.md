@@ -3,74 +3,82 @@ title: Discover Squad and Deliver the Synthetic Challenge
 description: "Create your Squad team, integrate the supplied prototype, and verify ordinary city searches."
 ---
 
-## Step 1: Recruit your team and deliver search
+**Workshop steps:** 🎯 **1. Baseline** → ⏳ [2. Exposure](2-step.md) → ⏳ [3. Correction scope](3-step.md) → ⏳ [4. Delivery](4-step.md) → ⏳ [Review](x-review.md) · Tasks 01–05 of 15
 
-Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
-the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
-unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
-activities, and other emoji are visual markers; follow the accompanying text.
+## Step 1: Recruit your team and deliver search (Tasks 01 to 05)
 
-### 📖 Theory: Separate responsibilities
+### At a glance
 
-Squad keeps a team's roles, decisions, and context in `.squad/`. Green integrates
-the supplied training prototype and owns its initial feature branch. Red reviews
-security. Blue implements the approved correction and delivers it to `main`
-through a reviewed pull request. You decide who works next. Public listings use
-real hotel names; prices, dates, room options and internal challenge records are
-synthetic. Use only the supplied dataset and local or privately forwarded app
-access. Never use customer, participant or production data.
+* Current phase: `1. red`, initial delivery
+* Roles: Green delivers; Purple reviews checkpoints
+* Publish after delivery checks: `npm run workshop -- phase red`
+* Terminals: 🖥️ Terminal 1 for setup and the app; 🤖 Terminal 2 for Squad and prompts. Use the browser for the app and GitHub checks. Follow each command's terminal label.
 
-Think of Squad as your coordinator, not an unattended pipeline. You give one
-task, inspect its result, then choose the next task. Separate roles make it
-easier to ask who implemented a change, who reviewed it, and who proposed the
-correction. They do not remove your responsibility for any of those decisions.
+### Theory: Separate responsibilities and phase order
 
-The app begins with city search unavailable. Integrating the prototype changes
-real application behavior; reading the prototype alone does not deliver the
-feature. Start by checking ordinary city searches and recording how many
-listings each search returns. The challenge-specific investigation comes later.
+* **Who does what:** **Green** delivers the initial prototype on `feature/city-search` and later proposes the fix; **Red** reviews security exposure; **Blue** applies the approved fix and merges a PR to `main`; **Purple** (human reviewer) validates every checkpoint before you authorize a phase.
+* **Synthetic data only:** Public listings use real hotel names with synthetic prices, dates, and challenge records. Never use customer, participant, or production data.
+* **Agent names vs. Scoreboard phases:** The scoreboard tracks **5 milestones** in chronological order (`red` ➔ `purple` ➔ `green` ➔ `blue` ➔ `codeql`):
 
-Public listings use real hotel names; prices, dates, room options and internal
-challenge records are synthetic. The app does not show live availability or
-accept bookings.
+| Step | Tasks | Active Specialist | What happens | Scoreboard Phase Published |
+| --- | --- | --- | --- | --- |
+| **Step 1** | Tasks 01 to 05 | 🟢 **Green** | Deliver prototype to `feature/city-search` and run `npm run delivery` | 🔴 `red` *(initial challenge surface live)* |
+| **Step 2** | Tasks 06 to 08 | 🔴 **Red** | Explain the SQL injection flow and attest to baseline review | 🟣 `purple` *(exposure explained and attested)* |
+| **Step 3** | Tasks 09 to 10 | 🟢 **Green** | Propose parameter-binding diff and record `npm run approve -- parameter-binding` | *(Scope approved for Blue)* |
+| **Step 4A** | Tasks 11 to 12 | 🔵 **Blue** | Apply patch on `fix/city-search` and pass local `npm run verify` | 🟢 `green` *(local fix verified before PR)* |
+| **Step 4B** | Tasks 13 to 14 | 🔵 **Blue** | Open and merge PR to `main`, then pass `npm run regressions` | 🔵 `blue` *(fix merged and delivered on `main`)* |
+| **Step 4C** | Task 15 | 🔴 **Red** / 🔵 **Blue** | Confirm GitHub CodeQL alert is fixed on `main` | 🛡️ `codeql` *(hosted scan clean)* |
 
 ![Paris search before city search is implemented, showing the app's not-available-yet message.](../images/sqli-demo/0-search-not-implemented.png)
 
-*🧱 At this point, the app is running, but city search has not been delivered.*
+*Before Task 03, the app is running, but city search is not implemented yet.*
 
-### ⌨️ Activity: Recruit, then deliver
+---
 
-1. In 🖥️ Terminal 1, opened at the participant repository root, initialize Squad.
-   If prompted `Add @copilot as an autonomous team member? [Y/n]`, answer `No`.
+### Activity: Recruit, then deliver (Tasks 01 to 05)
 
-   ```bash
-   squad init --no-workflows
-   ```
+1. **[Task 01] Initialize Squad and check environment health (🖥️ Terminal 1)**
 
-1. Still in 🖥️ Terminal 1, run the health check yourself. The warnings for
-   `vscode-jsonrpc exports field` and `copilot-sdk session.js ESM patch` are
-   expected in this workshop environment and are non-blocking. Resolve any
-   other reported issue before continuing.
+   * **Prompt answer:** If asked `Add @copilot as an autonomous team member? [Y/n]`, answer `No`.
+   * **Expected warnings:** `vscode-jsonrpc exports field` and `copilot-sdk session.js ESM patch` are expected and non-blocking.
 
-   ```bash
-   squad doctor
-   ```
+   * **Action:** In 🖥️ Terminal 1, complete these steps in order:
 
-1. **Open a new 🤖 Terminal 2 (Copilot CLI)** in the participant repository and
-   start the Squad conversation. Keep this same terminal open and use it for Squad prompts
-   throughout the workshop.
+   > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
+
+   1. **Initialize Squad:**
+
+      ```bash
+      squad init --no-workflows
+      ```
+
+   2. **After initialization finishes, check the environment:**
+
+      ```bash
+      squad doctor
+      ```
+
+2. **[Task 02] Launch Squad and recruit your team (🤖 Terminal 2)**
+
+   * **Action:** Open a **new 🤖 Terminal 2** and keep it open for all Squad prompts throughout the workshop.
+
+   > 🤖 **TERMINAL 2: Launch Copilot CLI (`bash`)**
 
    ```bash
    copilot --agent squad --yolo
    ```
 
-   In Copilot, select the workshop model:
+   * **Action:** Select the workshop model inside Copilot:
+
+   > 🤖 **TERMINAL 2: Squad Conversation (Model Selection)**
 
    ```text
    /model mai-code-1.1-flash
    ```
 
-   Ask Squad to propose and create the team, then approve its roster:
+   * **Action:** Paste the team recruitment prompt:
+
+   > 🤖 **TERMINAL 2: Squad Conversation (Recruit Roster)**
 
    ```text
    Squad, create my team:
@@ -81,10 +89,13 @@ accept bookings.
     Green: implements assigned features and advises on remediation.
     Purple: human workshop validation reviewer. Add Purple as a human roster
     member with no agent charter or history; review each workshop checkpoint.
+
    Include the default built-ins support squad members; no @copilot or other AI specialists.
    Preserve these names and roles. Use the complete-roster fast path. Show all
    eight roster entries, including seven agents and Purple as a human, with
-   roles/scopes, then wait for my approval. When I select `Yes, hire this team`,
+   roles/scopes, then wait for my approval.
+
+   When I select `Yes, hire this team`,
    that approves this roster and authorizes Phase 2 immediately. Do not stop or
    ask for another confirmation after that selection. Create the standard Squad
    state under `.squad/`, including the team roster, routing, decisions, casting
@@ -96,68 +107,42 @@ accept bookings.
    report the files and directories created.
    ```
 
-   At the `Roster approval` prompt, select `❯ Yes, hire this team`.
+   * **Required confirmation:** At the `Roster approval` prompt, select **`❯ Yes, hire this team`** and wait until `.squad/team.md` is created. *(Optional check: `Squad : show me team members and roles`.)*
 
-   This selection approves the proposed roster and starts Squad's file-creation
-   phase. Confirm `.squad/team.md` and the standard Squad state were created
-   before continuing. The roster contains seven agents, including the four
-   default built-ins, and Purple as a human reviewer. Squad routes review
-   requests to Purple and pauses; you relay the materials and Purple's decision.
-   The installer preserves Purple's human roster entry when it adopts the
-   workshop contracts.
+3. **[Task 03] Start the app, install the baseline, and verify in the browser (🖥️ Terminal 1 + 🌐 Browser)**
 
-   ```text
-   Squad : show me team members and roles
-   ```
+   * **Action:** In 🖥️ Terminal 1, run these steps in order. Wait for each command to finish before starting the next.
 
-1. Run the app startup command in 🖥️ Terminal 1. It adopts the role contracts,
-   registers you, and starts the app.
+   > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
 
-   ```bash
-   npm run workshop:start
-   ```
+   1. **Prepare and start:** Check the environment, adopt your Squad, register, and start the app.
 
-   Open <http://localhost:3000> in the browser, or privately forward port 3000
-   from Codespaces. Keep 🖥️ Terminal 1 open and return to the same Squad
-   conversation. If startup fails, stop and resolve the reported error with
-   the facilitator before asking Green to implement. Each `bash` block is one
-   command to paste into the named terminal. You do not need a new agent
-   conversation per step.
-1. In 🖥️ Terminal 1, install the exact supplied prototype as the synthetic
-   workshop baseline. This creates the intentional SQL injection used for the
-   CodeQL exercise. The command changes only `app/src/hotels.js` and is safe to
-   rerun. Review the diff before continuing.
+      ```bash
+      npm run workshop:start
+      ```
 
-   ```bash
-   npm run workshop:baseline
-   ```
+   2. **Load the baseline:** Integrate the supplied city-search baseline into `app/src/hotels.js`.
 
-1. Ask Green to review the deterministic integration instead of rewriting it:
+      ```bash
+      npm run workshop:baseline
+      ```
 
-   ```text
-   Green, review the deterministic baseline in app/src/hotels.js against
-   app/data/city-search-prototype.txt. Do not edit or fix it. Explain the
-   changed data flow and confirm that only the supplied synthetic challenge
-   function changed. Show the diff and normal-search checks. Do not commit or
-   push without my approval.
-   ```
+   3. **Reload the app:** Restart it so it uses the integrated baseline.
 
-   `Paris` and `paris` must return the same two public listings; unknown and
-   empty cities return none. Preserve name, price, sorting, listing-detail and
-   partner-summary behavior.
-1. Restart the app in 🖥️ Terminal 1 so it serves Green's change.
+      ```bash
+      npm run workshop:restart
+      ```
 
-   ```bash
-   npm run workshop:restart
-   ```
+   > [!TIP]
+   > **You are now done with 🖥️ Terminal 1!** Leave it running in the background. For **Tasks 04 to 15**, you will work exclusively in **🤖 Terminal 2 (Squad)** and **🌐 Browser**.
 
-   Return to the browser and use the web interface at <http://localhost:3000>.
-   Search for Paris and other cities, then list how many listings the interface
-   returns for each city. Do not enter challenge-specific input yet.
+   > 🌐 **BROWSER: Web Interface (<http://localhost:3000>)**
+
+   * **Action:** Open <http://localhost:3000> and test normal city searches:
 
    ![Normal Paris search showing two hotel stays in the workshop web interface.](../images/sqli-demo/1-normal-search.png)
 
-   *📊 Record the count shown in the browser as your normal-search baseline.*
+   *Record the count shown in the browser as your normal-search baseline.*
 
    | City search | Listings returned |
    | --- | --- |
@@ -166,87 +151,73 @@ accept bookings.
    | An unknown city | 0 |
    | Empty search | 0 |
 
-1. Review the diff and tests. Explicitly authorize Green to commit the agreed
-   feature and push `feature/city-search` in your participant repository.
-   Delivery means running locally plus pushed to that branch, not deploying a
-   public website.
+4. **[Task 04] Deliver `feature/city-search` with Green and route to Purple (🤖 Terminal 2)**
+
+   * **Action:** Ask **🟢 Green** to review the baseline diff, push `feature/city-search`, run `npm run delivery`, and route the checkpoint to **🟣 Purple**:
+
+   > 🤖 **TERMINAL 2: Squad Conversation (Agent: 🟢 Green ➔ 🟣 Purple)**
 
    ```text
-   Green, summarize the changed files and the checks actually run. Confirm that
-   this is only the supplied synthetic challenge and show any unrelated edits.
-   Stop before committing so I can review the diff.
+   Green, review the deterministic baseline in app/src/hotels.js against
+   app/data/city-search-prototype.txt without editing it. Explain the changed
+   data flow and confirm that only the supplied synthetic challenge function
+   changed.
+
+   I have verified the diff and normal-search counts in the browser
+   (Paris=2, paris=2, unknown=0, empty=0), so I authorize committing only the
+   reviewed challenge changes and pushing feature/city-search in my participant
+   repository.
+
+   Then run `npm run delivery` to record the initial delivery evidence, and
+   route the Step 1 checkpoint to Purple with the pushed commit, reviewed
+   feature diff, normal-search counts, and actual `npm run delivery` result.
+   Pause until I relay Purple's decision. Do not publish a phase.
    ```
 
-   After reviewing that result, authorize this specific delivery:
+5. **[Task 05] Relay Purple's approval and publish Phase 1: `red` (🤖 Terminal 2)**
+
+   * **Expected check:** Review the delivery checks in 🤖 Terminal 2. Delivery verifies that app/src/hotels.js still contains the exact supplied
+     prototype and that the running app exposes the expected synthetic fixture.
+   * **Action:** Once **🟣 Purple** approves, paste this prompt to publish the `red` milestone:
+
+   > 🤖 **TERMINAL 2: Squad Conversation (Relay 🟣 Purple Approval & Publish `red`)**
 
    ```text
-   Green, I authorize committing only the reviewed challenge changes and
-   pushing feature/city-search in my participant repository. Do not include credentials
-   or unrelated edits. Confirm the push succeeded and keep the delivery
-   details for the next CodeQL review, then stop.
+   Purple approves the Step 1 checkpoint. I authorize running
+   `npm run workshop -- phase red` now and confirm the prompt to publish the initial delivery milestone, then
+   stop and wait for Step 2.
    ```
 
-1. Review the delivery checks in 🤖 Terminal 2. Run each command separately. The
-   Delivery verifies that app/src/hotels.js still contains the exact supplied
-   prototype and that the running app exposes the expected synthetic fixture.
-   A stale app or safe/re-written source fails the check before evidence is
-   recorded. The push starts analysis according to the preflighted CodeQL
-   configuration; it does not prove that analysis has completed.
+   <details>
+   <summary>🖥️ Manual fallback commands (only if you prefer running checks in Terminal 1)</summary>
 
    ```bash
    npm run delivery
    ```
 
-   Before publishing the milestone, ask Squad to route the exact delivery
-   checkpoint to Purple:
-
-   ```text
-   Squad, route the Step 1 checkpoint to Purple. Include the pushed commit,
-   reviewed feature diff, Paris and other normal-search counts, and the actual
-   npm run delivery result. Pause until I relay Purple's decision. Do not publish
-   a phase or infer approval from passing checks.
-   ```
-
-   Relay Purple's response to Squad. If Purple rejects the evidence or asks for
-   changes, stop progression, address the concern and request a new review.
-   Only after Purple approves may you choose to publish the milestone:
-
    ```bash
-   npm run phase -- red
+   npm run workshop -- phase red
    ```
 
-### Checkpoint: What you can claim
+   </details>
 
-You are ready for Step 2 when the app shows your change, Green has pushed it to
-`feature/city-search`, `npm run delivery` passes, and Purple has approved the
-checkpoint. You do not need to copy a commit identifier:
-Blue keeps the delivery details, and the CodeQL review command checks that the
-analysis matches the version you delivered.
+---
 
-Your ordinary-search counts confirm that the interface is serving the change.
-They do not replace the CodeQL review or the challenge-specific investigation
-in Step 2.
+### ✅ Checkpoint: Phase 1 (`red`) Complete
 
-The `red` identifier means initial challenge delivery, not the Red agent.
-Continue to [Step 2](2-step.md).
+- [ ] Normal search returns **2 listings** for `Paris` / `paris` and **0** for unknown/empty cities.
+- [ ] **🟢 Green** pushed `feature/city-search` and `npm run delivery` passed.
+- [ ] **🟣 Purple** approved the checkpoint and **`Phase red recorded`** appears in the output. *(Note: `red` means the baseline is ready for Red to review.)*
 
-The facilitator preflights CodeQL, authentication and board `/health` checks.
-`BOARD_URL` and `BOARD_TOKEN` are provided privately; keep the token value hidden.
-Offline mode is supported. Never paste or commit the reporter token.
+**Next step:** Continue to [Step 2](2-step.md).
 
 <details>
-<summary>Having trouble? 🤷</summary>
+<summary>Having trouble?</summary>
 
-- For role selection, ask Squad to explain each proposed specialist's scope.
-- For search behavior, use the browser interface and compare city result counts.
-- A 501 response means city search has not been implemented yet.
-- If a delivery check fails, ask Green to compare the integration with the
-   supplied prototype before continuing.
-- `npm run workshop:app` can relaunch the app without registering again.
-- Adoption accepts the active Blue/Red/Green roster and the four default
-   built-ins. Conflicting or custom teams are refused without modification.
-   Ask the facilitator; do not erase learned history to force installation.
-- You can ask an agent to explain a concept without requesting code or the next task.
+- **Facilitator preflight:** `BOARD_URL` and `BOARD_TOKEN` are preconfigured privately (offline mode is also supported; never paste or commit tokens).
+- **501 response:** The city-search baseline is not loaded. In 🖥️ Terminal 1, run `npm run workshop:baseline`; after it finishes, run `npm run workshop:restart`.
+- **Relaunch app only:** `npm run workshop:app` restarts the server without re-registering.
+- **Roster conflict:** Adoption requires the exact Blue/Red/Green/Purple roster plus the four default built-ins. Ask the facilitator if installation is refused.
 
 For a confusing result, ask for evidence without authorizing another edit:
 

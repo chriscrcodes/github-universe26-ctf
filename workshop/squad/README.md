@@ -5,70 +5,73 @@ description: "Participant-led role contracts and non-destructive installation fo
 
 ## Workshop Squad preset
 
-This directory is the portable, deterministic Squad 1.0.0 preset used by
+This directory contains the portable Squad 1.0.0 preset installed by
 `scripts/install-workshop-squad.mjs`.
 
-The installer uses only Node.js built-ins. It creates or overlays `.squad/`
-when that directory is absent, freshly initialized, or already marked as this
-preset. Existing custom teams are rejected rather than overwritten. Re-running
-the installer refreshes role contracts and preserves learned histories,
-decisions, configuration, and unmanaged Squad-owned files such as templates.
+### Installer behavior
 
-Participants create the roster with Squad after reviewing its proposal. It
-contains Blue, Red, and Green for workshop roles, Squad's four default
-built-in support agents (Scribe, Ralph, Rai, and Fact Checker), and Purple as a
-human validation reviewer. The participant approves the seven agents and Purple
-as a human member in the same roster. Purple has no charter or history.
-`workshop/squad/contracts/` contains agent role rules, not a pre-created roster.
-After approval, `npm run workshop:start` adopts the contracts for Blue, Red,
-and Green while preserving histories, shared decisions, and human roster rows.
-Other agents or agent directories cause a refusal without mutation.
+The installer uses Node.js built-ins. It creates or overlays `.squad/` only
+when the directory is absent, freshly initialized, or already marked as this
+preset. It rejects custom teams rather than overwriting them. Re-running it
+refreshes the role contracts while preserving histories, decisions,
+configuration, and unmanaged Squad files.
 
-Green integrates the supplied synthetic prototype and publishes only to
-`feature/city-search`; after the security review, Green advises on the correction
-without editing it. Red reviews security without editing or exploitation
-automation. Blue applies the approved correction and delivers it to `main`
-through a PR, merging only after participant review and authorization. The
-participant chooses tasks and reviews evidence; the built-ins support the team
-rather than teach mandatory lessons.
+### Roster and roles
 
-Participants run `squad doctor` in 🖥️ Terminal 1 after `squad init`. They then open
-🤖 Terminal 2, start Copilot, select `mai-code-1.1-flash` with
-`/model mai-code-1.1-flash`, and ask
-Squad to create the proposed team using the role definitions in Step 1. At
-`Roster approval`, select `❯ Yes, hire this team` to trigger Squad's standard
-file-creation phase. Confirm `.squad/team.md` exists before running
-`npm run workshop:start` in 🖥️ Terminal 1 to adopt the workshop contracts, register
-the participant, and launch the app. Startup does not run `squad doctor`; it
-stops on failure and never approves a push or publishes a phase. All later
-`npm` commands also run in 🖥️ Terminal 1.
+Review and approve the roster in Squad. It contains Blue, Red, and Green for
+the workshop, Squad's four built-in support agents (Scribe, Ralph, Rai, and
+Fact Checker), and Purple as the human reviewer. Purple has no charter or
+history. The contracts in `workshop/squad/contracts/` define agent roles; they
+do not create a roster. Other agents or agent directories cause adoption to
+stop without changing `.squad/`.
 
-Purple reviews the named evidence at each workshop checkpoint. Squad pauses for
-the human decision; the participant relays it and remains responsible for task,
-commit, merge, and phase-publication authorization. Purple does not implement,
-run commands, or publish phases.
+Green integrates the supplied synthetic baseline on `feature/city-search`,
+then proposes the exact correction but does not edit or push it. Red reviews
+security evidence without changing code or automating exploitation. Blue applies
+the approved correction and delivers it through a participant-reviewed PR to
+`main`.
+Built-in support agents help with coordination; they do not replace participant
+review or approval.
 
-Green's initial delivery is an explicitly authorized integration of the supplied
-synthetic challenge prototype, not a spontaneous model mistake. It is limited
-to the supplied dataset, which uses real public hotel names and synthetic
-listing details and internal challenge records, plus private app access. Red
-remains read-only. The prototype is corrected only after the participant
-reviews the exact-commit CodeQL finding and approves Green's patch; Blue
-publishes the fix to `main` through a reviewed PR.
+Purple reviews the named evidence at each checkpoint. The participant relays
+Purple's decision and authorizes commits, pushes, merges, and phase publication.
+After approval, publish a milestone with `npm run workshop -- phase <phase>`
+and confirm the command prompt. Purple does not implement, run commands, or
+publish phases.
 
-The wrapper intentionally installs the workshop's managed contracts directly
-instead of using `squad import`. This keeps adoption deterministic and
-preserves participant histories, shared decisions, configuration, and
-unmanaged files when the installer is rerun.
+The supplied baseline is an explicitly authorized synthetic exercise. It uses
+public hotel names, synthetic listing details, private challenge records, and
+private app access. Never use customer, participant, or production data.
 
-Expected npm script:
+### Setup
+
+1. In 🖥️ Terminal 1, run `squad init --no-workflows`. Wait for it to finish,
+   then run `squad doctor`.
+2. In 🤖 Terminal 2, run `copilot --agent squad --yolo`, select
+	`mai-code-1.1-flash` with `/model mai-code-1.1-flash`, and ask Squad to create
+	the roster described in Step 1.
+3. At `Roster approval`, select `❯ Yes, hire this team`. Confirm that
+	`.squad/team.md` exists.
+4. In 🖥️ Terminal 1, run `npm run workshop:start`. This adopts the contracts,
+	registers the participant, and starts the app. Startup stops on failure; it
+	does not run `squad doctor`, approve a push, or publish a phase.
+5. Follow [Task 03 in Step 1](../../.github/steps/1-step.md) to load the
+	baseline and restart the app in order. Continue prompts in the same Terminal
+	2 conversation. Run fallback commands in Terminal 1.
+
+### Installer details
+
+The installer manages role contracts directly instead of using `squad import`.
+This keeps adoption deterministic and preserves participant histories, shared
+decisions, configuration, and unmanaged files on reinstallation.
+
+The root package defines this npm script:
 
 ```json
 "squad:install-workshop-team": "node scripts/install-workshop-squad.mjs"
 ```
 
-The installer sets `.squad/config.json` to use `mai-code-1.1-flash` as the
-default model. It accepts `--root <participant-repository>` for automation and
-tests, optionally combined with `--adopt-recruited`. It does not read
-environment files, copy histories from the source repository, or include
-credentials.
+The installer sets `mai-code-1.1-flash` as the default model. It accepts
+`--root <participant-repository>` and the optional `--adopt-recruited` flag for
+automation and tests. It does not read environment files, copy source
+histories, or include credentials.

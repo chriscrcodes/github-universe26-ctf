@@ -3,72 +3,45 @@ title: Workshop Review
 description: "Reflect on specialist roles, participant decisions, and verified security evidence."
 ---
 
-## Review
+**Workshop steps:** ✅ [1. Baseline](1-step.md) → ✅ [2. Exposure](2-step.md) → ✅ [3. Correction scope](3-step.md) → ✅ [4. Delivery](4-step.md) → 🎯 **Review** · Tasks 01–15 complete
 
-Review what was actually delivered, not what an agent intended to deliver.
+## Review: What You Learned
 
-- How did Blue, Red, and Green divide responsibility?
-- How did Blue, Red, Green and Purple divide responsibility?
-- Which checkpoint decisions did Purple validate, and which approvals remained yours?
-- Which approval or scope decision did you own?
-- What did the local checks prove about public listings?
-- Did the original CodeQL finding become fixed on the pushed commit?
-- If a scan is still pending, what remains unverified?
+The workshop follows untrusted city input from the HTTP request to SQL execution.
+The important boundary is at the database query, where user input must remain a
+value rather than becoming part of SQL syntax.
 
-A pending scan or absent initial finding is an honest outcome, not a reason
-to invent evidence. No quiz score is required.
+### Security lessons
 
-### Summarize your evidence
+* SQL string construction can turn an untrusted value into executable query syntax.
+* Parameter binding keeps the query structure separate from user-controlled values.
+* The public-listing condition must be enforced by the server-side query, not by
+  hiding results in the browser.
+* A CodeQL alert describes a source-to-sink path. Its status must be checked on
+  the exact commit being reviewed.
 
-Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do not
-start a new conversation. Ask for a factual recap:
+### Evidence trail
 
-```text
-Squad, summarize only evidence we actually obtained: team roles, Purple's
-checkpoint decisions, observed synthetic exposure, initial delivery SHA,
-reviewed CodeQL alert, approved correction, local results, corrected SHA and
-final scan status. Mark missing
-items as unverified. Do not run commands, advance phases or start another task.
-```
-
-Compare that recap with the app results, command reports and GitHub alert,
-then describe your own outcome:
-
-| Where you stopped | Accurate outcome |
+| Phase | What its evidence establishes |
 | --- | --- |
-| Initial delivery, no matching alert yet | Training baseline delivered; initial CodeQL review pending |
-| Alert reviewed, no applied correction | Exposure explained; remediation not yet verified |
-| Local correction verified, not pushed | Local behavior corrected; delivery still pending |
-| Corrected commit pushed, final scan pending | Correction delivered; hosted confirmation pending |
-| Same alert fixed on the corrected SHA, clean analyses and Purple's final approval | Workshop evidence complete for the corrected delivery |
+| `red` | The supplied challenge delivery and its observed behavior against synthetic data |
+| `purple` | Participant attestation for the exact delivered commit; this alone does not prove a hosted scan completed |
+| `green` | Local verification of the approved correction and preserved search behavior |
+| `blue` | The correction merged to `main` and its delivery regression results |
+| `codeql` | The original finding is fixed on the corrected commit and successful hosted analyses confirm the result |
 
-Use this short teach-back instead of accepting an agent's summary as your own:
+An agent's summary is not a substitute for the diff, command output, commit, or
+hosted scan. Mark evidence that was not observed as unverified. A pending scan
+or an absent initial finding must not be reported as a confirmed clean result.
 
-```text
-The unsafe implementation let ____ become part of ____.
-We observed ____ even though the public search should only return ____.
-I chose ____ because ____.
-The local checks proved ____. GitHub confirmed ____ on commit ____.
-What remains unverified is ____.
-```
+### Workshop responsibilities
 
-If a finding never appears after a completed scan, ask the facilitator to
-investigate the baseline. Do not dismiss another alert, change the challenge
-or treat a screenshot from another repository as your evidence.
+* Green delivered the supplied initial prototype and proposed the correction.
+* Red reviewed security evidence without changing the application.
+* Blue applied the participant-approved correction and delivered it through a PR.
+* Purple reviewed checkpoints as the human validation reviewer.
+* The participant owned approval, authorization, and decisions to publish milestones.
 
-### What's next?
-
-Choose your own follow-up: improve a regression, ask for a concept explanation,
-or have Red independently review the correction. Do not automatically delegate
-a new task merely because the previous agent finished.
-
-Optional reflection prompt:
-
-```text
-Squad, ask me one question about a decision I owned in this exercise. Wait
-for my answer, then give feedback using our actual evidence. Do not answer
-for me, modify files or begin a follow-up task.
-```
-
-Learn more in the
-[CodeQL documentation](https://docs.github.com/code-security/code-scanning/introduction-to-code-scanning/about-code-scanning-with-codeql).
+The scoreboard phases record distinct evidence, not interchangeable approvals.
+Keep the observed synthetic exposure, local verification, merged delivery, and
+hosted CodeQL result separate when describing what the workshop established.

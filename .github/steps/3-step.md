@@ -3,113 +3,88 @@ title: Approve a Correction
 description: "Ask Green for a minimal correction and choose the approved scope."
 ---
 
-## Step 3: Choose the correction
+**Workshop steps:** ✅ [1. Baseline](1-step.md) → ✅ [2. Exposure](2-step.md) → 🎯 **3. Correction scope** → ⏳ [4. Delivery](4-step.md) → ⏳ [Review](x-review.md) · Tasks 09–10 of 15
 
-Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
-the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
-unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
-activities, and other emoji are visual markers; follow the accompanying text.
+## Step 3: Choose the correction (Tasks 09 to 10)
 
-Requires your reviewed CodeQL finding (`purple`).
+### At a glance
 
-### 📖 Theory: Keep query syntax separate from values
+* Current checkpoint: Approve the correction scope. This does not publish a scoreboard phase.
+* Roles: Green advises; Purple reviews the scope
+* Record your approval: `npm run approve -- parameter-binding`
+* Terminals: Continue in the existing 🤖 Terminal 2 Squad conversation. Use 🖥️ Terminal 1 only for commands labeled there.
 
-Parameter binding passes request values separately from the SQL statement.
-Filtering strings or limiting known cities is not equivalent. Preserve the
-PUBLIC boundary, case-insensitive search, and existing safe filters.
+### Theory: Keep query syntax separate from values
 
-With binding, the statement contains a placeholder such as `?`; the city is
-supplied separately as a parameter when the statement executes. Characters in
-that value remain data rather than becoming operators, quotes or comments in
-the statement. `COLLATE NOCASE` can still provide case-insensitive matching.
-
-The repository already provides `buildCityFilter` in
-[the query helpers](../../app/src/search-query.js). Ask Green whether reusing
-that helper fixes the reported flow while retaining the other filters. A
-small patch is useful because you can explain its scope and verify its effects,
-not because fewer changed lines alone prove safety.
+* **Why parameter binding works:** The SQL statement uses a `?` placeholder (`LOWER(city) = LOWER(?)`) while the user's `city` value is passed separately at execution. Quotes, operators, and comments stay literal data.
+* **Existing helper available:** [app/src/search-query.js](../../app/src/search-query.js) already provides `buildCityFilter(term)`.
+* **Separation of duties:** **🟢 Green** proposes the minimal patch, **🟣 Purple** validates the scope, you approve `parameter-binding`, and **🔵 Blue** applies it in Step 4.
 
 | Proposal | Why it is or is not the workshop correction |
 | --- | --- |
-| Bind the city as a value | Separates input data from SQL syntax at execution |
-| Reject a few suspicious characters | Does not establish that separation |
-| Accept only a few known cities | Changes allowed behavior without fixing query construction |
-| Hide unpublished rows in the browser | Leaves those records exposed in the API response |
+| ✅ **Bind the city as a value** | Separates input data from SQL syntax at execution |
+| ❌ **Reject a few suspicious characters** | Does not establish separation between data and syntax |
+| ❌ **Accept only a few known cities** | Changes allowed behavior without fixing query construction |
+| ❌ **Hide unpublished rows in the browser** | Leaves those records exposed in the API response |
 
-### ⌨️ Activity: Request advice, then decide
+---
 
-1. Ask Green for an exact minimal diff against the actual alert location and
-   current code. Green should explain the correction and test implications,
-   not edit the application.
-   Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do
-   not start a new conversation. Ask Green there:
+### Activity: Request advice, then decide (Tasks 09 to 10)
 
-   ```text
-   Green, propose the smallest parameter-binding patch for this CodeQL finding.
-   Preserve normal search and existing safe filters. Explain why this input
-   becomes data rather than SQL syntax. Show the exact diff; do not edit.
-   ```
+9. **[Task 09] Ask Green for the minimal parameter-binding diff and route to Purple (🤖 Terminal 2)**
 
-1. Review the scope. Reject unrelated changes or a correction that relies
-   only on sanitizing input. Ask for explanations only where you need them.
-   Check whether the diff fixes the city filter while preserving the `PUBLIC`
-   predicate, case-insensitive comparison, name and price filters and sort
-   allowlist. Adding a new architecture or changing unrelated endpoints is
-   outside the agreed scope.
+   * **Action:** Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do not start a new conversation. Ask **🟢 Green** to propose the minimal patch (without editing files) and route the checkpoint to **🟣 Purple**:
+
+   > 🤖 **TERMINAL 2: Squad Conversation (Agent: 🟢 Green ➔ 🟣 Purple)**
 
    ```text
-   Green, walk me through the proposed diff. Which line changes the city from
-   SQL syntax into a bound value? Which existing behavior stays unchanged?
-   Name the local checks that would detect a broken normal search or continued
-   unpublished-data exposure. Do not apply the patch.
+   Green, propose the smallest parameter-binding patch for this CodeQL finding
+   while preserving normal search, the PUBLIC predicate, case-insensitive
+   comparison, and existing safe filters. Show the exact diff without editing any
+   files. Walk me through which line changes the city from SQL syntax into a
+   bound value and name the local checks that would detect a broken normal search
+   or continued unpublished-data exposure.
+
+   Then route this correction-scope checkpoint to Purple with your exact proposed
+   diff and the agreed behavior and tests. Pause until I relay Purple's
+   decision. Do not edit files or authorize Blue yet.
    ```
 
-1. Route the exact proposed diff and test scope to Purple before approving it:
+10. **[Task 10] Relay Purple's approval and record `parameter-binding` approval (🤖 Terminal 2)**
 
-   ```text
-   Squad, route this correction-scope checkpoint to Purple. Include Green's
-   exact proposed diff and the agreed behavior and tests. Pause until I relay
-   Purple's decision. Do not edit files or authorize Blue while review is
-   pending or rejected.
-   ```
+    * **Action:** Confirm the diff uses parameter binding (`buildCityFilter`), then relay **🟣 Purple**'s approval and authorize `npm run approve -- parameter-binding`:
 
-   Relay Purple's response. If Purple rejects or asks for changes, have Green
-   revise the proposal, then request a new review of the changed diff. Only
-   after Purple approves should you decide whether to give explicit approval.
-   For example:
-   "I explicitly approve this exact patch".
-   First explain why the patch prevents the observed predicate bypass.
-   Once you understand it, you can make the boundary explicit:
+    > 🤖 **TERMINAL 2: Squad Conversation (Relay 🟣 Purple Approval & Record `parameter-binding`)**
 
-   ```text
-   I explicitly approve this exact patch and the displayed test scope.
-   Blue may apply it; Green must not edit. Ask me again if the diff must change.
-   This approval does not authorize a commit or push.
-   ```
+    ```text
+    Purple approves the correction-scope checkpoint. I explicitly approve Green's
+    exact parameter-binding patch and the displayed test scope for Blue to apply
+    next (Green must not edit). I authorize running
+    `npm run approve -- parameter-binding` now to record my approval, then stop
+    and wait for Step 4.
+    ```
 
-1. Record your approval with `npm run approve -- parameter-binding`.
-   Then ask Blue to implement it. Green never edits code.
+    <details>
+    <summary>🖥️ Manual fallback command (only if you prefer running in Terminal 1)</summary>
 
-   Conversation approval identifies the diff you reviewed. The command records
-   the approved strategy for local progression; it does not inspect or identify
-   the exact diff and is not a substitute for your review. Keep both steps.
-   Approval does not mean the correction has been applied or verified.
+    ```bash
+    npm run approve -- parameter-binding
+    ```
 
-### Checkpoint: A reasoned choice
+    </details>
 
-You should be able to finish: "The input previously changed the query because
-it was inserted into its text. With this patch, ____ stays fixed and ____ is
-passed separately. The public-listing rule remains ____. I will verify ____."
-Use the actual proposed code to fill the blanks, not the agent's confidence.
+---
 
-The expected output is `APPROVED: parameter binding may be applied by Blue.`
-Purple's review does not replace your approval or authorize a commit, push,
-merge or phase publication.
-Continue to [Step 4](4-step.md). The `green` milestone is published only after
-Blue implements the correction and verification passes.
+### ✅ Checkpoint: Remediation Scope Approved
+
+- [ ] **🟢 Green** proposed a minimal diff using `buildCityFilter(term)` without editing files.
+- [ ] **🟣 Purple** approved the correction scope.
+- [ ] **`APPROVED: parameter binding may be applied by Blue.`** appears in the output.
+
+**Next step:** Continue to [Step 4](4-step.md) to verify the fix locally (`green`), merge the PR to `main` (`blue`), and confirm the CodeQL fix (`codeql`).
 
 <details>
-<summary>Having trouble? 🤷</summary>
+<summary>Having trouble?</summary>
 
 - Ask Green to distinguish a business-rule allowlist from database parameter binding.
 - Ask whether user-controlled text can still alter query syntax after the patch.

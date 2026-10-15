@@ -90,7 +90,7 @@ async function main() {
   if (boardConfig.mode !== "board") {
     console.log("The scoreboard is unavailable; the whole game still runs locally.");
   }
-  console.log("You publish each later board phase yourself after its evidence command passes.");
+  console.log("After Purple approves, run npm run workshop -- phase <phase> and confirm to publish each milestone.");
 }
 
 if (require.main === module) {

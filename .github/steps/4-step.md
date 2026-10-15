@@ -3,203 +3,215 @@ title: Deliver and Verify the Correction
 description: "Blue implements the approved patch and the participant confirms the same CodeQL alert is fixed."
 ---
 
-## Step 4: Deliver the correction and confirm fixed
+**Workshop steps:** ✅ [1. Baseline](1-step.md) → ✅ [2. Exposure](2-step.md) → ✅ [3. Correction scope](3-step.md) → 🎯 **4. Delivery** → ⏳ [Review](x-review.md) · Tasks 11–15 of 15
 
-Terminal key: 🖥️ Terminal 1 is for participant shell commands; 🤖 Terminal 2 is
-the Copilot CLI/Squad conversation for prompts. Run shell commands in Terminal 1
-unless a command block names another terminal. 📖 introduces theory, ⌨️ introduces
-activities, and other emoji are visual markers; follow the accompanying text.
+## Step 4: Deliver the correction and confirm fixed (Tasks 11 to 15)
 
-Requires recorded participant approval.
+### At a glance
 
-### 📖 Theory: Local tests and hosted scans answer different questions
+* Current work: Verify the local fix, merge the PR, then confirm the hosted CodeQL alert is fixed.
+* Roles: Blue delivers the approved fix; Purple reviews checkpoints; Red can compare scan results.
+* Terminals: Continue in 🤖 Terminal 2 for Squad. Use 🖥️ Terminal 1 only for commands labeled there.
+>
+### Theory: Why `green` is validated before `blue` (and before `codeql`)
 
-Local checks test behavior. A completed CodeQL analysis describes the pushed
-commit. The original alert must become fixed, not dismissed or missing.
-Neither a successful push nor an empty alert page while a scan is pending
-proves that result.
+Step 4 advances through the final three scoreboard phases in strict order, matching the three environments where a fix must be proven:
 
-There are three separate versions to track: files on disk, the code loaded by
-the running app, and the commit pushed to GitHub. Editing a file does not reload
-an already running Node.js process. Restart before runtime checks, then record
-the corrected delivery SHA after pushing. Do not compare the first alert with
-a scan of an unrelated commit or repository.
+| Sub-stage | Tasks | Scoreboard Phase | What is verified before publishing |
+| --- | --- | --- | --- |
+| **Stage 4A** | Tasks 11 to 12 | 🟢 **`green`** | **Local fix verified:** Blue applies Green's approved patch on `fix/city-search`, restarts the local app, and passes `npm run verify` |
+| **Stage 4B** | Tasks 13 to 14 | 🔵 **`blue`** | **PR merged to `main`:** Blue opens and merges the PR to `main`, updates local `main`, and passes `npm run regressions` |
+| **Stage 4C** | Task 15 | 🛡️ **`codeql`** | **Hosted scan clean:** GitHub CodeQL finishes scanning the merged commit on `main` and shows the original alert `fixed` |
 
-### ⌨️ Activity: Implement, deliver, review
+---
 
-1. Ask Blue to create `fix/city-search` from the delivered
-   `feature/city-search` baseline and apply only Green's approved patch and its
-   agreed tests. This keeps the vulnerable baseline branch unchanged. Continue
-   in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do not start
-   a new conversation. Ask Blue there:
+### Stage 4A: Verify the fix locally and publish Phase 3: `green` (Tasks 11 to 12)
 
-   ```text
-   Blue, create fix/city-search from feature/city-search and apply only Green's
-   exact patch that I approved. Preserve normal search and the other filters.
-   Show the correction diff against feature/city-search and local verification
-   results. Do not commit, push, open a PR or merge until I authorize it.
-   ```
+> **Phase target:** `3. green`, local fix verified
 
-1. Restart the app with `npm run workshop:restart`. Ask Blue to run
-   `npm run verify` against the corrected code. Review the result, then route
-   Blue's applied diff and local evidence to Purple:
+11. **[Task 11] Apply the patch on `fix/city-search`, verify locally, and route to Purple (🤖 Terminal 2 + 🌐 Browser)**
 
-   ```text
-   Squad, route the corrected-code checkpoint to Purple. Include Blue's diff,
-   the restarted-app results, and actual npm run verify output. Pause until I
-   relay Purple's decision. Do not publish a phase or authorize a push.
-   ```
+    * **Action:** Continue in 🤖 Terminal 2, using the Squad conversation opened in Step 1. Do not start a new conversation. Ask **🔵 Blue** to apply the patch on `fix/city-search`, restart the app, run `npm run verify`, and route to **🟣 Purple**:
 
-   Relay Purple's response. If Purple rejects or requests changes, stop and
-   resolve the concern before requesting a new review. After Purple approves,
-   publish `npm run phase -- green` only if the checks pass.
-   Reuse the normal search and the supplied demonstration input: normal search
-   still works, but the demonstration must return no unpublished records.
+    > 🤖 **TERMINAL 2: Squad Conversation (Agent: 🔵 Blue ➔ 🟣 Purple)**
 
-   | Check | Expected corrected behavior |
-   | --- | --- |
-   | `Paris`, then `paris` | The same two public listings |
-   | Unknown or empty city | No listings |
-   | Supplied demonstration input | No listings, not just hidden unpublished rows |
-   | Existing filters, details and partner summary | Previously agreed behavior preserved |
+    ```text
+    Blue, create fix/city-search from feature/city-search and apply only Green's
+    exact patch that I approved. Preserve normal search and the other filters.
 
-   ![Corrected search returns no listings for the supplied demonstration input.](../images/sqli-demo/3-fixed-search.png)
+    Restart the app with `npm run workshop:restart`, run `npm run verify` against
+    the corrected code, and route the corrected-code checkpoint to Purple with
+    your diff against feature/city-search, the restarted-app results, and actual
+    `npm run verify` output. Pause until I relay Purple's decision. Do not
+    publish a phase or push yet.
+    ```
 
-   *✅ Confirm the corrected result after restarting the app.*
+    > 🌐 **BROWSER: Web Interface (<http://localhost:3000>)**
 
-   Ask Blue to separate code review from observed results:
+    * **Action:** Test <http://localhost:3000> in the browser to confirm the injection now returns **0 listings**:
 
-   ```text
-   Blue, show the approved diff you applied and the checks actually run after
-   restarting the app. Compare normal search and the supplied input with the
-   baseline. Report failures or unchecked behavior; do not publish a phase.
-   ```
+    | Check | Expected corrected behavior |
+    | --- | --- |
+    | `Paris`, then `paris` | The same 2 public listings |
+    | `' OR 1=1 --` (demonstration input) | **0 listings** (treated as literal city text) |
 
-1. Review the correction diff against `feature/city-search` and have Blue run
-   the same behavior checks locally. Explicitly authorize Blue to commit the
-   approved correction and tests on `fix/city-search`, push that branch and
-   open a PR targeting `main`. Blue must not push to `feature/city-search` or
-   push directly to `main`.
+    ![Corrected search returns no listings for the supplied demonstration input.](../images/sqli-demo/3-fixed-search.png)
 
-   ```text
-   Blue, I authorize committing only the reviewed correction and agreed tests
-   on fix/city-search, pushing that branch and opening a PR to main. Do not
-   merge until I review the PR and explicitly authorize the merge. Report the
-   PR URL and source commit. Do not claim CodeQL is clean from a PR.
-   ```
+    *✅ Confirm the corrected result after restarting the app.*
 
-1. Review the complete PR diff against `main`. It includes the initial feature
-   as well as its correction because `main` predates city search. Route the
-   complete diff and required checks to Purple, then relay the response:
+12. **[Task 12] Relay Purple's approval, publish Phase 3: `green`, and open the PR to `main` (🤖 Terminal 2)**
 
-   ```text
-   Squad, route the pull-request checkpoint to Purple. Include the complete PR
-   diff against main and required check results. Pause until I relay Purple's
-   decision. Do not merge or publish a phase.
-   ```
+    * **Action:** Relay **🟣 Purple**'s approval to publish `green`, then have **🔵 Blue** push `fix/city-search`, open the PR to `main`, and route the PR checkpoint to **🟣 Purple**:
 
-   If Purple rejects or requests changes, stop and resolve the concern before
-   requesting a new review. After Purple approves and you have reviewed the PR,
-   explicitly authorize the merge. Blue must not merge before your approval:
+    > 🤖 **TERMINAL 2: Squad Conversation (Publish `green`, Open PR & Route to 🟣 Purple)**
 
-   ```text
-   Blue, I reviewed the PR to main and its required checks passed. I explicitly
-   authorize merging this PR. Report the merge commit and confirm it is on
-   origin/main. Do not claim CodeQL is clean from a merge.
-   ```
+    ```text
+    Purple approves the corrected-code checkpoint. I authorize running
+    `npm run workshop -- phase green` now and confirm the prompt to record local fix verification.
 
-1. After the PR merges, update your local `main` and run the delivery regression
-   in 🖥️ Terminal 1. Run each command separately:
+    Then I authorize Blue to commit only the reviewed correction and agreed tests on
+    fix/city-search, push that branch, and open a PR targeting main. Do not merge
+    yet. Then route the pull-request checkpoint to Purple with the PR URL, source
+    commit, complete PR diff against main, and required check results. Pause
+    until I relay Purple's decision.
+    ```
 
-   ```bash
-   git switch main
-   ```
+---
 
-   ```bash
-   git pull --ff-only
-   ```
+### Stage 4B: Merge the PR to `main` and publish Phase 4: `blue` (Tasks 13 to 14)
 
-   ```bash
-   npm run regressions
-   ```
+> **Phase target:** `4. blue`, PR merged to `main`
 
-   Regressions require the corrected PR to be merged to `main`; they are not an
-   initial attack-demonstration step. Route the merge commit and regression
-   results to Purple:
+13. **[Task 13] Relay Purple's PR approval, merge to `main`, and run regressions (🤖 Terminal 2)**
 
-   ```text
-   Squad, route the merged-delivery checkpoint to Purple. Include the merge
-   commit on origin/main and actual npm run regressions result. Pause until I
-   relay Purple's decision. Do not publish a phase.
-   ```
+    * **Action:** Review the PR on GitHub, then relay **🟣 Purple**'s approval so **🔵 Blue** merges the PR, updates local `main`, runs `npm run regressions`, and routes the result to **🟣 Purple**:
 
-   Publish the delivery milestone only after Purple approves and you decide to
-   continue:
+    > 🤖 **TERMINAL 2: Squad Conversation (Merge PR, Run Regressions & Route to 🟣 Purple)**
 
-   ```bash
-   npm run phase -- blue
-   ```
+    ```text
+    Purple approves the pull-request checkpoint, and I reviewed the PR to main
+    with passing checks. I explicitly authorize Blue to merge this PR, update
+    local main (`git switch main` and `git pull --ff-only`), and run
+    `npm run regressions`.
 
-   The `blue` milestone confirms delivery, not hosted CodeQL completion.
+    Then route the merged-delivery checkpoint to Purple with the merge commit on
+    origin/main and actual `npm run regressions` result. Pause until I relay
+    Purple's decision. Do not publish a phase or claim CodeQL is clean from a
+    merge.
+    ```
 
-   `npm run verify` checks local behavior and records correction evidence.
-   `npm run regressions` checks the running app and records delivery evidence
-   tied to the pushed commit. Publishing `green` or `blue` does not complete
-   hosted analysis; you remain responsible for reviewing the result first.
-1. Open the original finding in Security, Code scanning. Keep reporting
-   CodeQL pending until analysis of that exact pushed commit completes.
-1. Inspect `npm run codeql:review -- fixed`. After reading the report, run:
+14. **[Task 14] Relay Purple's approval and publish Phase 4: `blue` (🤖 Terminal 2)**
 
-   ```bash
-   npm run codeql:review -- fixed --reviewed
-   ```
+    * **Action:** Relay **🟣 Purple**'s approval to publish the `blue` delivery milestone:
 
-   Route the final hosted evidence to Purple before publishing `codeql`:
+    > 🤖 **TERMINAL 2: Squad Conversation (Relay 🟣 Purple Approval & Publish `blue`)**
 
-   ```text
-   Squad, route the final CodeQL checkpoint to Purple. Include the original
-   alert state, corrected commit, and successful analysis results for that
-   commit. Pause until I relay Purple's decision. Do not publish a phase or
-   claim clean while any analysis is pending or failed.
-   ```
+    ```text
+    Purple approves the merged-delivery checkpoint. I authorize running
+    `npm run workshop -- phase blue` now and confirm the prompt to record delivery on main, then stop while we
+    check the hosted CodeQL analysis.
+    ```
 
-   Publish `codeql` only if the evidence is complete, Purple approves, and you
-   choose to continue:
+---
 
-   ```bash
-   npm run phase -- codeql
-   ```
+### Stage 4C: Confirm hosted CodeQL scan and publish Phase 5: `codeql` (Task 15)
 
-   Before confirming the report, you can ask Red for an independent explanation:
+> **Phase target:** `5. codeql`, hosted scan clean
 
-   ```text
-   Red, compare the initial finding with the final CodeQL report. Does the
-   same alert show fixed on my corrected SHA? Separate that evidence from
-   passing local checks. If analysis is pending or failed, state what remains
-   unverified. Do not dismiss the alert or change scan settings.
-   ```
+15. **[Task 15] Review the fixed CodeQL alert on `main` and publish Phase 5: `codeql` (🌐 Browser + 🤖 Terminal 2)**
 
-CodeQL clean is recorded only after the original finding is fixed and the
-successful current analyses report no remaining findings. The final publisher
-rechecks GitHub evidence rather than relying on an old receipt. Board updates
-are best effort; local evidence is retained if the board is offline.
+    > 🌐 **BROWSER: GitHub Repository (`Security > Code scanning`)**
 
-### Checkpoint: Local correction is not hosted confirmation
+    * **Action:** Check **Security > Code scanning** on GitHub until the analysis on `main` completes and shows the original alert **fixed**.
 
-| Result you have | Claim you can make |
-| --- | --- |
-| Passing local verification | The tested behavior is corrected in the running app |
-| Passing regressions and corrected commit on `main` | The correction is delivered, with CodeQL still pending if unconfirmed |
-| Same alert fixed and successful exact-commit analyses clean | CodeQL confirmation is available for the corrected delivery |
+    > 🤖 **TERMINAL 2: Squad Conversation (Inspect `fixed` Report & Route to 🟣 Purple)**
 
-Passing checks support specific claims, not "the whole app is secure". Retain
-the initial SHA, corrected SHA and original alert URL. They tell you what was
-delivered, what was reviewed, and which finding the final result resolves.
+    ```text
+    Squad, run `npm run codeql:review -- fixed` and have Red compare the initial
+    finding with the final CodeQL report on my corrected main SHA.
 
-Continue to the [Review](x-review.md).
+    If analysis is complete and the same alert shows fixed with zero results,
+    route the final CodeQL checkpoint to Purple with the original alert state,
+    corrected commit, and successful analysis results. If analysis is still
+    pending or failed, state what remains unverified and stop without routing
+    approval. Do not publish a phase yet.
+    ```
+
+    * **Action:** Once the scan is complete and **🟣 Purple** approves, paste this final prompt:
+
+    > 🤖 **TERMINAL 2: Squad Conversation (Relay 🟣 Purple Approval & Publish `codeql`)**
+
+    ```text
+    Purple approves the final CodeQL checkpoint. I have confirmed the original
+    alert is fixed on the merged main commit. I authorize running
+    `npm run codeql:review -- fixed --reviewed` and `npm run workshop -- phase codeql`
+    now to complete the workshop.
+    ```
+
+    <details>
+    <summary>🖥️ Manual fallback commands (if you prefer running delivery regression in 🖥️ Terminal 1)</summary>
+
+     Run the commands in order. Stop if one fails, and wait for Purple's approval
+     wherever a checkpoint is specified.
+
+     1. Restart the app, then verify the local fix:
+
+         ```bash
+         npm run workshop:restart
+         ```
+
+         ```bash
+         npm run verify
+         ```
+
+     2. After Purple approves the corrected-code checkpoint, publish `green` and
+         confirm the prompt:
+
+         ```bash
+         npm run workshop -- phase green
+         ```
+
+     3. After the PR is merged, update local `main` and run regressions in order.
+         Stop if any command fails:
+
+         ```bash
+         git switch main &&
+         git pull --ff-only &&
+         npm run regressions
+         ```
+
+     4. After Purple approves the merged-delivery checkpoint, publish `blue` and
+         confirm the prompt:
+
+         ```bash
+         npm run workshop -- phase blue
+         ```
+
+     5. After CodeQL confirms the alert is fixed and Purple approves, record your
+         attestation, then publish `codeql`:
+
+         ```bash
+         npm run codeql:review -- fixed --reviewed
+         ```
+
+         ```bash
+         npm run workshop -- phase codeql
+         ```
+
+    </details>
+
+---
+
+### ✅ Checkpoint: All 5 phases complete
+
+- [ ] **Phase 3 (`green`):** Local app restarted and `npm run verify` passed on `fix/city-search`.
+- [ ] **Phase 4 (`blue`):** Pull request merged to `main` and `npm run regressions` passed.
+- [ ] **Phase 5 (`codeql`):** GitHub CodeQL analysis on `main` confirmed the original alert is **fixed** with zero remaining findings (`WORKSHOP COMPLETE`).
+
+**Next step:** Continue to the [Review](x-review.md).
 
 <details>
-<summary>Having trouble? 🤷</summary>
+<summary>Having trouble?</summary>
 
 - If verification differs from the diff, confirm the app restarted from the corrected code.
 - If the PR is not merged, ask Blue to show its source branch, target branch,
