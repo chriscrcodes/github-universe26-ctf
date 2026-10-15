@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm
+FROM mcr.microsoft.com/devcontainers/javascript-node:24-bookworm
 
 RUN npm install --global --no-audit --no-fund \
     @bradygaster/squad-cli@1.0.0 \
