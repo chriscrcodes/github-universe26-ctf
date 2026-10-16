@@ -37,9 +37,11 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
   const review = stage === "baseline"
     ? baselineAttestation(context)
     : await collect(context, stage, state.evidence.purple);
-  if (JSON.stringify(getContext(stage)) !== JSON.stringify(context)) throw new Error(`Remote ${stage === "baseline" ? "feature/city-search" : "main"} changed during review; retry.`);
+  if (JSON.stringify(getContext(stage)) !== JSON.stringify(context)) {
+    throw new Error(`Remote ${context.ref.slice("refs/heads/".length)} changed during review; retry.`);
+  }
   if (stage === "fixed" && (!state.evidence.blue?.pushed || state.evidence.blue.commit !== context.commit)) {
-    throw new Error("Final CodeQL evidence must match the corrected commit pushed on main.");
+    throw new Error("Final CodeQL evidence must match the corrected commit pushed on fix/city-search.");
   }
   console.log(`CodeQL ${stage}: ${review.url}`);
   if (stage === "baseline") {

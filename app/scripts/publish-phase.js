@@ -52,15 +52,16 @@ function validatePhaseGate(state, phase) {
     return "Missing participant approval for parameter binding.";
   }
   if (phase === "blue" && state.evidence.blue?.pushed !== true) {
-    return "Blue evidence must be tied to a correction pushed on main.";
+    return "Blue evidence must be tied to a correction pushed on fix/city-search.";
   }
-  if (phase === "blue" && (state.evidence.blue.ref !== "refs/heads/main" || state.evidence.blue.branch !== "main")) {
-    return "Blue correction evidence must come from main.";
+  if (phase === "blue" && (state.evidence.blue.ref !== "refs/heads/fix/city-search"
+    || state.evidence.blue.branch !== "fix/city-search")) {
+    return "Blue correction evidence must come from fix/city-search.";
   }
   if (phase === "codeql" && (state.evidence.codeql.kind !== "codeql-fixed"
     || state.evidence.codeql.reviewedBy !== "participant" || state.evidence.codeql.alertState !== "fixed"
     || state.evidence.codeql.resultCount !== 0 || state.evidence.codeql.commit !== state.evidence.blue?.commit
-    || state.evidence.codeql.ref !== "refs/heads/main"
+    || state.evidence.codeql.ref !== "refs/heads/fix/city-search"
     || state.evidence.codeql.repository !== state.evidence.purple?.repository
     || state.evidence.codeql.alertNumber !== state.evidence.purple?.alertNumber)) {
     return "Final completion requires the same CodeQL finding fixed on the corrected delivery commit.";

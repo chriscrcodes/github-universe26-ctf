@@ -39,7 +39,7 @@ async function main() {
   recordEvidence("blue", {
     command: "npm run regressions",
     cases: ["Paris (case-insensitive)", "unknown city", "empty city", "canonical payload", "publication boundary"],
-    branch: "main",
+    branch: "fix/city-search",
     repository,
     ref,
     commit,

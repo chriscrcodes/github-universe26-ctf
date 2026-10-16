@@ -25,11 +25,13 @@ history. The contracts in `workshop/squad/contracts/` define agent roles; they
 do not create a roster. Other agents or agent directories cause adoption to
 stop without changing `.squad/`.
 
-Green integrates the supplied synthetic baseline on `feature/city-search`,
-then proposes the exact correction but does not edit or push it. Red reviews
-security evidence without changing code or automating exploitation. Blue applies
-the approved correction and delivers it through a participant-reviewed PR to
-`main`.
+Blue integrates the supplied synthetic baseline on `feature/city-search` and
+delivers it after participant authorization. Green later proposes the exact
+correction but does not edit or push it. Red reviews security evidence without
+changing code or automating exploitation. Blue applies the approved correction
+and delivers it through a participant-reviewed PR to `main`. Keep that PR open
+through the regression and CodeQL checks on `fix/city-search`; do not merge as
+part of end-to-end validation.
 Built-in support agents help with coordination; they do not replace participant
 review or approval.
 

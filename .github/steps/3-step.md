@@ -81,7 +81,7 @@ description: "Ask Green for a minimal correction and choose the approved scope."
 - [ ] **🟣 Purple** approved the correction scope.
 - [ ] **`APPROVED: parameter binding may be applied by Blue.`** appears in the output.
 
-**Next step:** Continue to [Step 4](4-step.md) to verify the fix locally (`green`), merge the PR to `main` (`blue`), and confirm the CodeQL fix (`codeql`).
+**Next step:** Continue to [Step 4](4-step.md) to verify the fix locally (`green`), validate `fix/city-search` without merging the PR (`blue`), and confirm the CodeQL fix on that branch (`codeql`).
 
 <details>
 <summary>Having trouble?</summary>

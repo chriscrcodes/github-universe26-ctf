@@ -4,7 +4,7 @@ const { collectCodeqlEvidence, githubApi, repositoryContext } = require("../src/
 const { main } = require("../scripts/codeql-review");
 
 const baselineContext = { repository: "participant/workshop", ref: "refs/heads/feature/city-search", commit: "a".repeat(40) };
-const fixedContext = { repository: baselineContext.repository, ref: "refs/heads/main", commit: "b".repeat(40) };
+const fixedContext = { repository: baselineContext.repository, ref: "refs/heads/fix/city-search", commit: "b".repeat(40) };
 const category = "github-default-javascript";
 
 function fixtures({ ref = baselineContext.ref, state = "open", commit = baselineContext.commit, results = 1, error = "",
@@ -103,7 +103,7 @@ test("fixed review recovers the baseline alert from the attested feature commit"
   assert.equal(review.resultCount, 0);
 });
 
-test("repository review enforces the feature baseline and main correction branches", () => {
+test("repository review enforces the feature baseline and dedicated correction branches", () => {
   const makeRun = (context, branchName) => (_command, args) => {
     if (args[0] === "remote") return "https://github.com/participant/workshop.git";
     if (args[0] === "repo") return JSON.stringify({ nameWithOwner: context.repository });
@@ -114,11 +114,11 @@ test("repository review enforces the feature baseline and main correction branch
     throw new Error("Unexpected command");
   };
   const featureRun = makeRun(baselineContext, "feature/city-search");
-  const mainRun = makeRun(fixedContext, "main");
+  const correctionRun = makeRun(fixedContext, "fix/city-search");
   assert.deepEqual(repositoryContext("baseline", featureRun), baselineContext);
-  assert.deepEqual(repositoryContext("fixed", mainRun), fixedContext);
+  assert.deepEqual(repositoryContext("fixed", correctionRun), fixedContext);
   assert.throws(() => repositoryContext("baseline", makeRun(baselineContext, "main")), /origin\/feature\/city-search/);
-  assert.throws(() => repositoryContext("fixed", makeRun(fixedContext, "feature/city-search")), /origin\/main/);
+  assert.throws(() => repositoryContext("fixed", makeRun(fixedContext, "main")), /origin\/fix\/city-search/);
   assert.throws(() => repositoryContext("baseline", (command, args) => args[0] === "ls-remote" ? "" : featureRun(command, args)), /pushed/);
   assert.throws(() => repositoryContext("baseline", (command, args) => args[0] === "status" ? " M app/src/hotels.js" : featureRun(command, args)), /Commit and push/);
 });

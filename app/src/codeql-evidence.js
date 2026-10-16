@@ -2,7 +2,7 @@ const { execFileSync } = require("node:child_process");
 
 const REFS = Object.freeze({
   baseline: "refs/heads/feature/city-search",
-  fixed: "refs/heads/main",
+  fixed: "refs/heads/fix/city-search",
 });
 
 function execute(command, args) {
@@ -107,7 +107,7 @@ async function collectCodeqlEvidence(context, stage, initial, api = githubApi) {
     if (!alert || alert.state !== "fixed") throw new Error("The initial finding must be fixed, not dismissed or missing.");
     if (analyses.length !== latestByCategory.size || analyses.some((entry) => entry.results_count !== 0)
       || alerts.some((entry) => entry.tool?.name === "CodeQL" && entry.state === "open")) {
-      throw new Error("CodeQL still reports findings on main; no clean evidence recorded.");
+      throw new Error("CodeQL still reports findings on fix/city-search; no clean evidence recorded.");
     }
   }
   return { ...context, kind: `codeql-${stage}`, category: analysis.category, analysisId: analysis.id,

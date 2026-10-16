@@ -52,6 +52,16 @@ test("operator artifacts do not ship in the participant repository", async () =>
   }
 });
 
+test("CodeQL push analysis targets the baseline and dedicated correction branches", async () => {
+  const workflow = await readFile(path.join(root, ".github/workflows/codeql.yml"), "utf8");
+  const push = workflow.match(/^  push:\n([\s\S]*?)(?=^  pull_request:)/m)?.[1];
+  assert.ok(push, "CodeQL workflow has a push trigger");
+  assert.match(push, /- feature\/city-search/);
+  assert.match(push, /- fix\/city-search/);
+  assert.doesNotMatch(push, /^\s+- main$/m);
+  assert.match(workflow, /pull_request:\n\s+branches:\n\s+- main/);
+});
+
 test("participant pages have metadata and workshop documents have valid blocks and links", async () => {
   for (const file of workshopDocumentation) {
     const content = await readFile(path.join(root, file), "utf8");
@@ -122,7 +132,7 @@ test("workshop steps link forward and use available commands at the appropriate 
     if (index === 0) {
       assert.match(content, /copilot --agent squad --yolo/);
       assert.match(content, /run these steps in order\. Wait for each command to finish/i);
-      assert.match(content, /Load the baseline:[\s\S]*supplied city-search baseline/i);
+      assert.match(content, /Blue, integrate the supplied city-search prototype[\s\S]*npm run workshop:baseline/i);
       assert.match(content, /`red` means the baseline is ready for Red to review/i);
       assert.doesNotMatch(content, /vulnerable prototype/i);
       assert.doesNotMatch(content, /' OR 1=1 --/);
@@ -149,8 +159,9 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /Roster approval.*❯ Yes, hire this team/s);
       const rosterPrompt = content.match(/Squad, create my team:\n([\s\S]*?)\n\s*```/)?.[1];
       assert.ok(rosterPrompt, "Step 1 includes the roster prompt");
-      assert.match(rosterPrompt, /Blue: implements participant-approved changes and delivers them through a\s+reviewed pull request/i);
-      assert.match(rosterPrompt, /Red: read-only security reviewer\.\s+Green: implements assigned features and advises on remediation/i);
+      assert.match(rosterPrompt, /Blue: integrates the explicitly authorized supplied prototype, then\s+implements participant-approved corrections and delivers them through a\s+reviewed pull request/i);
+      assert.match(rosterPrompt, /Blue: integrates the explicitly authorized supplied prototype[\s\S]*reviewed pull request/i);
+      assert.match(rosterPrompt, /Red: read-only security reviewer\.\s+Green: analyzes security findings and advises on remediation without editing/i);
       assert.match(rosterPrompt, /Purple: human workshop validation reviewer[\s\S]*human roster\s+member with no agent charter or history/i);
       assert.doesNotMatch(rosterPrompt, /city search|hotel|feature\/|main|branch/i);
       assert.match(content, /Include the default built-ins support squad members; no @copilot\s+or other AI specialists/i);
@@ -167,6 +178,8 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /Squad : show me team members and roles/);
       assert.doesNotMatch(content, /Then add Purple as a human/);
       assert.match(content, /route the Step 1 checkpoint to Purple/);
+      assert.match(content, /\*\*Blue\*\* integrates and delivers the initial prototype/);
+      assert.doesNotMatch(content, /Green delivers the initial prototype|Ask \*\*🟢 Green\*\* to review the baseline/i);
       assert.doesNotMatch(content, /which language the app uses, answer `node app`/i);
       const initSkill = await readFile(path.join(root, ".github/skills/coordinator-init-mode/SKILL.md"), "utf8");
       assert.match(initSkill, /Complete-roster fast path/);
@@ -182,7 +195,6 @@ test("workshop steps link forward and use available commands at the appropriate 
         "squad doctor",
         "copilot --agent squad --yolo",
         "npm run workshop:start",
-        "npm run workshop:baseline",
         "npm run workshop:restart",
         "npm run delivery",
         "npm run phase -- red",
@@ -209,11 +221,14 @@ test("workshop steps link forward and use available commands at the appropriate 
       assert.match(content, /delivery regression\s+in 🖥️ Terminal 1/);
       assert.match(content, /route the corrected-code checkpoint to Purple/);
       assert.match(content, /route the pull-request checkpoint to Purple/);
-      assert.match(content, /route the merged-delivery checkpoint to Purple/);
+      assert.match(content, /route the corrected-branch checkpoint to Purple/);
       assert.match(content, /route the final CodeQL checkpoint to Purple/);
+      assert.match(content, /CodeQL.*fix\/city-search/);
+      assert.doesNotMatch(content, /merge the PR to `main`|analysis on `main`|merged commit on `main`/i);
     }
   }
   const review = await readFile(path.join(root, ".github/steps/x-review.md"), "utf8");
+  assert.match(review, /Blue delivered the supplied initial prototype; Green analyzed the finding/);
   assert.doesNotMatch(review, /\?/);
   assert.match(review, /Security lessons/);
   assert.match(review, /Evidence trail/);

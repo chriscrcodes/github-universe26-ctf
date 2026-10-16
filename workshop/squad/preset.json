@@ -8,7 +8,7 @@
     {
       "slug": "blue",
       "name": "Blue",
-      "role": "Approved correction implementer and PR-to-main publisher",
+      "role": "Initial feature and approved correction implementer; PR-to-main publisher",
       "universe": "descriptive"
     },
     {
@@ -20,7 +20,7 @@
     {
       "slug": "green",
       "name": "Green",
-      "role": "Initial feature developer and feature branch publisher",
+      "role": "Security advisor and correction proposer",
       "universe": "descriptive"
     },
     {

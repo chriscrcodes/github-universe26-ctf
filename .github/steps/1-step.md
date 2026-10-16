@@ -10,24 +10,24 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 ### At a glance
 
 * Current phase: `1. red`, initial delivery
-* Roles: Green delivers; Purple reviews checkpoints
+* Roles: Blue delivers; Purple reviews checkpoints
    * Publish after delivery checks: `npm run phase -- red`
 * Terminals: 🖥️ Terminal 1 for setup and the app; 🤖 Terminal 2 for Squad and prompts. Use the browser for the app and GitHub checks. Follow each command's terminal label.
 
 ### Theory: Separate responsibilities and phase order
 
-* **Who does what:** **Green** delivers the initial prototype on `feature/city-search` and later proposes the fix; **Red** reviews security exposure; **Blue** applies the approved fix and merges a PR to `main`; **Purple** (human reviewer) validates every checkpoint before you authorize a phase.
+* **Who does what:** **Blue** integrates and delivers the initial prototype on `feature/city-search`, then applies the approved fix and validates it on `fix/city-search` before opening a PR to `main`; **Green** analyzes the finding and proposes the fix; **Red** reviews security exposure; **Purple** (human reviewer) validates every checkpoint before you authorize a phase.
 * **Synthetic data only:** Public listings use real hotel names with synthetic prices, dates, and challenge records. Never use customer, participant, or production data.
 * **Agent names vs. Scoreboard phases:** The scoreboard tracks **5 milestones** in chronological order (`red` ➔ `purple` ➔ `green` ➔ `blue` ➔ `codeql`):
 
 | Step | Tasks | Active Specialist | What happens | Scoreboard Phase Published |
 | --- | --- | --- | --- | --- |
-| **Step 1** | Tasks 01 to 05 | 🟢 **Green** | Deliver prototype to `feature/city-search` and run `npm run delivery` | 🔴 `red` *(initial challenge surface live)* |
+| **Step 1** | Tasks 01 to 05 | 🔵 **Blue** | Deliver prototype to `feature/city-search` and run `npm run delivery` | 🔴 `red` *(initial challenge surface live)* |
 | **Step 2** | Tasks 06 to 08 | 🔴 **Red** | Explain the SQL injection flow and attest to baseline review | 🟣 `purple` *(exposure explained and attested)* |
 | **Step 3** | Tasks 09 to 10 | 🟢 **Green** | Propose parameter-binding diff and record `npm run approve -- parameter-binding` | *(Scope approved for Blue)* |
 | **Step 4A** | Tasks 11 to 12 | 🔵 **Blue** | Apply patch on `fix/city-search` and pass local `npm run verify` | 🟢 `green` *(local fix verified before PR)* |
-| **Step 4B** | Tasks 13 to 14 | 🔵 **Blue** | Open and merge PR to `main`, then pass `npm run regressions` | 🔵 `blue` *(fix merged and delivered on `main`)* |
-| **Step 4C** | Task 15 | 🔴 **Red** / 🔵 **Blue** | Confirm GitHub CodeQL alert is fixed on `main` | 🛡️ `codeql` *(hosted scan clean)* |
+| **Step 4B** | Tasks 13 to 14 | 🔵 **Blue** | Pass `npm run regressions` on `fix/city-search` and review the PR to `main` without merging | 🔵 `blue` *(corrected branch validated)* |
+| **Step 4C** | Task 15 | 🔴 **Red** / 🔵 **Blue** | Confirm GitHub CodeQL alert is fixed on `fix/city-search` | 🛡️ `codeql` *(hosted scan clean)* |
 
 ### Activity: Recruit, then deliver (Tasks 01 to 05)
 
@@ -77,10 +77,11 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
    ```text
    Squad, create my team:
    Project: GitHub Universe workshop.
-    Blue: implements participant-approved changes and delivers them through a
-    reviewed pull request.
+   Blue: integrates the explicitly authorized supplied prototype, then
+   implements participant-approved corrections and delivers them through a
+   reviewed pull request.
     Red: read-only security reviewer.
-    Green: implements assigned features and advises on remediation.
+   Green: analyzes security findings and advises on remediation without editing.
     Purple: human workshop validation reviewer. Add Purple as a human roster
     member with no agent charter or history; review each workshop checkpoint.
 
@@ -103,7 +104,7 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
    * **Required confirmation:** At the `Roster approval` prompt, select **`❯ Yes, hire this team`** and wait until `.squad/team.md` is created. *(Optional check: `Squad : show me team members and roles`.)*
 
-3. **[Task 03] Start the app, install the baseline, and verify in the browser (🖥️ Terminal 1 + 🌐 Browser)**
+3. **[Task 03] Start the app and confirm search is missing (🖥️ Terminal 1 + 🌐 Browser)**
 
    * **Action:** In 🖥️ Terminal 1, run these steps in order. Wait for each command to finish before starting the next.
 
@@ -119,28 +120,34 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 
        *Before the baseline is installed, city search is not implemented.*
 
-   2. **Load the baseline:** Integrate the supplied city-search baseline into `app/src/hotels.js`.
-
-      ```bash
-      npm run workshop:baseline
-      ```
-
-   3. **Reload the app:** Restart it so it uses the integrated baseline.
-
-      ```bash
-      npm run workshop:restart
-      ```
-
    > [!TIP]
-   > **You are now done with 🖥️ Terminal 1!** Leave it running in the background. For **Tasks 04 to 15**, you will work exclusively in **🤖 Terminal 2 (Squad)** and **🌐 Browser**.
+   > Blue integrates the supplied baseline in Task 04. Keep Terminal 1 available to restart the app after Blue finishes.
 
    > 🌐 **BROWSER: Web Interface (<http://localhost:3000>)**
 
-   * **Action:** Open <http://localhost:3000> and test normal city searches:
+   * **Action:** Open <http://localhost:3000> and confirm that city search is not available yet, as shown above.
 
-   ![Normal Paris search showing two hotel stays in the workshop web interface.](../images/sqli-demo/1-normal-search.png)
+4. **[Task 04] Deliver `feature/city-search` with Blue and route to Purple (🤖 Terminal 2)**
 
-   *Record the count shown in the browser as your normal-search baseline.*
+   * **Action:** Ask **🔵 Blue** to integrate only the supplied prototype. Do not authorize a commit or push yet:
+
+   > 🤖 **TERMINAL 2: Squad Conversation (Blue Integrates the Feature)**
+
+   ```text
+   Blue, integrate the supplied city-search prototype into app/src/hotels.js by
+   running `npm run workshop:baseline`. Do not change other code, commit or push.
+   Stop after reporting the diff and the files changed.
+   ```
+
+   * **Action:** After Blue reports integration, restart the app in 🖥️ Terminal 1:
+
+   > 🖥️ **TERMINAL 1: Participant Shell (`bash`)**
+
+   ```bash
+   npm run workshop:restart
+   ```
+
+   * **Action:** In 🌐 Browser, verify ordinary city searches and record the counts:
 
    | City search | Listings returned |
    | --- | --- |
@@ -149,17 +156,17 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
    | An unknown city | 0 |
    | Empty search | 0 |
 
-4. **[Task 04] Deliver `feature/city-search` with Green and route to Purple (🤖 Terminal 2)**
+   ![Normal Paris search showing two hotel stays in the workshop web interface.](../images/sqli-demo/1-normal-search.png)
 
-   * **Action:** Ask **🟢 Green** to review the baseline diff, push `feature/city-search`, run `npm run delivery`, and route the checkpoint to **🟣 Purple**:
+   *Record the counts shown in the browser as your normal-search baseline.*
 
-   > 🤖 **TERMINAL 2: Squad Conversation (Agent: 🟢 Green ➔ 🟣 Purple)**
+   * **Action:** Review the diff and browser counts, then ask Blue to deliver the feature. Authorize the push only after your review:
+
+   > 🤖 **TERMINAL 2: Squad Conversation (Agent: 🔵 Blue ➔ 🟣 Purple)**
 
    ```text
-   Green, review the deterministic baseline in app/src/hotels.js against
-   app/data/city-search-prototype.txt without editing it. Explain the changed
-   data flow and confirm that only the supplied synthetic challenge function
-   changed.
+   Blue, explain the changed data flow and confirm that only the supplied
+   synthetic challenge function changed.
 
    I have verified the diff and normal-search counts in the browser
    (Paris=2, paris=2, unknown=0, empty=0), so I authorize committing only the
@@ -204,7 +211,7 @@ description: "Create your Squad team, integrate the supplied prototype, and veri
 ### ✅ Checkpoint: Phase 1 (`red`) Complete
 
 - [ ] Normal search returns **2 listings** for `Paris` / `paris` and **0** for unknown/empty cities.
-- [ ] **🟢 Green** pushed `feature/city-search` and `npm run delivery` passed.
+- [ ] **🔵 Blue** pushed `feature/city-search` and `npm run delivery` passed.
 - [ ] **🟣 Purple** approved the checkpoint and **`Phase red recorded`** appears in the output. *(Note: `red` means the baseline is ready for Red to review.)*
 
 **Next step:** Continue to [Step 2](2-step.md).

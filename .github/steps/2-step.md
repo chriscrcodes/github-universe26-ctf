@@ -117,7 +117,7 @@ description: "Explain the delivered code and attest to reviewing the exact commi
 
 - [ ] You observed the **24 stays (including 4 `UNPUBLISHED`)** returned by `' OR 1=1 --`.
 - [ ] **🔴 Red** traced the **Source ➔ Flow ➔ Sink** in `app/src/hotels.js` (and labeled CodeQL `pending` if still running).
-- [ ] **🟣 Purple** approved the checkpoint and **`Phase purple recorded`** appears in the output. *(Note: The final `codeql` milestone still requires a real successful scan on `main` in Step 4C.)*
+- [ ] **🟣 Purple** approved the checkpoint and **`Phase purple recorded`** appears in the output. *(Note: The final `codeql` milestone still requires a real successful scan on `fix/city-search` in Step 4C.)*
 
 **Next step:** Continue to [Step 3](3-step.md).
 

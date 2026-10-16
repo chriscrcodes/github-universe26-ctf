@@ -27,7 +27,7 @@ value rather than becoming part of SQL syntax.
 | `red` | The supplied challenge delivery and its observed behavior against synthetic data |
 | `purple` | Participant attestation for the exact delivered commit; this alone does not prove a hosted scan completed |
 | `green` | Local verification of the approved correction and preserved search behavior |
-| `blue` | The correction merged to `main` and its delivery regression results |
+| `blue` | The pushed `fix/city-search` correction and its delivery regression results; the PR remains unmerged |
 | `codeql` | The original finding is fixed on the corrected commit and successful hosted analyses confirm the result |
 
 An agent's summary is not a substitute for the diff, command output, commit, or
@@ -36,7 +36,7 @@ or an absent initial finding must not be reported as a confirmed clean result.
 
 ### Workshop responsibilities
 
-* Green delivered the supplied initial prototype and proposed the correction.
+* Blue delivered the supplied initial prototype; Green analyzed the finding and proposed the correction.
 * Red reviewed security evidence without changing the application.
 * Blue applied the participant-approved correction and delivered it through a PR.
 * Purple reviewed checkpoints as the human validation reviewer.
