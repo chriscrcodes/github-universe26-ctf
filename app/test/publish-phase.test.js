@@ -128,8 +128,8 @@ test("initial delivery cannot advance without the exact synthetic exposure recei
 test("final completion requires fixed evidence matching delivery and the initial alert", () => {
   const workshopState = state({ completedPhases: ["started", "red", "purple", "green", "blue"],
     evidence: { purple: { repository: "participant/workshop", alertNumber: 7 },
-      blue: { branch: "main", ref: "refs/heads/main", commit: "b".repeat(40), pushed: true },
-      codeql: { kind: "codeql-fixed", reviewedBy: "participant", ref: "refs/heads/main", repository: "participant/workshop",
+      blue: { branch: "fix/city-search", ref: "refs/heads/fix/city-search", commit: "b".repeat(40), pushed: true },
+      codeql: { kind: "codeql-fixed", reviewedBy: "participant", ref: "refs/heads/fix/city-search", repository: "participant/workshop",
         alertNumber: 7, alertState: "fixed", commit: "b".repeat(40), resultCount: 0 } } });
   assert.equal(validatePhaseGate(workshopState, "codeql"), null);
   for (const change of [{ alertState: "dismissed" }, { resultCount: 1 }, { commit: "a".repeat(40) }, { alertNumber: 8 }]) {
@@ -138,14 +138,14 @@ test("final completion requires fixed evidence matching delivery and the initial
   }
 });
 
-test("blue phase requires evidence tied to a pushed commit on main", () => {
+test("blue phase requires evidence tied to a pushed commit on fix/city-search", () => {
   const workshopState = state({
     completedPhases: ["started", "red", "purple", "green"],
     evidence: { blue: { recordedAt: "now", pushed: false } },
   });
-  assert.match(validatePhaseGate(workshopState, "blue"), /pushed on main/);
-  workshopState.evidence.blue = { branch: "feature/city-search", ref: "refs/heads/feature/city-search", pushed: true };
-  assert.match(validatePhaseGate(workshopState, "blue"), /main/);
+  assert.match(validatePhaseGate(workshopState, "blue"), /pushed on fix\/city-search/);
+  workshopState.evidence.blue = { branch: "main", ref: "refs/heads/main", pushed: true };
+  assert.match(validatePhaseGate(workshopState, "blue"), /fix\/city-search/);
 });
 
 test("participant final publisher emits the authenticated CodeQL receipt without owning the board", async () => {

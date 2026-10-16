@@ -101,12 +101,12 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
     'utf8',
   );
   assert.match(green, /Produce the exact minimal parameterized-query patch/);
-  assert.match(green, /push only\s+`feature\/city-search`/i);
+  assert.match(blue, /push only\s+`feature\/city-search`/i);
+  assert.match(blue, /participant reviews the matching CodeQL finding and approves\s+Green's exact patch/i);
   assert.match(green, /does not edit or push the correction/i);
-  assert.match(blue, /participant approves Green's exact\s+patch/i);
   assert.match(blue, /run `npm run verify`/);
   assert.match(blue, /open a pull request targeting\s+`main`/i);
-  assert.match(blue, /explicitly\s+authorizes the merge/i);
+  assert.match(blue, /separately authorizes a merge/i);
   assert.match(red, /Never edit code/);
 
   const team = readFileSync(path.join(participant, '.squad', 'team.md'), 'utf8');

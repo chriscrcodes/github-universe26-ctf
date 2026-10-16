@@ -7,7 +7,7 @@ description: "A GitHub Copilot and Squad hotel-search security workshop with a s
 
 <h2>GitHub Universe CTF: AI Teams, One Codebase</h2>
 
-<p><strong>Green delivers city search, Red reviews the exposure, Purple validates each checkpoint, and you approve Blue's correction through a PR to main.</strong></p>
+<p><strong>Blue delivers the missing city search, Green proposes its correction, Red reviews the exposure, and you approve delivery through a PR to main.</strong></p>
 
 <p>
   <a href="https://githubuniverse.com/"><img src="https://img.shields.io/badge/GitHub%20Universe-2026-181717?logo=github&amp;logoColor=white" alt="GitHub Universe 2026"></a>
@@ -36,7 +36,7 @@ Complete 15 numbered tasks in order:
 1. [Step 1 (Tasks 01 to 05): Discover Squad, recruit your team, and deliver search (Phase `red`)](.github/steps/1-step.md).
 1. [Step 2 (Tasks 06 to 08): Explain the exposure and review the CodeQL finding (Phase `purple`)](.github/steps/2-step.md).
 1. [Step 3 (Tasks 09 to 10): Ask Green for a correction and approve the scope (`parameter-binding`)](.github/steps/3-step.md).
-1. [Step 4 (Tasks 11 to 15): Verify locally (Phase `green`), merge the PR to `main` (Phase `blue`), and confirm CodeQL fixed (Phase `codeql`)](.github/steps/4-step.md).
+1. [Step 4 (Tasks 11 to 15): Verify locally (Phase `green`), validate `fix/city-search` without merging (Phase `blue`), and confirm CodeQL fixed on that branch (Phase `codeql`)](.github/steps/4-step.md).
 
 Use the supplied training baseline. First record normal search behavior, then
 investigate the challenge and restore public-only search with parameter binding.
@@ -67,10 +67,10 @@ conversation; the Copilot coding agent is not a team member.
 
 | Member | Order of Action | Responsibility | Scoreboard Milestones |
 | --- | --- | --- | --- |
-| 🟢 **Green** | Step 1 & Step 3 | Delivers the initial feature to `feature/city-search`, then proposes the minimal parameter-binding patch | Publishes `red` (after Purple approval) and prepares scope for `green` |
+| 🟢 **Green** | Step 3 | Analyzes the CodeQL finding and proposes the minimal parameter-binding patch without editing | Prepares scope for `green` |
 | 🔴 **Red** | Step 2 & Step 4C | Reviews code and CodeQL findings without editing or exploiting | Supports `purple` (baseline review) and `codeql` (fixed scan) |
 | 🟣 **Purple** | All Checkpoints | Human reviewer who validates evidence at each checkpoint; never edits code or runs commands | Validates every checkpoint before you authorize a phase |
-| 🔵 **Blue** | Step 4A & Step 4B | Applies Green's approved patch on `fix/city-search`, verifies locally, and merges a PR to `main` after approval | Publishes `green` (local fix verified) and `blue` (PR merged to `main`) |
+| 🔵 **Blue** | Step 1 & Step 4A & Step 4B | Integrates and delivers the initial feature to `feature/city-search`, then applies Green's approved patch and validates it on `fix/city-search`; opens a PR to `main` but does not merge during validation | Publishes `red` (initial delivery), `green` (local fix verified), and `blue` (corrected branch validated) |
 
 Learn more about the upstream project in the
 [Squad documentation](https://bradygaster.github.io/squad/).

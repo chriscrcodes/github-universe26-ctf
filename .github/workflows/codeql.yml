@@ -4,10 +4,9 @@ on:
   push:
     branches:
       - feature/city-search
-      - main
+      - fix/city-search
   pull_request:
     branches:
-      - feature/city-search
       - main
 
 permissions:
