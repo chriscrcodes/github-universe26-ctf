@@ -138,6 +138,12 @@ function isHumanPurpleRow(row) {
   return cells.includes('Purple');
 }
 
+function ensurePurpleHumanRow(humanRows = []) {
+  return humanRows.some(isHumanPurpleRow)
+    ? humanRows
+    : [...humanRows, '| Purple | Human workshop validation reviewer | | 👤 Human |'];
+}
+
 function buildTeam(projectName, agents, humanRows = []) {
   const rows = agents
     .map(
@@ -314,7 +320,7 @@ function install(root, preset, { adoptRecruited = false } = {}) {
   }
 
   const projectName = path.basename(root);
-  const humanRows = humanRosterRows(squadDir);
+  const humanRows = ensurePurpleHumanRow(humanRosterRows(squadDir));
   if (existingAgents?.purple?.persistent_name === 'Purple'
     && !humanRows.some(isHumanPurpleRow)) {
     humanRows.push('| Purple | Human workshop validation reviewer | | 👤 Human |');

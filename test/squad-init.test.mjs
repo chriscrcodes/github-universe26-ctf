@@ -110,8 +110,10 @@ test('installs the complete workshop roster into an absent .squad', (t) => {
   assert.match(red, /Never edit code/);
 
   const team = readFileSync(path.join(participant, '.squad', 'team.md'), 'utf8');
+  assert.match(team, /\| Purple \| Human workshop validation reviewer \| \| 👤 Human \|/);
   assert.doesNotMatch(team, /Mentor/);
   assert.equal(existsSync(path.join(participant, '.squad', 'agents', 'mentor')), false);
+  assert.equal(existsSync(path.join(participant, '.squad', 'agents', 'purple')), false);
 });
 
 test('is byte-for-byte idempotent for managed participant state', (t) => {
