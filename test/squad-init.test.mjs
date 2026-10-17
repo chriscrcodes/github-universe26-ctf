@@ -391,6 +391,55 @@ test('adoption accepts the provenance registry agents array and preserves recrui
   assert.match(readFileSync(path.join(squad, 'team.md'), 'utf8'), /\| Purple \| Human validation reviewer \| \| 👤 Human \|/);
 });
 
+test('adoption accepts a root-level Squad roster array with a human Purple member', (t) => {
+  const participant = makeParticipant(t);
+  const squad = path.join(participant, '.squad');
+  const roster = [
+    ['Blue', 'Lead', 'active', 'agent'],
+    ['Red', 'Security Reviewer', 'active', 'agent'],
+    ['Green', 'Security Analyst', 'active', 'agent'],
+    ['Purple', 'Human Reviewer', 'human', 'human'],
+    ['Scribe', 'Session Logger', 'active', 'agent'],
+    ['Ralph', 'Work Monitor', 'active', 'agent'],
+    ['Rai', 'RAI Reviewer', 'active', 'agent'],
+    ['Fact Checker', 'Verification & Devil\'s Advocate', 'active', 'agent'],
+  ].map(([persistent_name, role, status, member_type]) => ({
+    persistent_name,
+    role,
+    universe: 'descriptive',
+    created_at: '2026-10-17T06:08:57Z',
+    legacy_named: false,
+    status,
+    member_type,
+  }));
+  mkdirSync(path.join(squad, 'casting'), { recursive: true });
+  for (const slug of ['blue', 'red', 'green', 'scribe', 'ralph', 'rai', 'fact-checker', 'Rai']) {
+    mkdirSync(path.join(squad, 'agents', slug), { recursive: true });
+  }
+  writeFileSync(path.join(squad, 'casting', 'registry.json'), JSON.stringify(roster));
+  writeFileSync(path.join(squad, 'agents', 'blue', 'history.md'), 'Participant learning.\n');
+  writeFileSync(path.join(squad, 'team.md'), [
+    '# Squad Team',
+    '',
+    '## Members',
+    '',
+    '| Name | Role | Charter | Status |',
+    '|------|------|---------|--------|',
+    '| Purple | Human Reviewer | | 👤 Human |',
+    '',
+  ].join('\n'));
+
+  const adopted = runInstaller(participant, ['--adopt-recruited']);
+
+  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(readFileSync(path.join(squad, 'agents', 'blue', 'history.md'), 'utf8'), 'Participant learning.\n');
+  const registry = JSON.parse(readFileSync(path.join(squad, 'casting', 'registry.json'), 'utf8'));
+  assert.equal(registry.agents.blue.persistent_name, 'Blue');
+  assert.equal(registry.agents.rai.persistent_name, 'Rai');
+  assert.equal(registry.agents.purple, undefined);
+  assert.match(readFileSync(path.join(squad, 'team.md'), 'utf8'), /\| Purple \| Human Reviewer \| \| 👤 Human \|/);
+});
+
 test('adoption converts a fileless Purple registry entry to the human roster member', (t) => {
   const participant = makeParticipant(t);
   const squad = path.join(participant, '.squad');
