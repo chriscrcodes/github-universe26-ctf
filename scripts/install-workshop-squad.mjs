@@ -205,7 +205,7 @@ No project-specific learnings recorded.
 
 
 function normalizeRegistryAgents(registry, preset) {
-  const source = registry?.agents;
+  const source = Array.isArray(registry) ? registry : registry?.agents;
   if (Array.isArray(source)) {
     const slugsByName = new Map(preset.agents.map((agent) => [agent.name, agent.slug]));
     slugsByName.set('Purple', 'purple');
@@ -250,7 +250,10 @@ function recruitedTeamConflict(squadDir, preset) {
       if (agents[slug]?.persistent_name !== 'Purple') {
         return 'registry agent "purple" must have persistent_name "Purple"';
       }
-      if (agents[slug]?.status !== 'active') {
+      const isHuman = agents[slug]?.status === 'human'
+        || agents[slug]?.member_type === 'human'
+        || agents[slug]?.is_human === true;
+      if (agents[slug]?.status !== 'active' && !isHuman) {
         return 'registry agent "purple" must have status "active"';
       }
       const purpleDirectory = path.join(squadDir, 'agents', 'purple');
